@@ -188,8 +188,8 @@ Resources:
         - email
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
-      EmailVerificationMessage: "Please verify your email to complete account registration for GameLift Sample Game. Confirmation Code {####}."
-      EmailVerificationSubject: GameLift Sample Game Account Verification
+      EmailVerificationMessage: "Please verify your email to complete account registration for the GameLift Plugin Single-fleet deployment scenario. Confirmation Code {####}."
+      EmailVerificationSubject: GameLift Plugin - Deployment Scenario Account Verification
       Policies:
         PasswordPolicy:
           MinimumLength: 8
