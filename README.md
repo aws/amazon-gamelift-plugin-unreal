@@ -5,13 +5,7 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/total)
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/latest/total)
 
-### Reporting Bugs/Feature Requests
-
-![Open Bugs]()
-![Feature Requests]()
-![Closed Issues]()
-
-Compatible with Unreal Engine 5 (versions 5.0, 5.1, and 5.2)
+Compatible with Unreal Engine 5 (versions 5.0, 5.1, and 5.2).
 
 # Overview
 
