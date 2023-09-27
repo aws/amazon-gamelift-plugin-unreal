@@ -1,0 +1,61 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Amazon GameLift Plugin",
+	"Description": "Integrate your session-based multiplayer game with Amazon GameLift and create a dedicated cloud hosting solution for your game servers.",
+	"Category": "Networking",
+	"CreatedBy": "Amazon, Inc.",
+	"CreatedByURL": "",
+	"DocsURL": "https://docs.aws.amazon.com/gamelift/latest/developerguide/unreal-plugin.html",
+	"SupportURL": "",
+	"EnabledByDefault": true,
+	"Plugins": [
+		{
+			"Name": "WebBrowserWidget",
+			"Enabled": true
+		}
+	],
+	"Modules": [
+		{
+			"Name": "GameLiftClientSDK",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "GameLiftCore",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "GameLiftPlugin",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "GameLiftServerSDK",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		}
+	],
+	"LocalizationTargets": [
+		{
+			"Name": "GameLiftPlugin",
+			"LoadingPolicy": "Always"
+		}
+	],
+	"MarketplaceURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false
+}

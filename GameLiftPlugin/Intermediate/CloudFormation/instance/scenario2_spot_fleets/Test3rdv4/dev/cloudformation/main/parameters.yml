@@ -1,0 +1,40 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+# THIS IS A SAMPLE CLOUDFORMATION PARAMETERS FILE
+GameNameParameter:
+  value: "Test3rdv4"
+LambdaZipS3BucketParameter:
+  value: "do-not-delete-gamelift-dev-euwe2-9cvrqt0n"
+LambdaZipS3KeyParameter:
+  value: "Test3rdv4/functions/main/requests.9879332.zip"
+ApiGatewayStageNameParameter:
+  value: "dev"
+BuildS3BucketParameter:
+  value: "do-not-delete-gamelift-dev-euwe2-9cvrqt0n"
+BuildS3KeyParameter:
+  value: "Test3rdv4/gameServer/main/WindowsServer_HxHbEy6.zip"
+LaunchPathParameter:
+  value: "C:\\game\\Test3rdServer.exe"
+LaunchParametersParameter:
+  value: "-port=7777 -UNATTENDED LOG=server.log"
+BuildNameParameter:
+  value: "Sample GameLift Build for Test3rdv4"
+BuildVersionParameter:
+  value: "1"
+BuildOperatingSystemParameter:
+  value: "WINDOWS_2016"
+BuildServerSdkVersionParameter:
+  value: "5.0.2"
+FleetTcpFromPortParameter:
+  value: "7770"
+FleetTcpToPortParameter:
+  value: "7780"
+FleetUdpFromPortParameter:
+  value: "7770"
+FleetUdpToPortParameter:
+  value: "7780"
+FleetNameParameter:
+  value: "SPOT Fleet"
+
