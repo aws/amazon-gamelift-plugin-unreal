@@ -1,0 +1,11 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+# Key/value pairs to be added to the game's awsGameLiftClientConfig.yml file
+# These values will be replaced at the end of create/update of
+# the feature's CloudFormation stack.
+
+user_pool_client_id: "{{AWSGAMELIFT::CFNOUTPUT::UserPoolClientId}}"
+identity_api_gateway_base_url: "{{AWSGAMELIFT::CFNOUTPUT::ApiGatewayEndpoint}}"
+identity_region: "{{AWSGAMELIFT::CFNOUTPUT::IdentityRegion}}"

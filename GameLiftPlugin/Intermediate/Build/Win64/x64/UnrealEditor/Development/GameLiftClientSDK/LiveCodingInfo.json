@@ -1,0 +1,17 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.GameLiftClientSDK.cpp.obj": [
+			"GameLiftClientSDK.init.gen.cpp.obj",
+			"GameLiftClientSDKModels.gen.cpp.obj",
+			"TestAnywhereMenuWidget.gen.cpp.obj",
+			"TestCloudDeploymentMenuWidget.gen.cpp.obj",
+			"GameLiftClientLog.cpp.obj",
+			"GameLiftClientSDK.cpp.obj",
+			"GameLiftClientSDKModels.cpp.obj",
+			"Serializer.cpp.obj",
+			"TestAnywhereMenuWidget.cpp.obj",
+			"TestCloudDeploymentMenuWidget.cpp.obj"
+		]
+	}
+}

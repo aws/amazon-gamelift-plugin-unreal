@@ -1,0 +1,21 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.GameLiftCore.cpp.obj": [
+			"GameLiftCore.init.gen.cpp.obj",
+			"GameLiftExports.gen.cpp.obj",
+			"GameLiftAnywhereHandler.cpp.obj",
+			"AwsAccountCredentials.cpp.obj",
+			"AwsAccountInfo.cpp.obj",
+			"AwsAccountInstanceManager.cpp.obj",
+			"AWSBootstrapProfile.cpp.obj",
+			"AWSConfigFileProfile.cpp.obj",
+			"Converter.cpp.obj",
+			"AWSScenariosDeployer.cpp.obj",
+			"FGameLiftCoreModule.cpp.obj",
+			"GameLiftCoreLog.cpp.obj",
+			"GameLiftExports.cpp.obj",
+			"WinGameLiftCoreProc.cpp.obj"
+		]
+	}
+}
