@@ -49,26 +49,6 @@ Complete the following steps to install and enable the plugin for your multiplay
             "Enabled": true
         }
         ```
-1. Add the GameLiftServerSDK module.
-    1. In your game project folder, go to the `Source` folder and open the `.Build.cs` file. 
-    1. In the `ModuleRules` class, add “GameLiftServerSDK” to the list of public dependency module names as follows:
-
-        ```cpp
-            public class YourProjectName : ModuleRules
-            {
-                public YourProjectName(TargetInfo Target)
-                {
-                    PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
-                    
-                    if (Target.Type == TargetRules.TargetType.Server)
-                    {
-                        PublicDependencyModuleNames.AddRange(new string[] { "GameLiftServerSDK" });
-                    }
-
-                    bEnableExceptions = true;
-                }
-            }
-        ```
 1. Set your project to use the source-built UE editor. Do this step if your game project was created with a non-source-built version of UE. In your game project folder, select the `.uproject` file and choose the option **Switch Unreal Engine Version**.
 
 1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution. 
