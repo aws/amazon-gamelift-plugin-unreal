@@ -5,11 +5,11 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/total)
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/latest/total)
 
-Compatible with Unreal Engine 5 (versions 5.0, 5.1, and 5.2).
+Compatible with Unreal Engine 5 (versions 5.0, 5.1, 5.2 and 5.3).
 
 # Overview
 
-Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1 and 5.2, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift. 
+Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1, 5.2 and 5.3, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift. 
 
 You can use the following built-in templates to deploy your game for some of the common scenarios. 
 * Single-region fleet: Deploy your game server to one fleet in a single AWS Region. Use this scenario to experiment with your install scripts and runtime deployment, as well as your integration.
@@ -27,8 +27,8 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 * Amazon GameLift plugin for Unreal download package. Download a zip file from [Amazon GameLift Getting Started](https://aws.amazon.com/gamelift/getting-started/). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal)
 * Microsoft Visual Studio 2019 or newer.
 * A source-built version of the Unreal Engine editor. Required to develop server build components for a multiplayer game. See the Unreal Engine documentation: 
-    *  [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
-    * [Building Unreal Engine from Source](https://docs.unrealengine.com/5.1/building-unreal-engine-from-source/) 
+    * [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
+    * [Building Unreal Engine from Source](https://docs.unrealengine.com/5.3/en-US/building-unreal-engine-from-source/) 
 * (Optional) A C++ multiplayer game project with game code. Projects that use Blueprints only are not compatible with this plugin, at this time.
 * An AWS account with access permissions to use AWS GameLift. See [Set up programmatic access](https://docs.aws.amazon.com/gamelift/latest/developerguide/setting-up-aws-login.html) with long-term credentials.
 
