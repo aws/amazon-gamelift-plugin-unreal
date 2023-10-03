@@ -39,6 +39,7 @@ Complete the following steps to install and enable the plugin for your multiplay
 1. Install and enable the plugin.
     1. In your game project root folder, open the `Plugins` folder and copy the Amazon GameLift plugin files.
     1. In the `.uproject` file, add the following to the `Plugins` section: 
+        
         ```
         {
             "Name": "GameLiftPlugin",
