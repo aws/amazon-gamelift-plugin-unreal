@@ -1,0 +1,5 @@
+- Add InitSDK() API with no parameters. This API reads server parameters from environment variables, such as fleet ID,
+  compute name, WebSocket URL, process ID and auth token. This API simplifies SDK initialization in Amazon GameLift
+  managed EC2 fleets. For initialization in Amazon GameLift Anywhere fleets, call InitSDK() with the ServerParameters parameter.
+- Update ProcessReady() to retain a copy of FProcessParameters. This fixes segfaults that occur when Amazon GameLift C++ SDK 
+  attempts to invoke user callbacks after FProcessParameters is freed in memory.

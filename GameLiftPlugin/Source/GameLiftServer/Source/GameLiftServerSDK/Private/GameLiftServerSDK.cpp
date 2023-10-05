@@ -20,6 +20,8 @@
 
 void* FGameLiftServerSDKModule::GameLiftServerSDKLibraryHandle = nullptr;
 
+static FProcessParameters GameLiftProcessParameters;
+
 void FGameLiftServerSDKModule::StartupModule()
 {
 #if PLATFORM_WINDOWS
@@ -83,6 +85,20 @@ FGameLiftStringOutcome FGameLiftServerSDKModule::GetSdkVersion() {
     }
 #else
     return FGameLiftStringOutcome("");
+#endif
+}
+
+FGameLiftGenericOutcome FGameLiftServerSDKModule::InitSDK() {
+#if WITH_GAMELIFT
+    auto initSDKOutcome = Aws::GameLift::Server::InitSDK();
+    if (initSDKOutcome.IsSuccess()) {
+        return FGameLiftGenericOutcome(nullptr);
+    }
+    else{
+        return FGameLiftGenericOutcome(FGameLiftError(initSDKOutcome.GetError()));
+    }
+#else
+    return FGameLiftGenericOutcome(nullptr);
 #endif
 }
 
@@ -227,28 +243,26 @@ FGameLiftDescribePlayerSessionsOutcome FGameLiftServerSDKModule::DescribePlayerS
 #endif
 }
 
-void OnActivateFunctionInternal(Aws::GameLift::Server::Model::GameSession gameSession, void* state) {
-    FProcessParameters* processParameters = (FProcessParameters*)state;
-    processParameters->OnActivateFunction(gameSession);
+static void OnActivateFunctionInternal(Aws::GameLift::Server::Model::GameSession gameSession, void* state) {
+    GameLiftProcessParameters.OnActivateFunction(gameSession);
 }
 
-void OnUpdateFunctionInternal(Aws::GameLift::Server::Model::UpdateGameSession updateGameSession, void* state) {
-    FProcessParameters* processParameters = (FProcessParameters*)state;
-    processParameters->OnUpdateFunction(updateGameSession);
+static void OnUpdateFunctionInternal(Aws::GameLift::Server::Model::UpdateGameSession updateGameSession, void* state) {
+    GameLiftProcessParameters.OnUpdateFunction(updateGameSession);
 }
 
-void OnTerminateFunctionInternal(void* state) {
-    FProcessParameters* processParameters = (FProcessParameters*)state;
-    processParameters->OnTerminateFunction();
+static void OnTerminateFunctionInternal(void* state) {
+    GameLiftProcessParameters.OnTerminateFunction();
 }
 
-bool OnHealthCheckInternal(void* state) {
-    FProcessParameters* processParameters = (FProcessParameters*)state;
-    return processParameters->OnHealthCheckFunction();
+static bool OnHealthCheckInternal(void* state) {
+    return GameLiftProcessParameters.OnHealthCheckFunction();
 }
 
 FGameLiftGenericOutcome FGameLiftServerSDKModule::ProcessReady(FProcessParameters &processParameters) {
 #if WITH_GAMELIFT
+    GameLiftProcessParameters = processParameters;
+
 	char logPathsBuffer[MAX_LOG_PATHS][MAX_PATH_LENGTH];
 	const char* logPaths[MAX_LOG_PATHS];
 
@@ -272,13 +286,13 @@ FGameLiftGenericOutcome FGameLiftServerSDKModule::ProcessReady(FProcessParameter
 
     Aws::GameLift::Server::ProcessParameters processParams = Aws::GameLift::Server::ProcessParameters(
         OnActivateFunctionInternal,
-        &(processParameters),
+        nullptr,
         OnUpdateFunctionInternal,
-        &(processParameters),
+        nullptr,
         OnTerminateFunctionInternal,
-        &(processParameters),
+        nullptr,
         OnHealthCheckInternal,
-        &(processParameters),
+        nullptr,
         processParameters.port,
         Aws::GameLift::Server::LogParameters(logPaths, numLogs));
 

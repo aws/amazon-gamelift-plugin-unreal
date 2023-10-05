@@ -45,7 +45,15 @@ AWS_GAMELIFT_API AwsStringOutcome GetSdkVersion();
 /**
 Initializes the GameLift server.
 Should be called when the server starts, before any GameLift-dependent initialization happens.
-@return Pointer to the internal server state for use with InitializeWithExisting().
+Should be only used with Managed EC2 fleets, where the serer parameters are read from the environment.
+@return Pointer to the internal server state indicating that the server process is ready to call ProcessReady().
+*/
+AWS_GAMELIFT_API InitSDKOutcome InitSDK();
+
+/**
+Initializes the GameLift server.
+Should be called when the server starts with the given server parameters, before any GameLift-dependent initialization happens.
+@return Pointer to the internal server state indicating that the server process is ready to call ProcessReady().
 */
 AWS_GAMELIFT_API InitSDKOutcome InitSDK(const Aws::GameLift::Server::Model::ServerParameters &serverParameters);
 
@@ -142,7 +150,15 @@ AWS_GAMELIFT_API AwsStringOutcome GetSdkVersion();
 /**
 Initializes the GameLift server.
 Should be called when the server starts, before any GameLift-dependent initialization happens.
-@return Pointer to the internal server state for use with InitializeWithExisting().
+Should be only used with Managed EC2 fleets, where the serer parameters are read from the environment.
+@return Pointer to the internal server state indicating that the server process is ready to call ProcessReady().
+*/
+AWS_GAMELIFT_API GenericOutcome InitSDK();
+
+/**
+Initializes the GameLift server.
+Should be called when the server starts with the given server parameters, before any GameLift-dependent initialization happens.
+@return Pointer to the internal server state indicating that the server process is ready to call ProcessReady().
 */
 AWS_GAMELIFT_API GenericOutcome InitSDK(const Aws::GameLift::Server::Model::ServerParameters &serverParameters);
 
