@@ -219,7 +219,7 @@ private:
 #else
 public:
     GetFleetRoleCredentialsResult()
-        : m_expiration(0), m_assumedUserRoleArn{'\0'}, m_assumedRoleId{'\0'}, m_accessKeyId{'\0'}, m_secretAccessKey{'\0'}, m_sessionToken(new char[1]{'\0'}) {}
+        : m_assumedUserRoleArn{'\0'}, m_assumedRoleId{'\0'}, m_accessKeyId{'\0'}, m_secretAccessKey{'\0'}, m_sessionToken(new char[1]{'\0'}), m_expiration(0) {}
 
     ~GetFleetRoleCredentialsResult() {
         delete[] m_sessionToken;

@@ -590,7 +590,7 @@ private:
     std::string m_dnsName;
 #else
 public:
-    GameSession() : m_maximumPlayerSessionCount(0), m_gameProperties_count(0), m_port(0) {
+    GameSession() : m_maximumPlayerSessionCount(0), m_status(), m_gameProperties_count(0), m_port(0) {
         memset(m_gameSessionId, 0, MAX_SESSION_ID_LENGTH);
         memset(m_name, 0, MAX_SESSION_NAME_LENGTH);
         memset(m_fleetId, 0, MAX_FLEET_ID_LENGTH);

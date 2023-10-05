@@ -158,7 +158,7 @@ public:
         strncpy(m_fleetId, fleetId, sizeof(m_fleetId));
         m_fleetId[sizeof(m_fleetId) - 1] = '\0';
         strncpy(m_processId, processId, sizeof(m_processId));
-        m_hostId[sizeof(m_processId) - 1] = '\0';
+        m_processId[sizeof(m_processId) - 1] = '\0';
         strncpy(m_hostId, hostId, sizeof(m_hostId));
         m_hostId[sizeof(m_hostId) - 1] = '\0';
     }

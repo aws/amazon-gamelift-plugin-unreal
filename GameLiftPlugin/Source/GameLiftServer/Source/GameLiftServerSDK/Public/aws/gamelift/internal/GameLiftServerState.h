@@ -113,7 +113,12 @@ private:
     std::function<bool()> m_onHealthCheck;
 #else
 public:
-    static Internal::InitSDKOutcome CreateInstance(std::shared_ptr<IWebSocketClientWrapper> webSocketClientWrapper);
+    template <class WrapperT> static Internal::InitSDKOutcome CreateInstance() { return ConstructInternal(std::make_shared<WrapperT>()); }
+    template <class WrapperT, class ClientT> static Internal::InitSDKOutcome CreateInstance() {
+        return ConstructInternal(std::make_shared<WrapperT>(std::make_shared<ClientT>()));
+    }
+
+    std::shared_ptr<IWebSocketClientWrapper> GetWebSocketClientWrapper() const;
 
     virtual GAMELIFT_INTERNAL_STATE_TYPE GetStateType() override { return GAMELIFT_INTERNAL_STATE_TYPE::SERVER; };
 
@@ -171,6 +176,7 @@ private:
     void *startGameSessionState;
     void *processTerminateState;
     void *healthCheckState;
+    static Internal::InitSDKOutcome ConstructInternal(std::shared_ptr<IWebSocketClientWrapper> webSocketClientWrapper);
 #endif
 public:
     GetFleetRoleCredentialsOutcome GetFleetRoleCredentials(const Aws::GameLift::Server::Model::GetFleetRoleCredentialsRequest &request);
