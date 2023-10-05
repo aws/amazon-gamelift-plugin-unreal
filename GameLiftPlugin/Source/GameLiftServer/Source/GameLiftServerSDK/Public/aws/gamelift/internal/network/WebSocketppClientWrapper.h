@@ -39,7 +39,8 @@ public:
     ~WebSocketppClientWrapper();
 
 private:
-    const int SERVICE_CALL_TIMEOUT_MILLIS = 20000;
+    const int WEBSOCKET_OPEN_HANDSHAKE_TIMEOUT_MILLIS = 20000; // 20 seconds
+    const int SERVICE_CALL_TIMEOUT_MILLIS = 20000;             // 20 seconds
     const int OK_STATUS_CODE = 200;
 
     // The WebSocketpp objects this class wraps
@@ -52,13 +53,15 @@ private:
     std::mutex m_lock;
     std::condition_variable m_cond;
     bool m_connectionStateChanged;
+    websocketpp::lib::error_code m_fail_error_code;
+    websocketpp::http::status_code::value m_fail_response_code;
 
     std::map<std::string, std::function<GenericOutcome(std::string)>> m_eventHandlers;
     std::mutex m_requestToPromiseLock;
     std::map<std::string, std::promise<GenericOutcome>> m_requestIdToPromise;
 
     // Helper methods
-    WebSocketppClientType::connection_ptr PerformConnect(const Uri &uri);
+    WebSocketppClientType::connection_ptr PerformConnect(const Uri &uri, websocketpp::lib::error_code &error);
     Aws::GameLift::GenericOutcome SendSocketMessageAsync(const std::string &message);
 
     // CallBacks

@@ -101,7 +101,7 @@ private:
     static constexpr const char *NOT_SET = "NOT_SET";
 
     std::string m_gameSessionId;
-    WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy;
+    WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy = WebSocketPlayerSessionCreationPolicy::NOT_SET;
 };
 } // namespace Internal
 } // namespace GameLift

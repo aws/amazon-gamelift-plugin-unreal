@@ -126,6 +126,7 @@ public:
     virtual FGameLiftStringOutcome GetSdkVersion();
 
     // Needs the standalone server to be running locally. If not, this will block at load time.
+    virtual FGameLiftGenericOutcome InitSDK();
     virtual FGameLiftGenericOutcome InitSDK(const FServerParameters &serverParameters);
 
     //virtual TGameLiftGenericOutcome ProcessReady(Aws::GameLift::Server::ProcessParameters &processParameters);
