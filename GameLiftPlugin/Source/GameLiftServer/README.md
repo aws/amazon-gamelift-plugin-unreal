@@ -320,16 +320,3 @@ When uploading your application to Amazon GameLift, **make sure you also include
 libssl-3-x64.dll
 libcrypto-3-x64.dll
 ```
-
-### Compatability Notes
-Supported UE4 and UE5 Versions
-
-------
-4.22  
-4.23  
-4.24  
-4.25  
-4.26  
-4.27   
-5.1.0  
-5.1.1   
