@@ -22,7 +22,6 @@
 
 #include "AwsScenarios/FlexMatch.h"
 #include "AwsScenarios/SingleRegionFleet.h"
-#include "AwsScenarios/SpotFleets.h"
 #include "AwsScenarios/CustomScenario.h"
 
 #define LOCTEXT_NAMESPACE "AWSScenariosDeployer"
@@ -57,7 +56,6 @@ namespace AwsDeployerInternal
 	{
 		TMap<FString, TUniquePtr<AwsScenarios::IAWSScenario>> ScenarioMap;
 		ScenarioMap.Add(AwsScenarios::SingleRegionFleet::Name().ToString(), AwsScenarios::SingleRegionFleet::Create());
-		ScenarioMap.Add(AwsScenarios::SpotFleets::Name().ToString(), AwsScenarios::SpotFleets::Create());
 		ScenarioMap.Add(AwsScenarios::FlexMatch::Name().ToString(), AwsScenarios::FlexMatch::Create());
 
 		return ScenarioMap;

@@ -10,15 +10,11 @@ namespace Menu
 	namespace DeploymentServer
 	{
 		static const auto kSingleRegionFleet = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_Scenario", "Single-region fleet");
-		static const auto kSpotFleets = NSLOCTEXT("SGameLiftDeploymentMenu", "SpotFleets_Scenario", "Spot fleet");
 		static const auto kFlexMatch = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_Scenario", "FlexMatch fleet");
 		static const auto kCustom = NSLOCTEXT("SGameLiftDeploymentMenu", "Custom_Scenario", "Custom");
 
 		static const auto kSingleRegionFleetTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_ToolTip",
 			"Creates a game backend service with a single Amazon GameLift fleet.");
-		
-		static const auto kSpotFleetsTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "SpotFleets_ToolTip",
-			"Forms matches by using Amazon GameLift queues and a custom matchmaker and configures three fleets.");
 
 		static const auto kFlexMatchTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_ToolTip",
 			"Uses FlexMatch, a managed matchmaking service, to match game players together.");
@@ -27,8 +23,7 @@ namespace Menu
 			"This is a custom user scenario.");
 
 		static const auto kSingleRegionFleetFolder = TEXT("scenario1_single_fleet");
-		static const auto kSpotFleetsFolder = TEXT("scenario2_spot_fleets");
-		static const auto kFlexMatchFolder = TEXT("scenario3_flexmatch");
+		static const auto kFlexMatchFolder = TEXT("scenario2_flexmatch");
 		static const auto kCurrentScenarioFolder = TEXT("scenario_current");		
 		static const auto kCustomScenarioFolder = TEXT("scenario_custom");
 	}
