@@ -23,7 +23,7 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 
 ## Prerequisites
 
-* Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal).
+* Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal). Note if you choose to clone the plugin from repo, you need to download the C++ Server SDK Plugin for Unreal from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/), then copy the unzipped GameLiftServerSDK folder under `GameLiftPlugin/Source/`.
 * Microsoft Visual Studio 2019 or newer.
 * A source-built version of the Unreal Engine editor. Required to develop server build components for a multiplayer game. See the Unreal Engine documentation: 
     * [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
