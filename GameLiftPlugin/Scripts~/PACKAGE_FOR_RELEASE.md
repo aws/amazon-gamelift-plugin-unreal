@@ -6,7 +6,7 @@ You can find the official Amazon GameLift documentation [here](https://aws.amazo
 
 ## Using the plugin
 ### Building the C++ SDK
-Before we can use the plugin inside an Unreal game, we need to compile the Amazon GameLift server C++ SDK.  
+Before you can use the plugin inside an Unreal game, you need to build the Amazon GameLift server C++ SDK.  
 
 To build the Amazon GameLift server SDK:
 1. Open a terminal/command prompt.
