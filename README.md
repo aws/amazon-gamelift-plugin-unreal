@@ -23,13 +23,73 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 
 ## Prerequisites
 
-* Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal). Note if you choose to clone the plugin from repo, you need to download the C++ Server SDK Plugin for Unreal from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/), then copy the unzipped GameLiftServerSDK folder under `GameLiftPlugin/Source/`.
+* Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal). 
+* If you cloned the repo you will also need to download the following from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/):
+* C++ Server SDK Plugin for Unreal
+* C++ Server SDK
 * Microsoft Visual Studio 2019 or newer.
 * A source-built version of the Unreal Engine editor. Required to develop server build components for a multiplayer game. See the Unreal Engine documentation: 
     * [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
     * [Building Unreal Engine from Source](https://docs.unrealengine.com/5.3/en-US/building-unreal-engine-from-source/) 
 * (Optional) A C++ multiplayer game project with game code. Projects that use Blueprints only are not compatible with this plugin, at this time.
 * An AWS account with access permissions to use AWS GameLift. See [Set up programmatic access](https://docs.aws.amazon.com/gamelift/latest/developerguide/setting-up-aws-login.html) with long-term credentials.
+
+## Using the plugin
+### Building the C++ SDK
+Before we can use the plugin inside an Unreal game, we need to compile the Amazon GameLift server C++ SDK.  
+
+To build the Amazon GameLift server SDK:
+1. Open a terminal/command prompt.
+2. Navigate to the `GameLift-Cpp-ServerSDK-<version>` folder that was included with the Amazon GameLift SDK Release download.
+1. Follow the below instructions for your platform.  
+
+#### Linux
+
+1. Run the following commands
+    ```sh
+    mkdir out
+    cd out
+    cmake -DBUILD_FOR_UNREAL=1 ..
+    make
+    ```
+1. Once complete, the following file should have been built
+    ```
+    prefix/lib/aws-cpp-sdk-gamelift-server.so
+    ```
+1. Copy the file over to the following location in the Unreal plugin folder: 
+    ```
+    GameLiftPlugin/Source/GameLiftServer/ThirdParty/GameLiftServerSDK/Linux/x86_64-unknown-linux-gnu/
+    ```  
+    Once complete you should have a filepath similar to this example
+    ```
+    GameLiftPlugin/Source/GameLiftServer/ThirdParty/GameLiftServerSDK/Linux/x86_64-unknown-linux-gnu/aws-cpp-sdk-gamelift-server.so 
+    ```
+
+#### Windows
+
+1. Run the following commands
+    ```sh
+    mkdir out
+    cd out
+    cmake -G "Visual Studio 17 2022" -DBUILD_FOR_UNREAL=1 ..
+    msbuild ALL_BUILD.vcxproj /p:Configuration=Release
+    ```
+1. The above step produces the following binary files required by the plugin.  
+    ```
+    prefix\bin\aws-cpp-sdk-gamelift-server.dll  
+    prefix\lib\aws-cpp-sdk-gamelift-server.lib
+    ```
+1. Copy the files over to this location in the Unreal plugin folder:
+    ```
+    GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\
+    ```  
+    Once complete you should have two filepaths similar to this example  
+    ```
+    GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.dll  
+    GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.lib 
+    ```
+
+For more detailed instructions on how to build the C++ SDK,, please refer to the README.md file located in the C++ SDK directory.
 
 ## Install the plugin
 

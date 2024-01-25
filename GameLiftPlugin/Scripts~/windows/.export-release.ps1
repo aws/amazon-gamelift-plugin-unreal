@@ -1,18 +1,20 @@
 param(
 	[Parameter(Mandatory)]
-	[Alias("ServerSdk", "SdkVersion", "Sdk")]
 	[ValidatePattern("\d+\.\d+\.\d+")]
 	[string] $ServerSdkVersion,
 	[Parameter(Mandatory)]
 	[ValidatePattern("\d+\.\d+\.\d+")]
-	[string] $PluginVersion
+	[string] $PluginVersion,
+	[Parameter(Mandatory)]
+	[ValidatePattern("\d+\.\d+\.\d+")]
+	[string] $LightWeightUnrealServerSdkVersion
 )
 
 $ROOT_DIR=Resolve-Path "$PSScriptRoot\..\..\.."
 $BUILD_DIR="$ROOT_DIR\GameLiftPlugin\build"
 $STAGING_PATH="$BUILD_DIR\staging-release"
-$README_PATH=Resolve-Path "$PSScriptRoot\..\PACKAGE_FOR_RELEASE.md"
-$PLUGIN_PATH="$BUILD_DIR\amazon-gamelift-plugin-unreal-$PluginVersion-sdk-$ServerSdkVersion.zip"
+$README_PATH="$ROOT_DIR\GameLiftPlugin\Scripts~\PACKAGE_FOR_RELEASE.md"
+$PLUGIN_PATH="$BUILD_DIR\amazon-gamelift-plugin-unreal-$PluginVersion-sdk-$LightWeightUnrealServerSdkVersion.zip"
 $CPP_SERVER_SDK_PATH="$BUILD_DIR\GameLift-Cpp-ServerSDK-$ServerSdkVersion.zip"
 $DESTINATION_PATH="$BUILD_DIR\amazon-gamelift-plugin-unreal-release-$PluginVersion.zip"
 

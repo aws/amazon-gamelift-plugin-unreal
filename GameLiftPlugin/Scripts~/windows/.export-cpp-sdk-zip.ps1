@@ -1,6 +1,5 @@
 param(
 	[Parameter(Mandatory)]
-	[Alias("ServerSdk", "SdkVersion", "Sdk")]
 	[ValidatePattern("\d+\.\d+\.\d+")]
 	[string] $ServerSdkVersion
 )
@@ -32,10 +31,10 @@ else
 {
 	Write-Host "Amazon GameLift C++ Server SDK is already downloaded and stored at $CPP_SERVER_SDK_TEMP_ZIP_PATH, skipping download."
 }
-Write-Host "Removing liscense file..."
+Write-Host "Removing license file..."
 Expand-Archive -Force -LiteralPath $CPP_SERVER_SDK_TEMP_ZIP_PATH -DestinationPath $TEMP_EXTRACTED_PATH -ErrorAction Stop
 Remove-Item -Force -LiteralPath "$TEMP_EXTRACTED_PATH\LICENSE_AMAZON_GAMELIFT_SDK.TXT" -ErrorAction Stop
-Write-Host "Re-packaging C++ Server SDK zip into project directory..."
+Write-Host "Re-packaging Amazon GameLift C++ Server SDK zip into project directory..."
 Compress-Archive -Force -Path "$TEMP_EXTRACTED_PATH\*" -DestinationPath $CPP_SERVER_SDK_DESTINATION_PATH -ErrorAction Stop
-Write-Host "C++ Server SDK has been re-packaged without license file at '$CPP_SERVER_SDK_DESTINATION_PATH'" -ForegroundColor Yellow
+Write-Host "Amazon GameLift C++ Server SDK has been re-packaged without license file at '$CPP_SERVER_SDK_DESTINATION_PATH'" -ForegroundColor Yellow
 exit 0
