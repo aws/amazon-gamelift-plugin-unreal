@@ -67,7 +67,7 @@ To build the Amazon GameLift server SDK:
 1. Navigate to the `GameLift-Cpp-ServerSDK-<version>` folder that was included with the Amazon GameLift SDK Release download.
 1. Follow the below instructions for your platform.  
 
-#### Linux
+### Linux
 
 1. Run the following commands
     ```sh
@@ -89,7 +89,7 @@ To build the Amazon GameLift server SDK:
     GameLiftPlugin/Source/GameLiftServer/ThirdParty/GameLiftServerSDK/Linux/x86_64-unknown-linux-gnu/aws-cpp-sdk-gamelift-server.so 
     ```
 
-#### Windows
+### Windows
 
 1. Run the following commands
     ```sh
