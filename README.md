@@ -25,8 +25,8 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 
 * Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal). 
 * If you cloned the repo you will also need to download the following from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/):
-* C++ Server SDK Plugin for Unreal
-* C++ Server SDK
+    * C++ Server SDK Plugin for Unreal
+    * C++ Server SDK
 * Microsoft Visual Studio 2019 or newer.
 * A source-built version of the Unreal Engine editor. Required to develop server build components for a multiplayer game. See the Unreal Engine documentation: 
     * [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
@@ -34,13 +34,37 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 * (Optional) A C++ multiplayer game project with game code. Projects that use Blueprints only are not compatible with this plugin, at this time.
 * An AWS account with access permissions to use AWS GameLift. See [Set up programmatic access](https://docs.aws.amazon.com/gamelift/latest/developerguide/setting-up-aws-login.html) with long-term credentials.
 
-## Using the plugin
-### Building the C++ SDK
+## Install the plugin
+
+Complete the following steps to install and enable the plugin for your multiplayer game project. For more details, see the [AWS GameLift documentation](https://docs.aws.amazon.com/gamelift/latest/developerguide/unreal-plugin.html).
+
+1. Build the Amazon GameLift C++ Server SDK. See section below for details.
+
+1. Install and enable the plugin.
+    1. In your game project root folder, open the `Plugins` folder and copy the Amazon GameLift plugin files.
+    1. In the `.uproject` file, add the following to the `Plugins` section: 
+        
+        ```
+        {
+            "Name": "GameLiftPlugin",
+            "Enabled": true
+        },
+        {
+            "Name": "WebBrowserWidget",
+            "Enabled": true
+        }
+        ```
+1. Set your project to use the source-built UE editor. Do this step if your game project was created with a non-source-built version of UE. In your game project folder, select the `.uproject` file and choose the option **Switch Unreal Engine Version**.
+
+1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution. 
+
+## Build the Amazon GameLift C++ Server SDK
+
 Before you can use the plugin inside an Unreal game, you need to build the Amazon GameLift server C++ SDK.  
 
 To build the Amazon GameLift server SDK:
 1. Open a terminal/command prompt.
-2. Navigate to the `GameLift-Cpp-ServerSDK-<version>` folder that was included with the Amazon GameLift SDK Release download.
+1. Navigate to the `GameLift-Cpp-ServerSDK-<version>` folder that was included with the Amazon GameLift SDK Release download.
 1. Follow the below instructions for your platform.  
 
 #### Linux
@@ -90,28 +114,6 @@ To build the Amazon GameLift server SDK:
     ```
 
 For more detailed instructions on how to build the C++ SDK,, please refer to the README.md file located in the C++ SDK directory.
-
-## Install the plugin
-
-Complete the following steps to install and enable the plugin for your multiplayer game project. For more details, see the [AWS GameLift documentation](https://docs.aws.amazon.com/gamelift/latest/developerguide/unreal-plugin.html).
-
-1. Install and enable the plugin.
-    1. In your game project root folder, open the `Plugins` folder and copy the Amazon GameLift plugin files.
-    1. In the `.uproject` file, add the following to the `Plugins` section: 
-        
-        ```
-        {
-            "Name": "GameLiftPlugin",
-            "Enabled": true
-        },
-        {
-            "Name": "WebBrowserWidget",
-            "Enabled": true
-        }
-        ```
-1. Set your project to use the source-built UE editor. Do this step if your game project was created with a non-source-built version of UE. In your game project folder, select the `.uproject` file and choose the option **Switch Unreal Engine Version**.
-
-1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution. 
 
 ## Amazon GameLift Resources 
 

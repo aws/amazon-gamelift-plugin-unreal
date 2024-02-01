@@ -4,7 +4,7 @@ param(
 	[string] $ServerSdkVersion
 )
 
-$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\..\.."
+$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\.."
 $BUILD_DIR="$ROOT_DIR\GameLiftPlugin\build"
 $TEMP_PATH="C:\Temp\AmazonGameLiftPluginUnreal"
 $TEMP_EXTRACTED_PATH="$TEMP_PATH\GameLiftCppServerSDK"
@@ -37,4 +37,5 @@ Remove-Item -Force -LiteralPath "$TEMP_EXTRACTED_PATH\LICENSE_AMAZON_GAMELIFT_SD
 Write-Host "Re-packaging Amazon GameLift C++ Server SDK zip into project directory..."
 Compress-Archive -Force -Path "$TEMP_EXTRACTED_PATH\*" -DestinationPath $CPP_SERVER_SDK_DESTINATION_PATH -ErrorAction Stop
 Write-Host "Amazon GameLift C++ Server SDK has been re-packaged without license file at '$CPP_SERVER_SDK_DESTINATION_PATH'" -ForegroundColor Yellow
+
 exit 0

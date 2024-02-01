@@ -1,4 +1,4 @@
-$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\..\.."
+$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\.."
 $BUILD_DIR="$ROOT_DIR\GameLiftPlugin\build"
 
 if (Test-Path -Path $BUILD_DIR)

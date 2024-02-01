@@ -10,10 +10,10 @@ param(
 	[string] $LightWeightUnrealServerSdkVersion
 )
 
-$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\..\.."
+$ROOT_DIR=Resolve-Path "$PSScriptRoot\..\.."
 $BUILD_DIR="$ROOT_DIR\GameLiftPlugin\build"
 $STAGING_PATH="$BUILD_DIR\staging-release"
-$README_PATH="$ROOT_DIR\GameLiftPlugin\Scripts~\PACKAGE_FOR_RELEASE.md"
+$README_PATH="$ROOT_DIR\Scripts~\PACKAGE_FOR_RELEASE.md"
 $PLUGIN_PATH="$BUILD_DIR\amazon-gamelift-plugin-unreal-$PluginVersion-sdk-$LightWeightUnrealServerSdkVersion.zip"
 $CPP_SERVER_SDK_PATH="$BUILD_DIR\GameLift-Cpp-ServerSDK-$ServerSdkVersion.zip"
 $DESTINATION_PATH="$BUILD_DIR\amazon-gamelift-plugin-unreal-release-$PluginVersion.zip"
@@ -25,4 +25,5 @@ Copy-Item -Force -LiteralPath $README_PATH -Destination "$STAGING_PATH\README.md
 Write-Host "Packaging zip file for release..."
 Compress-Archive -Force -Path "$STAGING_PATH\*" -DestinationPath $DESTINATION_PATH -ErrorAction Stop
 Write-Host "Packaging successful! Release artifact located at '$DESTINATION_PATH'" -ForegroundColor Green
+
 exit 0

@@ -81,4 +81,4 @@ DerivedDataCache/*
 Source/GameliftServer/*
 
 # Don't ignore README.md in Source/GameliftServer, which directs customer to place C++ Server SDK Plugin under the directory
-!Source/GameliftServer/README.md
+!Source/GameliftServer/REPLACEME.md
