@@ -233,7 +233,7 @@ namespace Menu
 		// Auth token section
 		static const auto kAuthTokenTitle = NSLOCTEXT("SDeployAnywhereMenu", "AuthTokenTitle", "Auth token");
 		static const auto kAuthTokenNotGeneratedText = NSLOCTEXT("SDeployAnywhereMenu", "AuthTokenNotGeneratedText", "The auth token is generated when you launch your game.");
-		static const auto kAuthTokenGenerateNoteText = NSLOCTEXT("SDeployAnywhereMenu", "AuthTokenGenerateNoteText", "Auth tokens are valid for 15 minutes and must be refreshed.");
+		static const auto kAuthTokenGenerateNoteText = NSLOCTEXT("SDeployAnywhereMenu", "AuthTokenGenerateNoteText", "Auth tokens are valid for 3 hours and must be refreshed.");
 		static const auto kAuthTokenGenerateButtonText = NSLOCTEXT("SDeployAnywhereMenu", "AuthTokenGenerateButtonText", "Generate auth token");
 
 		// Register compute section
