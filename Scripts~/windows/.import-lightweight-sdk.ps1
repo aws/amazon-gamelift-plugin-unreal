@@ -41,6 +41,7 @@ else
 }
 Write-Host "Importing Lightweight Server SDK for Unreal source into $DESTINATION_PATH"
 New-Item -Force -Type Directory -Path $DESTINATION_PATH -ErrorAction Stop
+Write-Host "Removing any existing items in $DESTINATION_PATH so that extra files do not get pacakged into the Lightweight Server SDK for Unreal directory"
 Remove-Item "$DESTINATION_PATH\*" -Recurse -Force
 Copy-Item -Path $ITEMS_TO_COPY_PATH -Destination $DESTINATION_PATH -Recurse -Force
 
