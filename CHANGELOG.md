@@ -5,7 +5,7 @@ CHANGELOG
 - Consolidated spot fleet scenario into the existing FlexMatch scenario
 - Removed the C++ Server SDK Plugin for Unreal source code from the GitHub repository
 - Added release scripts and updated the release package structure to include C++ Server SDK 5.1.2
-- Fix an issue where large .pdb files can cause uploading game server builds to fail
+- Fixed an issue where large .pdb files can cause uploading game server builds to fail
 
 # 1.0.0 (9/28/2023)
 
