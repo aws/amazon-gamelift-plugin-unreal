@@ -24,7 +24,7 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 ## Prerequisites
 
 * Amazon GameLift plugin for Unreal download package. Download a zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases). Or clone the plugin from the [Github repo](https://github.com/aws/amazon-gamelift-plugin-unreal). 
-* If you cloned the repo you will also need to download the following from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/):
+* If you cloned the repo you will also need to download the following items from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/). Otherwise, if you downloaded the zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases), you can skip this step.
     * C++ Server SDK Plugin for Unreal
     * C++ Server SDK
 * Microsoft Visual Studio 2019 or newer.
