@@ -71,7 +71,6 @@ Complete the following steps to install and enable the plugin for your multiplay
 
 1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution.
 
-
 ## Build the Amazon GameLift C++ Server SDK
 
 Before you can use the plugin inside an Unreal game, you need to build the Amazon GameLift server C++ SDK.  
