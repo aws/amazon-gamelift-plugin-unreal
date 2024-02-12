@@ -41,7 +41,7 @@ Complete the following steps to install and enable the plugin for your multiplay
 1. Build the Amazon GameLift C++ Server SDK. See section below for details.
 
 1. Install and enable the plugin.
-    1. In your game project root folder, open the `Plugins` folder and copy the Amazon GameLift plugin files.
+    1. In your game project root folder, create a folder called "Plugins" and copy the "GameLiftPlugin" folder located inside the downloaded Amazon GameLift plugin into this new folder.
     1. In the `.uproject` file, add the following to the `Plugins` section: 
         
         ```
