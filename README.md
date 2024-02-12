@@ -41,7 +41,7 @@ Complete the following steps to install and enable the plugin for your multiplay
 1. Build the Amazon GameLift C++ Server SDK. See section below for details.
 
 1. Install and enable the plugin.
-    1. In your game project root folder, open the `Plugins` folder and copy the Amazon GameLift plugin files.
+    1. In your game project root folder, Create a folder called "Plugins" and copy the whole "GameLiftPlugin" folder located in the downloaded Amazon GameLift plugin.
     1. In the `.uproject` file, add the following to the `Plugins` section: 
         
         ```
@@ -56,7 +56,20 @@ Complete the following steps to install and enable the plugin for your multiplay
         ```
 1. Set your project to use the source-built UE editor. Do this step if your game project was created with a non-source-built version of UE. In your game project folder, select the `.uproject` file and choose the option **Switch Unreal Engine Version**.
 
-1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution. 
+1. Make sure the game's ModuleRules takes a dependency on the plugin. Open the .Build.cs file and add the Amazon GameLiftServerSDK dependency. This file is found under Your-application-name/Source/Your-application-name/. Add "GameLiftServerSDK" to the end of the list of PublicDependencyModuleNames.
+
+        public class GameLiftUnrealApp : ModuleRules  
+        {
+           public GameLiftUnrealApp(TargetInfo Target)
+           {
+              PublicDependencyModuleNames.AddRange(new string[] { ..., "GameLiftServerSDK" });
+              bEnableExceptions = true;
+           }
+        }
+
+1. For instructions on how to integrate Amazon GameLift Server Code to your Unreal Project follow the steps here [Add Amazon GameLift server code to your Unreal project](https://docs.aws.amazon.com/gamelift/latest/developerguide/integration-engines-setup-unreal.html#integration-engines-setup-unreal-code)
+
+1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution.
 
 ## Build the Amazon GameLift C++ Server SDK
 
