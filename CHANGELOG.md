@@ -1,0 +1,37 @@
+CHANGELOG
+
+# 1.1.0 (2/13/2024)
+
+- Consolidated spot fleet scenario into the existing FlexMatch scenario
+- Removed the C++ Server SDK Plugin for Unreal source code from the GitHub repository
+- Added release scripts and updated the release package structure to include C++ Server SDK 5.1.2
+- Fixed an issue where large .pdb files can cause uploading game server builds to fail
+
+# 1.0.0 (9/28/2023)
+
+## Added:
+
+- Plugin installation package and the plugin file structure
+- The GameLift Plugin item in the Unreal menu with the following sub-menu items:
+    - Set AWS User Profiles
+    - Host with Anywhere
+    - Host with Managed EC2
+    - Help
+- 3 predefined deployment scenario templates:
+    - Single-Region Fleet
+    - SPOT Fleets with Queue and Custom Matchmaker
+    - FlexMatch
+- The Host with Managed EC2 window providing the following functionality:
+    - Ability to choose a predefined scenario for deployment
+        - Displaying the scenario template description
+        - Ability to open the AWS instructions
+    - Ability to specify a game server build
+    - Ability to set game server parameters
+    - Ability to start deployment
+    - Ability to cancel current deployment
+    - Displaying the stack deployment status and details
+    - Displaying the deployment outcomes (Cognito Client ID, API Gateway Endpoint)
+    - Ability to open the AWS CloudFormation console
+- The Host with Anywhere window providing the following functionality:
+    - Ability to create Anywhere fleet with custom name
+    - Ability to register a local workstation in the Anywhere fleet, with unique compute name and IP address

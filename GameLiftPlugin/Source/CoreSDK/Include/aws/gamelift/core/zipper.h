@@ -7,6 +7,7 @@
 
 namespace GameLift
 {
+    static const int MAX_ZIPPER_FILE_SIZE_IN_BYTES = 500000;
     // Wrapper for public-domain miniz ZIP writer - see miniz.inc
     // NOTE: filenames and paths use UTF-8 encoding on all platforms
     class GAMELIFT_API Zipper
