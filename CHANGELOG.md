@@ -2,7 +2,7 @@ CHANGELOG
 
 # 1.1.1 (3/8/2024)
 
-- Fixed an issue with importing GameLiftServerSDK module in v1.1.0 release
+- Fixed an issue with importing GameLiftServerSDK module
 
 # 1.1.0 (2/13/2024)
 
