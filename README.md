@@ -27,6 +27,17 @@ Each scenario uses an AWS CloudFormation template to  deploy your game, creating
 * If you cloned the repo you will also need to download the following items from [Amazon GameLift's Getting Started](https://aws.amazon.com/gamelift/getting-started/). Otherwise, if you downloaded the zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases), you can skip this step.
     * C++ Server SDK Plugin for Unreal
     * C++ Server SDK
+* If you cloned the repo instead of downloading the zip from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases), copy the source code for C++ Server SDK Plugin for Unreal into the folder `amazon-gamelift-plugin-unreal-release-<version>/amazon-gamelift-plugin-unreal/GameLiftPlugin/Source/GameLiftServer/`. The `REPLACEME.md` inside the directory details what the file structure should look like. Delete the `GameLiftServerSDK.uplugin` from the same directory. Then make the following code change to `amazon-gamelift-plugin-unreal/GameLiftPlugin/Source/GameLiftServer/Source/GameLiftServerSDK/Private/GameLiftServerSDK.cpp`. Change line 30 and 31 from
+```
+FString BaseDir = IPluginManager::Get().FindPlugin("GameLiftServerSDK")->GetBaseDir();
+const FString SDKDir = FPaths::Combine(*BaseDir, TEXT("ThirdParty"), TEXT("GameLiftServerSDK"));
+```
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to
+```
+FString BaseDir = IPluginManager::Get().FindPlugin("GameLiftPlugin")->GetBaseDir();
+const FString SDKDir = FPaths::Combine(*BaseDir, TEXT("Source"), TEXT("GameLiftServer"), TEXT("ThirdParty"), TEXT("GameLiftServerSDK"));
+```
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you downloaded the zip file from [the GitHub Releases page](https://github.com/aws/amazon-gamelift-plugin-unreal/releases), you can skip this step.
 * Microsoft Visual Studio 2019 or newer.
 * A source-built version of the Unreal Engine editor. Required to develop server build components for a multiplayer game. See the Unreal Engine documentation: 
     * [Accessing Unreal Engine source code on GitHub](https://www.unrealengine.com/ue-on-github). Requires  GitHub and Epic Games accounts.
