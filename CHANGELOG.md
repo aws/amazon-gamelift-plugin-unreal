@@ -1,5 +1,9 @@
 CHANGELOG
 
+# 1.1.1 (3/8/2024)
+
+- Fixed an issue with importing GameLiftServerSDK module
+
 # 1.1.0 (2/13/2024)
 
 - Consolidated spot fleet scenario into the existing FlexMatch scenario
@@ -13,25 +17,25 @@ CHANGELOG
 
 - Plugin installation package and the plugin file structure
 - The GameLift Plugin item in the Unreal menu with the following sub-menu items:
-    - Set AWS User Profiles
-    - Host with Anywhere
-    - Host with Managed EC2
-    - Help
+  - Set AWS User Profiles
+  - Host with Anywhere
+  - Host with Managed EC2
+  - Help
 - 3 predefined deployment scenario templates:
-    - Single-Region Fleet
-    - SPOT Fleets with Queue and Custom Matchmaker
-    - FlexMatch
+  - Single-Region Fleet
+  - SPOT Fleets with Queue and Custom Matchmaker
+  - FlexMatch
 - The Host with Managed EC2 window providing the following functionality:
-    - Ability to choose a predefined scenario for deployment
-        - Displaying the scenario template description
-        - Ability to open the AWS instructions
-    - Ability to specify a game server build
-    - Ability to set game server parameters
-    - Ability to start deployment
-    - Ability to cancel current deployment
-    - Displaying the stack deployment status and details
-    - Displaying the deployment outcomes (Cognito Client ID, API Gateway Endpoint)
-    - Ability to open the AWS CloudFormation console
+  - Ability to choose a predefined scenario for deployment
+    - Displaying the scenario template description
+    - Ability to open the AWS instructions
+  - Ability to specify a game server build
+  - Ability to set game server parameters
+  - Ability to start deployment
+  - Ability to cancel current deployment
+  - Displaying the stack deployment status and details
+  - Displaying the deployment outcomes (Cognito Client ID, API Gateway Endpoint)
+  - Ability to open the AWS CloudFormation console
 - The Host with Anywhere window providing the following functionality:
-    - Ability to create Anywhere fleet with custom name
-    - Ability to register a local workstation in the Anywhere fleet, with unique compute name and IP address
+  - Ability to create Anywhere fleet with custom name
+  - Ability to register a local workstation in the Anywhere fleet, with unique compute name and IP address
