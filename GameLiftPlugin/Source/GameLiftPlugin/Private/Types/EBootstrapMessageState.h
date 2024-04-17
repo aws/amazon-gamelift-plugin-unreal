@@ -22,7 +22,7 @@ constexpr auto EBootstrapMessageStateFromInt(int State)
 	return EBootstrapMessageState(State);
 }
 
-FText EBootstrapMessageStateToString(EBootstrapMessageState State)
+inline FText EBootstrapMessageStateToString(EBootstrapMessageState State)
 {
 	switch (State)
 	{
