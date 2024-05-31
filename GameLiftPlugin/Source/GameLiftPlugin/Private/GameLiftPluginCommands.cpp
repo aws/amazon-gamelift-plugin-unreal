@@ -11,6 +11,7 @@ void FGameLiftPluginCommands::RegisterCommands()
 	UI_COMMAND(OpenSettings, "Set AWS User Profiles", "Set AWS User Profiles", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DeployAnywhere, "Host with Anywhere", "Deploy the game with Amazon GameLift Anywhere", EUserInterfaceActionType::Button, FInputChord());
 	UI_COMMAND(DeployManagedEC2, "Host with Managed EC2", "Deploy the game with Amazon GameLift Managed EC2", EUserInterfaceActionType::Button, FInputChord());
+	UI_COMMAND(DeployContainer, "Host with Containers", "Deploy the game with Amazon GameLift Containers.", EUserInterfaceActionType::Button, FInputChord());
 
 	// Help section
 	UI_COMMAND(OpenGameLiftDocumentation, "Documentation", "Open Amazon GameLift Documentation", EUserInterfaceActionType::Button, FInputChord());

@@ -12,6 +12,8 @@ namespace AwsScenarios
 	class ScenarioWithParameters : public IAWSScenario
 	{
 	public:
+		virtual ~ScenarioWithParameters() = default;
+
 		virtual const char* const* GetParamNames() const override
 		{
 			static const char* paramNames[] =
@@ -23,25 +25,28 @@ namespace AwsScenarios
 				"LambdaZipS3KeyParameter",
 				"ApiGatewayStageNameParameter",
 				"AccountId",
-				"BuildS3KeyParameter",
 				"LaunchPathParameter",
+				"BuildS3KeyParameter",
 			};
 			return paramNames;
 		}
 
-		virtual int SaveFeatureInstanceTemplate(IAWSAccountInstance* AwsAccountInstance, const InstanceTemplateParams& InParams) override
+		virtual int SaveFeatureInstanceTemplate(IAWSAccountInstance* AwsAccountInstance, const TMap<FString, FString>& InParams) override
 		{
+			ManagedEC2InstanceTemplateParams TemplateParams;
+			TemplateParams.FromMap(InParams);
+			
 			const char* ParamValues[] =
 			{
-				InParams.GameNameParameter.c_str(),
-				InParams.BuildOperatingSystemParameter.c_str(),
-				InParams.BuildS3BucketParameter.c_str(),
-				InParams.LambdaZipS3BucketParameter.c_str(),
-				InParams.LambdaZipS3KeyParameter.c_str(),
-				InParams.ApiGatewayStageNameParameter.c_str(),
-				InParams.AccountId.c_str(),
+				TemplateParams.GameNameParameter.c_str(),
+				TemplateParams.BuildOperatingSystemParameter.c_str(),
+				TemplateParams.BuildS3BucketParameter.c_str(),
+				TemplateParams.LambdaZipS3BucketParameter.c_str(),
+				TemplateParams.LambdaZipS3KeyParameter.c_str(),
+				TemplateParams.ApiGatewayStageNameParameter.c_str(),
+				TemplateParams.AccountId.c_str(),
+				TemplateParams.LaunchPathParameter.c_str(),
 				BuildS3Path.c_str(),
-				InParams.LaunchPathParameter.c_str(),
 			};
 
 			auto* ParamNames = GetParamNames();

@@ -37,6 +37,21 @@ public:
 	FText OutConfigFilePath;
 
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText ContainerGroupDefinitionName;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText ContainerImageName;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText ContainerImageURI;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText IntraContainerLaunchPath;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText ContainerExtraServerResourcesPath;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText ContainerOutConfigFilePath;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText GameName;
+
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FDateTime LastUpdated;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText CognitoClientId;

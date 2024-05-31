@@ -26,6 +26,7 @@
 #include "GameLiftPluginConstants.h"
 
 #include "IGameLiftCoreModule.h"
+#include "Tabs/FGameLiftDeployContainerTab.h"
 
 DEFINE_LOG_CATEGORY(GameLiftPluginLog);
 
@@ -33,7 +34,8 @@ DEFINE_LOG_CATEGORY(GameLiftPluginLog);
 
 FGameLiftPluginModule::FGameLiftPluginModule():
 	DeployAnywhereTab(MakeShared<FGameLiftDeployAnywhereTab>()),
-	DeployManagedEC2Tab(MakeShared<FGameLiftDeployManagedEC2Tab>())
+	DeployManagedEC2Tab(MakeShared<FGameLiftDeployManagedEC2Tab>()),
+	DeployContainerTab(MakeShared<FGameLiftDeployContainerTab>())
 {
 }
 
@@ -46,6 +48,7 @@ void FGameLiftPluginModule::StartupModule()
 
 	DeployAnywhereTab->Register();
 	DeployManagedEC2Tab->Register();
+	DeployContainerTab->Register();
 	
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FGameLiftPluginModule::RegisterMenus));
 	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FGameLiftPluginModule::OnPostEngineInit);
@@ -117,6 +120,7 @@ void FGameLiftPluginModule::ShutdownModule()
 
 	DeployAnywhereTab->UnRegister();
 	DeployManagedEC2Tab->UnRegister();
+	DeployContainerTab->UnRegister();
 
 	ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings");
 	if (SettingsModule != nullptr)
@@ -129,6 +133,11 @@ void FGameLiftPluginModule::ShutdownModule()
 void FGameLiftPluginModule::DeployManagedEC2ButtonClicked()
 {
 	DeployManagedEC2Tab->Invoke();
+}
+
+void FGameLiftPluginModule::DeployContainerButtonClicked()
+{
+	DeployContainerTab->Invoke();
 }
 
 void FGameLiftPluginModule::DeployAnywhereButtonClicked()
@@ -171,6 +180,7 @@ void FGameLiftPluginModule::RegisterMenuExtensions()
 	MAP_ACTION(OpenSettings);
 	MAP_ACTION(DeployAnywhere);
 	MAP_ACTION(DeployManagedEC2);
+	MAP_ACTION(DeployContainer);
 
 	MAP_HELP_URL_ACTION(OpenGameLiftDocumentation);
 	MAP_HELP_URL_ACTION(OpenAwsGameTechForum);
@@ -264,6 +274,7 @@ void FGameLiftPluginModule::GenerateMainMenu(UToolMenu* InMenu)
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().OpenSettings);
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployAnywhere);
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployManagedEC2);
+		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployContainer);
 	}
 
 	{
