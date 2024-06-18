@@ -28,12 +28,12 @@ namespace AwsScenarios
 			return GameLiftAccountUploadGameServerEx(AwsAccountInstance->GetInstance(), ServerFolderPath.c_str(), ExtraServerResourcesPath.c_str(), this, Callback);
 		}
 
-		virtual int CreateLaunchPathParameter(
+		int CreateLaunchPathParameter(
 			const FString& InBuildOperatingSystem, 
 			const FString& InBuildFolderPath, 
 			const FString& InBuildFilePath,
 			std::string& InStdLaunchPathParameter
-		) override
+		)
 		{	
 			FString RelativePath = InBuildFilePath;
 

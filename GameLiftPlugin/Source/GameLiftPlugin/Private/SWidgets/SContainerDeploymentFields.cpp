@@ -21,6 +21,14 @@ namespace Internal
 			.PathHint(Menu::DeployContainers::kGameNameHint)
 			.ButtonVisibility(EVisibility::Collapsed);
 	}
+	
+	TSharedPtr<SPathInput> MakeFleetName()
+	{
+		return SNew(SPathInput)
+			.Title(Menu::DeployContainers::kFleetNameText)
+			.PathHint(Menu::DeployContainers::kFleetNameHint)
+			.ButtonVisibility(EVisibility::Collapsed);
+	}
 
 	TSharedPtr<SPathInput> MakeContainerImageURI()
 	{
@@ -60,6 +68,7 @@ namespace Internal
 void SContainerDeploymentFields::Construct(const FArguments& InArgs)
 {
 	GameNameInput = Internal::MakeGameName();
+	FleetNameInput = Internal::MakeFleetName();
 	ContainerImageURIInput = Internal::MakeContainerImageURI();
 	IntraContainerLaunchPathInput = Internal::MakeIntraContainerLaunchPath();
 	ExtraServerResourcesPathInput = Internal::MakeContainerExtraServerResourcesPath();
@@ -77,6 +86,10 @@ void SContainerDeploymentFields::Construct(const FArguments& InArgs)
 			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kNote)
 			.AutoWrapText(true)
 			);
+
+	TSharedPtr<SWidget> FleetNameInputRow = SNew(SNamedRow)
+		.NameText(Menu::DeployContainers::kFleetNameTitle)
+		.RowWidget(FleetNameInput);
 	
 	TSharedPtr<SWidget> ContainerImageURIInputRow = SNew(SNamedRow)
 		.NameText(Menu::DeployContainers::kContainerImageURITitle)
@@ -107,6 +120,10 @@ void SContainerDeploymentFields::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot().AutoHeight()
 		[
 			GameNameInstructionsRow.ToSharedRef()
+		]
+		+ SVerticalBox::Slot().AutoHeight()
+		[
+			FleetNameInputRow.ToSharedRef()
 		]
 		+ SVerticalBox::Slot().AutoHeight().Padding(SPadding::Top_Bottom)
 		[
@@ -139,6 +156,11 @@ void SContainerDeploymentFields::SetGameName(const FText& Name)
 	GameNameInput->SetSelectedPath(Name);
 }
 
+void SContainerDeploymentFields::SetFleetName(const FText& Name)
+{
+	FleetNameInput->SetSelectedPath(Name);
+}
+
 void SContainerDeploymentFields::SetContainerImageURI(const FText& Path)
 {
 	ContainerImageURIInput->SetSelectedPath(Path);
@@ -162,6 +184,11 @@ void SContainerDeploymentFields::SetOutConfigFilePath(const FText& Path)
 const FText& SContainerDeploymentFields::GetGameName() const
 {
 	return GameNameInput->GetSelectedPathRef();
+}
+
+const FText& SContainerDeploymentFields::GetFleetName() const
+{
+	return FleetNameInput->GetSelectedPathRef();
 }
 
 const FText& SContainerDeploymentFields::GetContainerImageURI() const

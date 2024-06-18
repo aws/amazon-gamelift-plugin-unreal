@@ -24,6 +24,7 @@ namespace AwsScenarios
 				"ContainerGroupDefinitionNameParameter",
 				"ContainerImageNameParameter",
 				"ContainerImageUriParameter",
+				"FleetNameParameter"
 				"GameNameParameter",
 				"LambdaZipS3BucketParameter",
 				"LambdaZipS3KeyParameter",
@@ -45,6 +46,7 @@ namespace AwsScenarios
 				TemplateParams.ContainerGroupDefinitionNameParameter.c_str(),
 				TemplateParams.ContainerImageNameParameter.c_str(),
 				TemplateParams.ContainerImageUriParameter.c_str(),
+				TemplateParams.FleetNameParameter.c_str(),
 				TemplateParams.GameNameParameter.c_str(),
 				TemplateParams.LambdaZipS3BucketParameter.c_str(),
 				TemplateParams.LambdaZipS3KeyParameter.c_str(),
@@ -58,10 +60,6 @@ namespace AwsScenarios
 		}
 		
 		virtual int UploadGameServer(IAWSAccountInstance* AwsAccountInstance, const std::string& ServerFolderPath, const std::string& ExtraServerResourcesPath) override
-		{
-			return GameLift::GAMELIFT_SUCCESS;
-		};
-		virtual int CreateLaunchPathParameter(const FString& BuildOperatingSystem, const FString& BuildFolderPath, const FString& BuildFilePath, std::string& StdLaunchPathParameter) override
 		{
 			return GameLift::GAMELIFT_SUCCESS;
 		};

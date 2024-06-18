@@ -9,7 +9,7 @@
 class AWSScenariosDeployer : public IAWSScenariosDeployer
 {
 public:
-	bool DeployScenario(
+	bool DeployManagedEC2Scenario(
 		const FText& Scenario,
 		IAWSAccountInstance* AccountInstance,
 		const FString& GameName,
@@ -36,7 +36,9 @@ public:
 		const FString& ContainerImageName,
 		const FString& ContainerImageUri,
 		const FString& IntraContainerLaunchPath,
-		const FString& GameName, const FString& OutConfigFilePath
+		const FString& GameName,
+		const FString& FleetName,
+		const FString& OutConfigFilePath
 	) override;
 
 	bool StopDeployment(IAWSAccountInstance* AwsAccountInstance) override;

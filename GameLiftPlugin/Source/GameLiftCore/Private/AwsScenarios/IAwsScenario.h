@@ -93,6 +93,7 @@ namespace AwsScenarios
 		std::string ContainerGroupDefinitionNameParameter;
 		std::string ContainerImageNameParameter;
 		std::string ContainerImageUriParameter;
+		std::string FleetNameParameter;
 
 		ContainerInstanceTemplateParams() = default;
 
@@ -103,6 +104,7 @@ namespace AwsScenarios
 			const FString* InContainerGroupDefinitionNameParameter = InMap.Find("ContainerGroupDefinitionNameParameter");
 			const FString* InContainerImageNameParameter = InMap.Find("ContainerImageNameParameter");
 			const FString* InContainerImageUriParameter = InMap.Find("ContainerImageUriParameter");
+			const FString* InFleetNameParameter = InMap.Find("FleetNameParameter");
 			const FString* InGameNameParameter = InMap.Find("GameNameParameter");
 			const FString* InLambdaZipS3BucketParameter = InMap.Find("LambdaZipS3BucketParameter");
 			const FString* InLambdaZipS3KeyParameter = InMap.Find("LambdaZipS3KeyParameter");
@@ -117,6 +119,7 @@ namespace AwsScenarios
 				ContainerGroupDefinitionNameParameter = Convertors::FSToStdS(*InContainerGroupDefinitionNameParameter);
 				ContainerImageNameParameter = Convertors::FSToStdS(*InContainerImageNameParameter);
 				ContainerImageUriParameter = Convertors::FSToStdS(*InContainerImageUriParameter);
+				FleetNameParameter = Convertors::FSToStdS(*InFleetNameParameter);
 				GameNameParameter = Convertors::FSToStdS(*InGameNameParameter);
 				LambdaZipS3BucketParameter = Convertors::FSToStdS(*InLambdaZipS3BucketParameter);
 				LambdaZipS3KeyParameter = Convertors::FSToStdS(*InLambdaZipS3KeyParameter);
@@ -133,6 +136,7 @@ namespace AwsScenarios
 			ParamsMap.Emplace("ContainerGroupDefinitionNameParameter", ContainerGroupDefinitionNameParameter.c_str());
 			ParamsMap.Emplace("ContainerImageNameParameter", ContainerImageNameParameter.c_str());
 			ParamsMap.Emplace("ContainerImageUriParameter", ContainerImageUriParameter.c_str());
+			ParamsMap.Emplace("FleetNameParameter", FleetNameParameter.c_str());
 			ParamsMap.Emplace("GameNameParameter", GameNameParameter.c_str());
 			ParamsMap.Emplace("LambdaZipS3BucketParameter", LambdaZipS3BucketParameter.c_str());
 			ParamsMap.Emplace("LambdaZipS3KeyParameter", LambdaZipS3KeyParameter.c_str());
@@ -156,6 +160,5 @@ namespace AwsScenarios
 
 		virtual int SaveFeatureInstanceTemplate(IAWSAccountInstance* AwsAccountInstance, const TMap<FString, FString>& InParams) = 0;
 		virtual int UploadGameServer(IAWSAccountInstance* AwsAccountInstance, const std::string& ServerFolderPath, const std::string& ExtraServerResourcesPath) = 0;
-		virtual int CreateLaunchPathParameter(const FString& BuildOperatingSystem, const FString& BuildFolderPath, const FString& BuildFilePath, std::string& StdLaunchPathParameter) = 0;
 	};
 } // namespace AwsScenarios

@@ -512,7 +512,7 @@ FReply SGameLiftDeployManagedEC2Menu::DeployCloudFormation()
 		UGameLiftDeploymentStatus* DeploySettings = GetMutableDefault<UGameLiftDeploymentStatus>();
 		auto& deployer = IGameLiftCoreModule::Get().GetScenarioDeployer();
 
-		bool IsDeployed = deployer.DeployScenario(
+		bool IsDeployed = deployer.DeployManagedEC2Scenario(
 			DeploySettings->Scenario,
 			IGameLiftCoreModule::Get().GetProfileBootstrap().GetAccountInstance(),
 			DeploySettings->BuildName.ToString(),

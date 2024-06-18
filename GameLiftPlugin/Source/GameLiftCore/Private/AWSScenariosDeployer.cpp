@@ -179,9 +179,9 @@ void AWSScenariosDeployer::SetLastApiGatewayEndpoint(const FString& ApiGateway)
 	LastApiGatewayEndpoint = ApiGateway;
 }
 
-bool AWSScenariosDeployer::DeployScenario(
-	const FText& Scenario, 
-	IAWSAccountInstance* AwsAccountInstance, 
+bool AWSScenariosDeployer::DeployManagedEC2Scenario(
+	const FText& Scenario,
+	IAWSAccountInstance* AwsAccountInstance,
 	const FString& GameName,
 	const FString& BuildOperatingSystem,
 	const FString& BuildFolderPath, 
@@ -192,7 +192,8 @@ bool AWSScenariosDeployer::DeployScenario(
 {
 	UE_LOG(GameLiftCoreLog, Log, TEXT("%s %s"), Deploy::Logs::kRunAwsScenario, *Scenario.ToString());
 
-	AwsScenarios::IAWSScenario* AwsScenario = AwsDeployerInternal::GetAwsScenarioByName(Scenario, IAWSScenariosCategory::ManagedEC2);
+	AwsScenarios::IAWSScenario* BaseAwsScenario = AwsDeployerInternal::GetAwsScenarioByName(Scenario, IAWSScenariosCategory::ManagedEC2);
+	AwsScenarios::ScenarioWithGameServer* AwsScenario = static_cast<AwsScenarios::ScenarioWithGameServer*>(BaseAwsScenario);
 
 	std::string stdLaunchPathParameter;
 	AwsScenario->CreateLaunchPathParameter(BuildOperatingSystem, BuildFolderPath, BuildFilePath, stdLaunchPathParameter);
@@ -222,7 +223,7 @@ bool AWSScenariosDeployer::DeployCustomScenario(
 {
 	UE_LOG(GameLiftCoreLog, Log, TEXT("%s %s"), Deploy::Logs::kRunCustomScenario, *CustomScenarioPath);
 
-	TUniquePtr<AwsScenarios::IAWSScenario> AwsScenario = AwsScenarios::CustomScenario::Create(CustomScenarioPath);
+	TUniquePtr<AwsScenarios::CustomScenario> AwsScenario = AwsScenarios::CustomScenario::Create(CustomScenarioPath);
 	
 	std::string stdLaunchPathParameter;
 	AwsScenario->CreateLaunchPathParameter(BuildOperatingSystem, BuildFolderPath, BuildFilePath, stdLaunchPathParameter);
@@ -240,9 +241,9 @@ bool AWSScenariosDeployer::DeployCustomScenario(
 }
 
 bool AWSScenariosDeployer::DeployContainerScenario(
-	const FText& Scenario, IAWSAccountInstance* AwsAccountInstance,const FString& ContainerGroupDefinitionName,
-	const FString& ContainerImageName,const FString& ContainerImageUri, const FString& IntraContainerLaunchPath,
-	const FString& GameName, const FString& OutConfigFilePath)
+	const FText& Scenario, IAWSAccountInstance* AwsAccountInstance, const FString& ContainerGroupDefinitionName,
+	const FString& ContainerImageName, const FString& ContainerImageUri, const FString& IntraContainerLaunchPath,
+	const FString& GameName, const FString& FleetName, const FString& OutConfigFilePath)
 {
 	AwsScenarios::IAWSScenario* AwsScenario = AwsDeployerInternal::GetAwsScenarioByName(
 		Scenario, 
@@ -253,6 +254,7 @@ bool AWSScenariosDeployer::DeployContainerScenario(
 	AwsScenarios::ContainerInstanceTemplateParams Params;
 	
 	Params.GameNameParameter = Convertors::FSToStdS(GameName);
+	Params.FleetNameParameter = Convertors::FSToStdS(FleetName);
 	
 	Params.ContainerGroupDefinitionNameParameter = Convertors::FSToStdS(ContainerGroupDefinitionName);
 	Params.ContainerImageNameParameter = Convertors::FSToStdS(ContainerImageName);
