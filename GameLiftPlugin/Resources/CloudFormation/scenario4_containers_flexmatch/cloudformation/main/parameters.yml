@@ -28,5 +28,5 @@ FleetUdpFromPortParameter:
 FleetUdpToPortParameter:
   value: "7780"
 FleetNameParameter:
-  value: "FlexMatch Fleet"
+  value: "{{AWSGAMELIFT::VARS::FleetNameParameter}}"
 

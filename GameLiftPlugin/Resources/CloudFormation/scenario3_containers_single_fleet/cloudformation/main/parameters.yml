@@ -11,6 +11,10 @@ LambdaZipS3KeyParameter:
   value: "{{AWSGAMELIFT::VARS::LambdaZipS3KeyParameter}}"
 ApiGatewayStageNameParameter:
   value: "{{AWSGAMELIFT::VARS::ApiGatewayStageNameParameter}}"
+BuildS3BucketParameter:
+  value: "{{AWSGAMELIFT::VARS::BuildS3BucketParameter}}"
+BuildS3KeyParameter:
+  value: "{{AWSGAMELIFT::VARS::BuildS3KeyParameter}}"
 ContainerGroupDefinitionNameParameter:
   value: "{{AWSGAMELIFT::VARS::ContainerGroupDefinitionNameParameter}}"
 ContainerImageNameParameter:
@@ -19,6 +23,16 @@ ContainerImageUriParameter:
   value: "{{AWSGAMELIFT::VARS::ContainerImageUriParameter}}"
 LaunchPathParameter:
   value: "{{AWSGAMELIFT::VARS::LaunchPathParameter}}"
+LaunchParametersParameter:
+  value: "-port=7777 -UNATTENDED LOG=server.log"
+BuildNameParameter:
+  value: "Sample GameLift Build for {{AWSGAMELIFT::SYS::GAMENAME}}"
+BuildVersionParameter:
+  value: "1"
+BuildOperatingSystemParameter:
+  value: "{{AWSGAMELIFT::VARS::BuildOperatingSystemParameter}}"
+BuildServerSdkVersionParameter:
+  value: "5.0.2"
 FleetTcpFromPortParameter:
   value: "7770"
 FleetTcpToPortParameter:
@@ -28,5 +42,5 @@ FleetUdpFromPortParameter:
 FleetUdpToPortParameter:
   value: "7780"
 FleetNameParameter:
-  value: "Single-Region Fleet"
+  value: "{{AWSGAMELIFT::VARS::FleetNameParameter}}"
 

@@ -349,6 +349,11 @@ Resources:
             - !Ref ContainerGroupDefinitionNameParameter
       Description: !Ref FleetDescriptionParameter
       DesiredEC2Instances: 1
+      EC2InboundPermissions:
+        - FromPort: !Ref FleetUdpFromPortParameter
+          IpRange: "0.0.0.0/0"
+          Protocol: UDP
+          ToPort: !Ref FleetUdpToPortParameter
       EC2InstanceType: c4.xlarge
       FleetType: ON_DEMAND
       Name: !Ref FleetNameParameter
@@ -358,7 +363,6 @@ Resources:
         PolicyPeriodInMinutes: 2
       RuntimeConfiguration:
         GameSessionActivationTimeoutSeconds: 300
-        MaxConcurrentGameSessionActivations: 1
         ServerProcesses:
           - ConcurrentExecutions: 1
             LaunchPath: !Ref LaunchPathParameter

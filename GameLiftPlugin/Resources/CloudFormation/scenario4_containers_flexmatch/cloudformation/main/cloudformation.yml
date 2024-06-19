@@ -1,34 +1,20 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT-0
 
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >
-  This CloudFormation template sets up a game backend service with a single Amazon GameLift fleet. After player
-  authenticates and start a game via POST /start_game, a lambda handler searches for an existing viable game session
-  with open player slot on the fleet, and if not found, creates a new game session. The game client is then expected
-  to poll POST /get_game_connection to receive a viable game session.
+  This CloudFormation template sets up a scenario to use FlexMatch -- a managed matchmaking service provided by
+  GameLift. The template demonstrates best practices in acquiring the matchmaking ticket status, by listening to
+  FlexMatch events in conjunction with a low frequency poller to ensure incomplete tickets are periodically pinged
+  and therefore are not discarded by GameLift.
 
 Parameters:
   ApiGatewayStageNameParameter:
     Type: String
     Default: v1
     Description: Name of the Api Gateway stage
-  
-  ContainerGroupDefinitionNameParameter:
-    Type: String
-    Default: SampleCGDName
-    Description: Name of the Api Gateway stage
 
-  ContainerImageNameParameter:
-    Type: String
-    Default: SampleContainerImageName
-    Description: Name for the Container Image
-
-  ContainerImageUriParameter:
-    Type: String
-    Description: URI pointing to a Container Image in ECR
-  
   FleetDescriptionParameter:
     Type: String
     Default: Deployed by the Amazon GameLift Plug-in for Unreal.
@@ -72,21 +58,46 @@ Parameters:
   LambdaZipS3KeyParameter:
     Type: String
     Description: S3 key that stores the lambda function zip
-  
+
   LaunchPathParameter:
     Type: String
     Description: Location of the game server executable in the build
 
-  MaxPlayersPerGameParameter:
+  MatchmakerTimeoutInSecondsParameter:
     Type: Number
-    Default: 10
-    Description: Maximum number of players per game session
+    Default: 60
+    Description: Time in seconds before matchmaker times out to place players on a server
+
+  MatchmakingTimeoutInSecondsParameter:
+    Type: Number
+    Default: 60
+    Description: Time in seconds before matchmaker times out to wait for enough players to create game session placement
 
   MaxTransactionsPerFiveMinutesPerIpParameter:
     Type: Number
     Default: 100
     MaxValue: 20000000
     MinValue: 100
+
+  NumPlayersPerGameParameter:
+    Type: Number
+    Default: 2
+    Description: Number of players per game session
+
+  QueueTimeoutInSecondsParameter:
+    Type: Number
+    Default: 60
+    Description: Time in seconds before game session placement times out to place players on a server
+
+  TeamNameParameter:
+    Type: String
+    Default: MySampleTeam
+    Description: Team name used in matchmaking ruleset and StartMatchmaking API requests
+
+  TicketIdIndexNameParameter:
+    Type: String
+    Default: ticket-id-index
+    Description: Name of the global secondary index on MatchmakingRequest table with partition key TicketId
 
 Resources:
   ApiGatewayCloudWatchRole:
@@ -108,6 +119,32 @@ Resources:
     Properties:
       CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchRole.Arn
 
+  FlexMatchStatusPollerLambdaFunctionExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: !Sub ${GameNameParameter}FlexMatchStatusPollerLambdaFunctionPolicies
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:Scan"
+                  - "dynamodb:UpdateItem"
+                  - "gamelift:DescribeMatchmaking"
+                Resource: "*"
+
   GameRequestLambdaFunctionExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -123,15 +160,42 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       Policies:
-        - PolicyName: !Sub ${GameNameParameter}GameRequestLambdaFunctionGameLiftPolicies
+        - PolicyName: !Sub ${GameNameParameter}GameRequestLambdaFunctionPolicies
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
-                  - "gamelift:CreateGameSession"
-                  - "gamelift:CreatePlayerSession"
-                  - "gamelift:SearchGameSessions"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Query"
+                  - "gamelift:StartMatchmaking"
+                Resource: "*"
+
+  MatchmakerEventHandlerLambdaFunctionExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: !Sub ${GameNameParameter}MatchmakerEventHandlerLambdaFunctionPolicies
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:Query"
+                  - "dynamodb:UpdateItem"
                 Resource: "*"
 
   RestApi:
@@ -154,15 +218,13 @@ Resources:
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       Policies:
-        - PolicyName: !Sub ${GameNameParameter}ResultsRequestLambdaFunctionGameLiftPolicies
+        - PolicyName: !Sub ${GameNameParameter}ResultsRequestLambdaFunctionPolicies
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
-                  - "gamelift:CreateGameSession"
-                  - "gamelift:CreatePlayerSession"
-                  - "gamelift:SearchGameSessions"
+                  - "dynamodb:Query"
                 Resource: "*"
 
   UserPool:
@@ -172,7 +234,7 @@ Resources:
         - email
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
-      EmailVerificationMessage: "Please verify your email to complete account registration for the GameLift Plugin Single-fleet deployment scenario. Confirmation Code {####}."
+      EmailVerificationMessage: "Please verify your email to complete account registration for the GameLift Plugin FlexMatch fleet deployment scenario. Confirmation Code {####}."
       EmailVerificationSubject: GameLift Plugin - Deployment Scenario Account Verification
       Policies:
         PasswordPolicy:
@@ -189,13 +251,46 @@ Resources:
       UserPoolName: !Sub ${GameNameParameter}UserPool
       UsernameAttributes:
         - email
-
+ 
   GameRequestApiResource:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RestApi.RootResourceId
       PathPart: start_game
       RestApiId: !Ref RestApi
+
+  MatchmakingRequestTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: PlayerId
+          AttributeType: S
+        - AttributeName: TicketId
+          AttributeType: S
+        - AttributeName: StartTime
+          AttributeType: "N"
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref TicketIdIndexNameParameter
+          KeySchema:
+            - AttributeName: TicketId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      KeySchema:
+        - AttributeName: PlayerId
+          KeyType: HASH
+        - AttributeName: StartTime
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: !Sub ${GameNameParameter}MatchmakingRequestTable
+      TimeToLiveSpecification:
+        AttributeName: ExpirationTime
+        Enabled: true
 
   ResultsRequestApiResource:
     Type: "AWS::ApiGateway::Resource"
@@ -278,6 +373,49 @@ Resources:
       RestApiId: !Ref RestApi
       Type: COGNITO_USER_POOLS
 
+  GameSessionQueue:
+    Type: "AWS::GameLift::GameSessionQueue"
+    Properties:
+      Destinations:
+        - DestinationArn: !Sub "arn:aws:gamelift:${AWS::Region}:${AWS::AccountId}:fleet/${OnDemandFleetResource}"
+      Name: !Sub ${GameNameParameter}GameSessionQueue
+      TimeoutInSeconds: !Ref QueueTimeoutInSecondsParameter
+
+  MatchmakingRuleSet:
+    Type: "AWS::GameLift::MatchmakingRuleSet"
+    Properties:
+      Name: !Sub ${GameNameParameter}MatchmakingRuleSet
+      RuleSetBody: !Sub
+        - |-
+            {
+              "name": "MyMatchmakingRuleSet",
+              "ruleLanguageVersion": "1.0",
+              "teams": [{
+                "name": "${teamName}",
+                "minPlayers": ${minPlayers},
+                "maxPlayers": ${maxPlayers}
+              }]
+            }
+        - maxPlayers: !Ref NumPlayersPerGameParameter
+          minPlayers: !Ref NumPlayersPerGameParameter
+          teamName: !Ref TeamNameParameter
+
+  FlexMatchStatusPollerLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !Ref LambdaZipS3BucketParameter
+        S3Key: !Ref LambdaZipS3KeyParameter
+      Description: Lambda function to handle game requests
+      Environment:
+        Variables:
+          MatchmakingRequestTableName: !Ref MatchmakingRequestTable
+      FunctionName: !Sub ${GameNameParameter}FlexMatchStatusPollerLambda
+      Handler: flexmatch_status_poller.handler
+      MemorySize: 128
+      Role: !GetAtt FlexMatchStatusPollerLambdaFunctionExecutionRole.Arn
+      Runtime: python3.8
+
   GameRequestApiMethod:
     Type: "AWS::ApiGateway::Method"
     Properties:
@@ -291,6 +429,23 @@ Resources:
       OperationName: GameRequest
       ResourceId: !Ref GameRequestApiResource
       RestApiId: !Ref RestApi
+
+  MatchmakerEventHandlerLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !Ref LambdaZipS3BucketParameter
+        S3Key: !Ref LambdaZipS3KeyParameter
+      Description: Lambda function to handle game requests
+      Environment:
+        Variables:
+          MatchmakingRequestTableName: !Ref MatchmakingRequestTable
+          TicketIdIndexName: !Ref TicketIdIndexNameParameter
+      FunctionName: !Sub ${GameNameParameter}MatchmakerEventHandlerLambda
+      Handler: matchmaker_event_handler.handler
+      MemorySize: 128
+      Role: !GetAtt MatchmakerEventHandlerLambdaFunctionExecutionRole.Arn
+      Runtime: python3.8
 
   ResultsRequestApiMethod:
     Type: "AWS::ApiGateway::Method"
@@ -306,6 +461,22 @@ Resources:
       ResourceId: !Ref ResultsRequestApiResource
       RestApiId: !Ref RestApi
 
+  ResultsRequestLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !Ref LambdaZipS3BucketParameter
+        S3Key: !Ref LambdaZipS3KeyParameter
+      Description: Lambda function to handle game requests
+      Environment:
+        Variables:
+          MatchmakingRequestTableName: !Ref MatchmakingRequestTable
+      FunctionName: !Sub ${GameNameParameter}ResultsRequestLambda
+      Handler: results_request.handler
+      MemorySize: 128
+      Role: !GetAtt ResultsRequestLambdaFunctionExecutionRole.Arn
+      Runtime: python3.8
+
   WebACLAssociation:
     Type: "AWS::WAFv2::WebACLAssociation"
     DependsOn:
@@ -319,26 +490,104 @@ Resources:
           STAGE_NAME: !Ref ApiGatewayStageNameParameter
       WebACLArn: !GetAtt WebACL.Arn
 
+  FlexMatchStatusPollerScheduledRule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: !Sub ${GameNameParameter}FlexMatchStatusPollerScheduledRule
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt FlexMatchStatusPollerLambdaFunction.Arn
+          Id: !Sub ${GameNameParameter}FlexMatchStatusPollerScheduledRule
+
+  MatchmakerEventTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      KmsMasterKeyId: alias/aws/sns
+      Subscription:
+        - Endpoint: !GetAtt MatchmakerEventHandlerLambdaFunction.Arn
+          Protocol: lambda
+      TopicName: !Sub ${GameNameParameter}MatchmakerEventTopic
+  
   ContainerGroupResource:
     Type: "AWS::GameLift::ContainerGroupDefinition"
     Properties:
       ContainerDefinitions: 
-        -   ContainerName: !Ref ContainerImageNameParameter
-            ImageUri: !Ref ContainerImageUriParameter
+        -   ContainerName: "GLContainerTestSR1"
+            ImageUri: "645463837486.dkr.ecr.eu-west-1.amazonaws.com/cb-gamelift-container:version-16"
             PortConfiguration:
               ContainerPortRanges:
                 - FromPort: !Ref FleetUdpFromPortParameter
                   Protocol: "UDP"
                   ToPort: !Ref FleetUdpToPortParameter                
-      Name: !Ref ContainerGroupDefinitionNameParameter
+      Name: "GLContainerDefinitionTest"
       OperatingSystem: "AMAZON_LINUX_2023"
       TotalCpuLimit: 2000
       TotalMemoryLimit: 4000
 
-  FleetResource:
+  FlexMatchStatusPollerLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref FlexMatchStatusPollerLambdaFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt FlexMatchStatusPollerScheduledRule.Arn
+
+  MatchmakerEventHandlerLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref MatchmakerEventHandlerLambdaFunction
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref MatchmakerEventTopic
+
+  MatchmakerEventTopicPolicy:
+    Type: "AWS::SNS::TopicPolicy"
+    DependsOn: MatchmakerEventTopic
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: gamelift.amazonaws.com
+            Action:
+              - "sns:Publish"
+            Resource: !Ref MatchmakerEventTopic
+      Topics:
+        - Ref: MatchmakerEventTopic
+
+  ResultsRequestLambdaFunctionApiGatewayPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt ResultsRequestLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/*/*"
+
+  MatchmakingConfiguration:
+    Type: "AWS::GameLift::MatchmakingConfiguration"
+    DependsOn:
+      - GameSessionQueue
+      - MatchmakingRuleSet
+    Properties:
+      AcceptanceRequired: false
+      BackfillMode: MANUAL
+      Description: Matchmaking configuration for sample GameLift game
+      FlexMatchMode: WITH_QUEUE
+      GameSessionQueueArns:
+        - "Fn::GetAtt":
+            - GameSessionQueue
+            - Arn
+      Name: !Sub ${GameNameParameter}MatchmakingConfiguration
+      NotificationTarget: !Ref MatchmakerEventTopic
+      RequestTimeoutSeconds: !Ref MatchmakerTimeoutInSecondsParameter
+      RuleSetName: !Ref MatchmakingRuleSet
+
+  OnDemandFleetResource:
+    Type: "AWS::GameLift::Fleet"
     DependsOn:
       - ContainerGroupResource
-    Type: "AWS::GameLift::Fleet"
     Properties:
       ComputeType: CONTAINER
       ContainerGroupsConfiguration : 
@@ -346,15 +595,20 @@ Resources:
             FromPort: !Ref FleetTcpFromPortParameter
             ToPort: !Ref FleetTcpToPortParameter
           ContainerGroupDefinitionNames: 
-            - !Ref ContainerGroupDefinitionNameParameter
+            - "GLContainerDefinitionTest"
       Description: !Ref FleetDescriptionParameter
       DesiredEC2Instances: 1
+      EC2InboundPermissions:
+        - FromPort: !Ref FleetUdpFromPortParameter
+          IpRange: "0.0.0.0/0"
+          Protocol: UDP
+          ToPort: !Ref FleetUdpToPortParameter
       EC2InstanceType: c4.xlarge
       FleetType: ON_DEMAND
       Locations:
-        - Location: "eu-west-1"
-        - Location: "eu-west-2"
-        - Location: "eu-central-1"
+        - Location: us-west-2
+        - Location: us-east-1
+        - Location: eu-west-1
       Name: !Ref FleetNameParameter
       NewGameSessionProtectionPolicy: FullProtection
       ResourceCreationLimitPolicy:
@@ -362,35 +616,9 @@ Resources:
         PolicyPeriodInMinutes: 2
       RuntimeConfiguration:
         GameSessionActivationTimeoutSeconds: 300
-        MaxConcurrentGameSessionActivations: 1
         ServerProcesses:
           - ConcurrentExecutions: 1
             LaunchPath: !Ref LaunchPathParameter
-
-  AliasResource:
-    Type: "AWS::GameLift::Alias"
-    Properties:
-      Description: !Sub Alias to access ${GameNameParameter} fleet
-      Name: !Sub ${GameNameParameter}FleetAlias
-      RoutingStrategy:
-        Type: SIMPLE
-        FleetId: !Ref FleetResource
-
-  ResultsRequestLambdaFunction:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Code:
-        S3Bucket: !Ref LambdaZipS3BucketParameter
-        S3Key: !Ref LambdaZipS3KeyParameter
-      Description: Lambda function to handle game requests
-      Environment:
-        Variables:
-          FleetAlias: !Ref AliasResource
-      FunctionName: !Sub ${GameNameParameter}ResultsRequestLambda
-      Handler: results_request.handler
-      MemorySize: 128
-      Role: !GetAtt ResultsRequestLambdaFunctionExecutionRole.Arn
-      Runtime: python3.8
 
   GameRequestLambdaFunction:
     Type: "AWS::Lambda::Function"
@@ -401,21 +629,14 @@ Resources:
       Description: Lambda function to handle game requests
       Environment:
         Variables:
-          FleetAlias: !Ref AliasResource
-          MaxPlayersPerGame: !Ref MaxPlayersPerGameParameter
+          MatchmakingConfigurationName: !GetAtt MatchmakingConfiguration.Name
+          MatchmakingRequestTableName: !Ref MatchmakingRequestTable
+          TeamName: !Ref TeamNameParameter
       FunctionName: !Sub ${GameNameParameter}GameRequestLambda
       Handler: game_request.handler
       MemorySize: 128
       Role: !GetAtt GameRequestLambdaFunctionExecutionRole.Arn
       Runtime: python3.8
-
-  ResultsRequestLambdaFunctionApiGatewayPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !GetAtt ResultsRequestLambdaFunction.Arn
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/*/*"
 
   GameRequestLambdaFunctionApiGatewayPermission:
     Type: "AWS::Lambda::Permission"
