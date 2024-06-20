@@ -513,14 +513,14 @@ Resources:
     Type: "AWS::GameLift::ContainerGroupDefinition"
     Properties:
       ContainerDefinitions: 
-        -   ContainerName: "GLContainerTestSR1"
-            ImageUri: "645463837486.dkr.ecr.eu-west-1.amazonaws.com/cb-gamelift-container:version-16"
+        -   ContainerName: !Ref ContainerImageNameParameter
+            ImageUri: !Ref ContainerImageUriParameter
             PortConfiguration:
               ContainerPortRanges:
                 - FromPort: !Ref FleetUdpFromPortParameter
                   Protocol: "UDP"
                   ToPort: !Ref FleetUdpToPortParameter                
-      Name: "GLContainerDefinitionTest"
+      Name: !Ref ContainerGroupDefinitionNameParameter
       OperatingSystem: "AMAZON_LINUX_2023"
       TotalCpuLimit: 2000
       TotalMemoryLimit: 4000
