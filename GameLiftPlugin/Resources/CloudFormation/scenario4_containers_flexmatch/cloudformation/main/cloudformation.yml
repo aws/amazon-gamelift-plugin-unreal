@@ -15,6 +15,20 @@ Parameters:
     Default: v1
     Description: Name of the Api Gateway stage
 
+  ContainerGroupDefinitionNameParameter:
+    Type: String
+    Default: SampleCGDName
+    Description: Name of the Api Gateway stage
+
+  ContainerImageNameParameter:
+    Type: String
+    Default: SampleContainerImageName
+    Description: Name for the Container Image
+
+  ContainerImageUriParameter:
+    Type: String
+    Description: URI pointing to a Container Image in ECR
+  
   FleetDescriptionParameter:
     Type: String
     Default: Deployed by the Amazon GameLift Plug-in for Unreal.
