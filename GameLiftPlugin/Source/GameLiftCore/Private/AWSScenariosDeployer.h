@@ -37,7 +37,6 @@ public:
 		const FString& ContainerImageUri,
 		const FString& IntraContainerLaunchPath,
 		const FString& GameName,
-		const FString& FleetName,
 		const FString& OutConfigFilePath
 	) override;
 

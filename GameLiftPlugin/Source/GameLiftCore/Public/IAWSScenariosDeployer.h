@@ -43,7 +43,7 @@ public:
 		const FString& ContainerImageName,
 		const FString& ContainerImageUri,
 		const FString& IntraContainerLaunchPath,
-		const FString& GameName, const FString& FleetName, const FString& OutConfigFilePath
+		const FString& GameName, const FString& OutConfigFilePath
 	) = 0;
 	virtual bool StopDeployment(IAWSAccountInstance* AwsAccountInstance) = 0;
 

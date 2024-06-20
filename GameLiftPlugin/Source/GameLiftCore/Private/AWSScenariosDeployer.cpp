@@ -243,7 +243,7 @@ bool AWSScenariosDeployer::DeployCustomScenario(
 bool AWSScenariosDeployer::DeployContainerScenario(
 	const FText& Scenario, IAWSAccountInstance* AwsAccountInstance, const FString& ContainerGroupDefinitionName,
 	const FString& ContainerImageName, const FString& ContainerImageUri, const FString& IntraContainerLaunchPath,
-	const FString& GameName, const FString& FleetName, const FString& OutConfigFilePath)
+	const FString& GameName, const FString& OutConfigFilePath)
 {
 	AwsScenarios::IAWSScenario* AwsScenario = AwsDeployerInternal::GetAwsScenarioByName(
 		Scenario, 
@@ -254,7 +254,6 @@ bool AWSScenariosDeployer::DeployContainerScenario(
 	AwsScenarios::ContainerInstanceTemplateParams Params;
 	
 	Params.GameNameParameter = Convertors::FSToStdS(GameName);
-	Params.FleetNameParameter = Convertors::FSToStdS(FleetName);
 	
 	Params.ContainerGroupDefinitionNameParameter = Convertors::FSToStdS(ContainerGroupDefinitionName);
 	Params.ContainerImageNameParameter = Convertors::FSToStdS(ContainerImageName);

@@ -27,14 +27,12 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	void SetGameName(const FText& Name);
-	void SetFleetName(const FText& Name);
 	void SetContainerImageURI(const FText& Path);
 	void SetIntraContainerLaunchPath(const FText& Path);
 	void SetExtraServerResourcesPath(const FText& Path);
 	void SetOutConfigFilePath(const FText& Path);
 
 	const FText& GetGameName() const;
-	const FText& GetFleetName() const;
 	const FText& GetContainerImageURI() const;
 	const FText& GetIntraContainerLaunchPath() const;
 	const FText& GetExtraServerResourcesPath() const;
@@ -42,7 +40,6 @@ public:
 
 private:
 	TSharedPtr<SPathInput> GameNameInput;
-	TSharedPtr<SPathInput> FleetNameInput;
 	TSharedPtr<SPathInput> ContainerImageURIInput;
 	TSharedPtr<SPathInput> IntraContainerLaunchPathInput;
 	TSharedPtr<SPathInput> ExtraServerResourcesPathInput;

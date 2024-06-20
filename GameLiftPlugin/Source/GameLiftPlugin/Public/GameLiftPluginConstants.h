@@ -418,11 +418,6 @@ namespace Menu
 		static const auto kGameNameHint = NSLOCTEXT("SContainerDeploymentFields", "GameName_Hint", "A name to represent your Game's containers");
 		static const auto kGameNameInstructionText = NSLOCTEXT("SContainerDeploymentFields", "GameName_InstructionText", "The game name must have 1-12 characters.");
 		
-		static const auto kFleetNameTitle = NSLOCTEXT("SContainerDeploymentFields", "FleetName_Title", "Fleet Name");
-		static const auto kFleetNameText = NSLOCTEXT("SContainerDeploymentFields", "FleetName_Text", "Fleet Name");
-		static const auto kFleetNameHint = NSLOCTEXT("SContainerDeploymentFields", "FleetName_Hint", "A name to represent your Fleet");
-		static const auto kFleetNameInstructionText = NSLOCTEXT("SContainerDeploymentFields", "FleetName_InstructionText", "The Fleet name must have 1-12 characters.");
-		
 		static const auto kContainerImageURITitle = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Title", "Container Image URI (within ECR)");
 		static const auto kContainerImageURIText = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Text", "Container Image URI ");
 		static const auto kContainerImageURIHint = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Hint", "URI referencing a Container Image in ECR which contains your game server.");
@@ -436,7 +431,6 @@ namespace Menu
 		static const auto kDeploymentDisabledNeedBootstrapTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledNeedBootstrapTooltip", "Account needs to be configured first");
 		static const auto kDeploymentDisabledGameNameEmptyTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledGameNameEmptyTooltip", "Cannot deploy with empty game name");
 		static const auto kDeploymentDisabledGameNameTooLongTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledGameNameTooLongTooltip", "Cannot deploy game name with more than 12 characters");
-		static const auto kDeploymentDisabledFleetNameEmptyTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledFleetNameEmptyTooltip", "Cannot deploy with empty Fleet name");
 		static const auto kDeploymentDisabledContainerImageURINotSetTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledContainerImageURINotSetTooltip", "Cannot deploy with empty Container Image URI");
 		static const auto kDeploymentDisabledIntraContainerLaunchPathNotSetTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledIntraContainerLaunchPathNotSetTooltip", "Cannot deploy with empty Intra-Container Launch Path");
 		static const auto kDeploymentDisabledAlreadyActiveTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledAlreadyActiveTooltip", "Deployment cannot be triggered once it is in progress state");

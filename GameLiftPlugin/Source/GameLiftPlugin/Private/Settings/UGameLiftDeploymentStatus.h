@@ -50,8 +50,6 @@ public:
 	FText ContainerOutConfigFilePath;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText GameName;
-	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
-	FText FleetName;
 
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FDateTime LastUpdated;

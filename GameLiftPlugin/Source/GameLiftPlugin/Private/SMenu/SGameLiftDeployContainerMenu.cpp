@@ -60,11 +60,6 @@ namespace
 		{
 			return { false, Menu::DeployContainers::kDeploymentDisabledGameNameTooLongTooltip };
 		}
-		
-		if (AsSContainerDeploymentFieldsRef(DeploymentFields)->GetFleetName().IsEmptyOrWhitespace())
-		{
-			return { false, Menu::DeployContainers::kDeploymentDisabledFleetNameEmptyTooltip };
-		}
 
 		if (AsSContainerDeploymentFieldsRef(DeploymentFields)->GetContainerImageURI().IsEmptyOrWhitespace())
 		{
@@ -389,7 +384,6 @@ void SGameLiftDeployContainerMenu::SetDefaultValues()
 
 	auto DeploymentInfo = AsSContainerDeploymentFieldsRef(DeploymentFields);
 	DeploymentInfo->SetGameName(DeploySettings->GameName);
-	DeploymentInfo->SetFleetName(DeploySettings->FleetName);
 	DeploymentInfo->SetContainerImageURI(DeploySettings->ContainerImageURI);
 	DeploymentInfo->SetIntraContainerLaunchPath(DeploySettings->IntraContainerLaunchPath);
 	DeploymentInfo->SetExtraServerResourcesPath(DeploySettings->ContainerExtraServerResourcesPath);
@@ -427,7 +421,6 @@ FReply SGameLiftDeployContainerMenu::DeployCloudFormation()
 	auto DeploymentInfo = AsSContainerDeploymentFieldsRef(DeploymentFields);
 	UGameLiftDeploymentStatus* DeploySettings = GetMutableDefault<UGameLiftDeploymentStatus>();
 	DeploySettings->GameName = DeploymentInfo->GetGameName();
-	DeploySettings->FleetName = DeploymentInfo->GetFleetName();
 	DeploySettings->ContainerGroupDefinitionName = FText::FromString(DeploymentInfo->GetGameName().ToString() + FString("ContainerGroup"));
 	DeploySettings->ContainerImageName = FText::FromString(DeploymentInfo->GetGameName().ToString() + FString("Container"));
 	DeploySettings->ContainerImageURI = DeploymentInfo->GetContainerImageURI();
@@ -466,7 +459,6 @@ FReply SGameLiftDeployContainerMenu::DeployCloudFormation()
 			DeploySettings->ContainerImageURI.ToString(),
 			DeploySettings->IntraContainerLaunchPath.ToString(),
 			DeploySettings->GameName.ToString(),
-			DeploySettings->FleetName.ToString(),
 			DeploySettings->OutConfigFilePath.ToString()
 		);
 	
