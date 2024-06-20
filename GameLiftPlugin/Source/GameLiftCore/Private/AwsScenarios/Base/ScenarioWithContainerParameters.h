@@ -24,7 +24,6 @@ namespace AwsScenarios
 				"ContainerGroupDefinitionNameParameter",
 				"ContainerImageNameParameter",
 				"ContainerImageUriParameter",
-				"FleetNameParameter"
 				"GameNameParameter",
 				"LambdaZipS3BucketParameter",
 				"LambdaZipS3KeyParameter",
@@ -46,7 +45,6 @@ namespace AwsScenarios
 				TemplateParams.ContainerGroupDefinitionNameParameter.c_str(),
 				TemplateParams.ContainerImageNameParameter.c_str(),
 				TemplateParams.ContainerImageUriParameter.c_str(),
-				TemplateParams.FleetNameParameter.c_str(),
 				TemplateParams.GameNameParameter.c_str(),
 				TemplateParams.LambdaZipS3BucketParameter.c_str(),
 				TemplateParams.LambdaZipS3KeyParameter.c_str(),
