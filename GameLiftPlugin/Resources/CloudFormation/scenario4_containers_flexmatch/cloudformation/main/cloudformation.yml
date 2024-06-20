@@ -609,7 +609,7 @@ Resources:
             FromPort: !Ref FleetTcpFromPortParameter
             ToPort: !Ref FleetTcpToPortParameter
           ContainerGroupDefinitionNames: 
-            - "GLContainerDefinitionTest"
+            - !Ref ContainerGroupDefinitionNameParameter
       Description: !Ref FleetDescriptionParameter
       DesiredEC2Instances: 1
       EC2InboundPermissions:
