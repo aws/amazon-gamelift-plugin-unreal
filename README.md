@@ -69,6 +69,7 @@ Complete the following steps to install and enable the plugin for your multiplay
 
 1. Rebuild the project solution. After completing the previous steps to update your project files, rebuild the solution. Note: if you get an error for not finding header files in the C++ Server SDK similar to `fatal error C1083: Cannot open include file: 'aws/gamelift/server/model/DescribePlayerSessionsResult.h': No such file or directory` when building the project, or get a path too long warning when unzipping the files in the release bundle, try moving the plugin to a folder closer to the root, or rename the destination folder to a shorter name and extract the files again. Sometimes zip tools might silently skip files due to file path being too long.
 
+
 ## Build the Amazon GameLift C++ Server SDK
 
 Before you can use the plugin inside an Unreal game, you need to build the Amazon GameLift server C++ SDK.
