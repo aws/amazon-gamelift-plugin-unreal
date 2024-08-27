@@ -81,7 +81,7 @@ To build the Amazon GameLift server SDK:
 
 ### Linux
 
-For a quick and easy build for Amazon Linux compatible binaries, see the [Building the Amazon GameLift Server SDK for Unreal Engine 5 on Amazon Linux](https://github.com/aws/amazon-gamelift-toolkit/tree/main/building-gamelift-server-sdk-for-unreal-engine-and-amazon-linux)
+For a quick and easy automated build for Amazon Linux compatible binaries, see the [Building the Amazon GameLift Server SDK for Unreal Engine 5 on Amazon Linux](https://github.com/aws/amazon-gamelift-toolkit/tree/main/building-gamelift-server-sdk-for-unreal-engine-and-amazon-linux). The steps below expect you have the correct OpenSSL version that matches your Unreal Engine configured in your Linux environment.
 
 1. Run the following commands
     ```sh
