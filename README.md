@@ -81,6 +81,8 @@ To build the Amazon GameLift server SDK:
 
 ### Linux
 
+For a quick and easy build for Amazon Linux compatible binaries, see the [Building the Amazon GameLift Server SDK for Unreal Engine 5 on Amazon Linux](https://github.com/aws/amazon-gamelift-toolkit/tree/main/building-gamelift-server-sdk-for-unreal-engine-and-amazon-linux)
+
 1. Run the following commands
     ```sh
     mkdir out
