@@ -303,7 +303,7 @@ namespace Menu
 		static const auto kBuildFilePathTitle = NSLOCTEXT("SDeploymentFields", "BuildFilePath_Title", "Server build executable");
 		static const auto kBuildFilePathTooltip = NSLOCTEXT("SDeploymentFields", "BuildFilePath_ToolTip", "Specify the executable file of your game server within server folder path.");
 		static const auto kBuildFilePathHint = NSLOCTEXT("SDeploymentFields", "BuildFilePath_Hint", "Path to server build executable");
-		static const auto kBuildFilePathFilter = TEXT("Game Server|*.exe;*.sh");
+		static const auto kBuildFilePathFilter = TEXT("Game Server|*.exe;*.sh;|All Files|*");
 
 		static const auto kExtraServerResourcesPathTitle = NSLOCTEXT("SDeploymentFields", "ExtraFilesPath_Title", "Additional server resources path");
 		static const auto kExtraServerResourcesPathTooltip = NSLOCTEXT("SDeploymentFields", "ExtraFilesPath_ToolTip", "Specify a folder which contains additional files for Gamelift server delivery.");
