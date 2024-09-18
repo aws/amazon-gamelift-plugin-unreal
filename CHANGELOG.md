@@ -2,7 +2,8 @@ CHANGELOG
 
 # 1.1.2 (9/19/2024)
 
-- Updated the plugins to support the latest version of the GameLift Server SDK.
+- Updated the plugin to support the latest version of the GameLift Server SDK.
+- Added `All Files` option when browsing for `Server Build Executable`.
 
 # 1.1.1 (3/8/2024)
 
