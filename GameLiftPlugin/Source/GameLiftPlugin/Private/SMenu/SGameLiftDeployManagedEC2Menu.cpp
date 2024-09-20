@@ -108,7 +108,7 @@ void SGameLiftDeployManagedEC2Menu::Construct(const FArguments& InArgs)
 
 	DeploymentStatus = SNew(SDeploymentStatus);
 
-	BuildScenarioValues();
+	BuildScenarioValues(IAWSScenariosCategory::ManagedEC2);
 
 	const auto kRunDeploymentGameInfo = FText::Format(FText::FromString("<RichTextBlock.TextHighlight>{1}</>: {0}"), Menu::DeployManagedEC2::kRunDeploymentGameInfoText, Settings::kRichTextBlockNoteText);
 
@@ -209,7 +209,10 @@ void SGameLiftDeployManagedEC2Menu::OnBuildingDeploymentScenarioValues(TArray<FT
 
 	for (int32 Index = 0; Index < ScenarioNames.Num(); Index++)
 	{
-		Items.Add(FTextIntPair(ScenarioNames[Index], Index, Deployer.GetToolTip(ScenarioNames[Index])));
+		Items.Add(FTextIntPair(
+			ScenarioNames[Index],
+			Index,
+			Deployer.GetToolTip(ScenarioNames[Index], IAWSScenariosCategory::ManagedEC2)));
 	}
 }
 
@@ -442,12 +445,12 @@ void SGameLiftDeployManagedEC2Menu::SetDefaultValues()
 	}
 }
 
-void SGameLiftDeployManagedEC2Menu::BuildScenarioValues()
+void SGameLiftDeployManagedEC2Menu::BuildScenarioValues(IAWSScenariosCategory Category)
 {
 	ScenarioNames.Reset();
 
 	auto& Deployer = IGameLiftCoreModule::Get().GetScenarioDeployer();
-	TArray<FText> Scenarios = Deployer.GetScenarios();
+	TArray<FText> Scenarios = Deployer.GetScenarios(Category);
 
 	for (int i = 0; i < Scenarios.Num(); i++)
 	{
@@ -509,7 +512,7 @@ FReply SGameLiftDeployManagedEC2Menu::DeployCloudFormation()
 		UGameLiftDeploymentStatus* DeploySettings = GetMutableDefault<UGameLiftDeploymentStatus>();
 		auto& deployer = IGameLiftCoreModule::Get().GetScenarioDeployer();
 
-		bool IsDeployed = deployer.DeployScenario(
+		bool IsDeployed = deployer.DeployManagedEC2Scenario(
 			DeploySettings->Scenario,
 			IGameLiftCoreModule::Get().GetProfileBootstrap().GetAccountInstance(),
 			DeploySettings->BuildName.ToString(),

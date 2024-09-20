@@ -4,45 +4,49 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IAWSScenariosDeployer.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SCompoundWidget.h"
 
 class SWindow;
 class SPathInput;
+struct FTextIntPair;
 
 class SGameLiftDeployManagedEC2Menu : public SCompoundWidget
 {
-	SLATE_BEGIN_ARGS(SGameLiftDeployManagedEC2Menu) { }
-	
-	SLATE_ARGUMENT(TWeakPtr<SWindow>, ContextWindow)
+	SLATE_BEGIN_ARGS(SGameLiftDeployManagedEC2Menu)
+		{
+		}
+
+		SLATE_ARGUMENT(TWeakPtr<SWindow>, ContextWindow)
 
 	SLATE_END_ARGS()
 
 public:
-	void Construct(const FArguments& InArgs);
+	virtual void Construct(const FArguments& InArgs);
 
-private:
-	TSharedRef<SWidget> CreateSelectDeploymentScenarioSection();
-	TSharedRef<SWidget> CreateGameParametersSection();
-	TSharedRef<SWidget> CreateDeploySection();
-	TSharedRef<SWidget> CreateLaunchClientSection();
+protected:
+	virtual TSharedRef<SWidget> CreateSelectDeploymentScenarioSection();
+	virtual TSharedRef<SWidget> CreateGameParametersSection();
+	virtual TSharedRef<SWidget> CreateDeploySection();
+	virtual TSharedRef<SWidget> CreateLaunchClientSection();
 
-	void BuildScenarioValues();
+	virtual void BuildScenarioValues(IAWSScenariosCategory Category);
+ 
+	virtual void OnBuildingDeploymentScenarioValues(TArray<FTextIntPair>& Items);
+	virtual void OnDeploymentScenarioSelected(int SelectionId, const FTextIntPair& Item);
 
-	void OnBuildingDeploymentScenarioValues(TArray<FTextIntPair>& Items);
-	void OnDeploymentScenarioSelected(int SelectionId, const FTextIntPair& Item);
+	virtual void SetDefaultValues();
+	virtual FReply DeployCloudFormation();
+	virtual FReply StopDeploying();
+	virtual void SwitchDeploymentFields();
+	virtual bool CanLaunchGameClient() const;
 
-	void SetDefaultValues();
-	FReply DeployCloudFormation();
-	FReply StopDeploying();
-	void SwitchDeploymentFields();
-	bool CanLaunchGameClient() const;
+	virtual FText TooltipLaunchGameClient() const;
 
-	FText TooltipLaunchGameClient() const;
+	virtual TSharedRef<SWidget> CreateCloudFormationInConsoleHyperLink();
 
-	TSharedRef<SWidget> CreateCloudFormationInConsoleHyperLink();
-
-private:
+protected:
 	TSharedPtr<SWidget> DeploymentFields;
 	TSharedPtr<SWidget> DeploymentStatus;
 	TSharedPtr<SPathInput> GameClientPathInput;

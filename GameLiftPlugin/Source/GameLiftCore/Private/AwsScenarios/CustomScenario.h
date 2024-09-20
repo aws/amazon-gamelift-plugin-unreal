@@ -16,7 +16,7 @@ namespace AwsScenarios
 			return Menu::DeploymentServer::kCustom;
 		}
 
-		static TUniquePtr<IAWSScenario> Create(const FString& CustomScenarioPath)
+		static TUniquePtr<CustomScenario> Create(const FString& CustomScenarioPath)
 		{
 			return MakeUnique<CustomScenario>(CustomScenarioPath);
 		}

@@ -24,6 +24,7 @@ public:
 	/** This function will be bound to Command. */
 	void DeployAnywhereButtonClicked();
 	void DeployManagedEC2ButtonClicked();
+	void DeployContainerButtonClicked();
 	void OpenSettingsButtonClicked();
 	
 private:
@@ -47,5 +48,6 @@ private:
 
 	TSharedPtr<FGameLiftTab> DeployAnywhereTab;
 	TSharedPtr<FGameLiftTab> DeployManagedEC2Tab;
+	TSharedPtr<FGameLiftTab> DeployContainerTab;
 	TSharedPtr<FGameLiftTab> OpenSettings;
 };

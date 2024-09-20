@@ -382,7 +382,7 @@ namespace Menu
 		static const auto kApiGatewayEndpointTooltip = NSLOCTEXT("SDeploymentStatus", "ApiGatewayEndpoint_Tooltip", "Amazon API is an AWS service to create and use APIs. You can copy\nand paste this endpoint wherever you need to integrate with AWS and GameLift.");
 
 		// Client
-		static const auto kRunDeploymentGameInfoText = NSLOCTEXT("SGameLiftClientMenu", "ClientInfoText", "To run a sample game you need to specify Client path that your previously built.");
+		static const auto kRunDeploymentGameInfoText = NSLOCTEXT("SGameLiftClientMenu", "ClientInfoText", "To run a sample game you need to specify Client path that you have previously built.");
 
 		static const auto kDeployedGameClientRunningMessage = NSLOCTEXT("SGameLiftClientMenu", "ClientRunningMessage", "Deployed Game client has started locally");
 		static const auto kDeployedGameClientFailureMessage = NSLOCTEXT("SGameLiftClientMenu", "ClientFailureMessage", "Unable to start a Deployed Game client locally");
@@ -407,6 +407,50 @@ namespace Menu
 		}
 	} // namespace DeployManagedEC2
 
+	
+	namespace DeployContainers
+	{
+		static const auto kGameLiftContainersHelpLinkText = NSLOCTEXT("SGameLiftDeployContainerMenu", "GameLiftContainersHelpLinkText", "Help with GameLift Containers");
+
+		//Game Parameters
+		static const auto kGameNameTitle = NSLOCTEXT("SContainerDeploymentFields", "GameName_Title", "Game Name");
+		static const auto kGameNameText = NSLOCTEXT("SContainerDeploymentFields", "GameName_Text", "Game Name");
+		static const auto kGameNameHint = NSLOCTEXT("SContainerDeploymentFields", "GameName_Hint", "A name to represent your Game's containers");
+		static const auto kGameNameInstructionText = NSLOCTEXT("SContainerDeploymentFields", "GameName_InstructionText", "The game name must have 1-12 characters.");
+		
+		static const auto kContainerImageURITitle = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Title", "Container Image URI (within ECR)");
+		static const auto kContainerImageURIText = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Text", "Container Image URI ");
+		static const auto kContainerImageURIHint = NSLOCTEXT("SContainerDeploymentFields", "ContainerImageURI_Hint", "URI referencing a Container Image in ECR which contains your game server.");
+		
+		static const auto kIntraContainerLaunchPathTitle = NSLOCTEXT("SContainerDeploymentFields", "IntraContainerLaunchPathTitle_Title", "Container Server Launch Path");
+		static const auto kIntraContainerLaunchPathText = NSLOCTEXT("SContainerDeploymentFields", "IntraContainerLaunchPath_Text", "Container Server Launch Path");
+		static const auto kIntraContainerLaunchPathHint = NSLOCTEXT("SContainerDeploymentFields", "IntraContainerLaunchPath_Hint", "The path to the game server executable within the Container.");
+
+		//Deplyment Parameters
+		static const auto kDeploymentEnabledTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentEnabledTooltip", "Deployment can be triggered");
+		static const auto kDeploymentDisabledNeedBootstrapTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledNeedBootstrapTooltip", "Account needs to be configured first");
+		static const auto kDeploymentDisabledGameNameEmptyTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledGameNameEmptyTooltip", "Cannot deploy with empty game name");
+		static const auto kDeploymentDisabledGameNameTooLongTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledGameNameTooLongTooltip", "Cannot deploy game name with more than 12 characters");
+		static const auto kDeploymentDisabledContainerImageURINotSetTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledContainerImageURINotSetTooltip", "Cannot deploy with empty Container Image URI");
+		static const auto kDeploymentDisabledIntraContainerLaunchPathNotSetTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledIntraContainerLaunchPathNotSetTooltip", "Cannot deploy with empty Intra-Container Launch Path");
+		static const auto kDeploymentDisabledAlreadyActiveTooltip = NSLOCTEXT("SGameLiftDeployContainerMenu", "kDeploymentDisabledAlreadyActiveTooltip", "Deployment cannot be triggered once it is in progress state");
+		
+		static const auto kDeploymentStartedAwsScenarioNotification = TEXT("Deploying GameLift scenario...");
+		static const auto kDeploymentStartedCustomScenarioNotification = TEXT("Deploying a custom GameLift scenario...");
+		static const auto kDeploymentAbortedNotification = TEXT("Aborting GameLift deployment...");
+		static const auto kDeploymentCompletedNotification = TEXT("GameLift deployment is completed.");
+		static const auto kDeploymentFailedNotification = TEXT("GameLift deployment is failed.");
+
+		static const auto kMaxContainerNamesLength = 12;
+		
+		namespace Logs
+		{
+			static const auto kOutputPathChangedWarning = TEXT("Client Config File Output Path is not default");
+			static const auto kDeploymentSucceed = TEXT("Deployment succeed");
+			static const auto kDeploymentFailed = TEXT("Deployment failed");
+		}
+	} // namespace DeployContainers
+
 	static const auto kErrorUserMessageWithLog = NSLOCTEXT("FGameLiftPluginModule", "ErrorUserMessageWithLog", "For more information, see `Output Log`");
 	static const auto kErrorUserMessageNoLog = NSLOCTEXT("FGameLiftPluginModule", "ErrorUserMessageNoLog", "Unknown failure, for more information, see `Output Log`. \nError code is:");
 } // namespace Menu
@@ -418,6 +462,9 @@ namespace Tabs
 	
 	static const auto kDeployManagedEC2TabTitle = NSLOCTEXT("FGameLiftDeployManagedEC2Tab", "FGameLiftDeployManagedEC2Tab_Title", "Deploy EC2 Fleet");
 	static const auto kDeployManagedEC2TabTooltip = NSLOCTEXT("FGameLiftDeployManagedEC2Tab", "FGameLiftDeployManagedEC2Tab_Tooltip", "Deploy the game with Amazon GameLift on a managed EC2 instance.");
+	
+	static const auto kDeployContainerTabTitle = NSLOCTEXT("FGameLiftDeployContainerTab", "FGameLiftDeployContainerTab_Title", "Deploy Container Fleet");
+	static const auto kDeployContainerTabTooltip = NSLOCTEXT("FGameLiftDeployContainerTab", "FGameLiftDeployContainerTab_Tooltip", "Deploy the game with Amazon GameLift Containers.");
 } // namespace Tabs
 
 namespace Defaults
@@ -614,6 +661,7 @@ namespace Url
 	static const auto kGameLiftHowToDeployYourFirstGameUrl = TEXT("https://docs.aws.amazon.com/gamelift/latest/developerguide/unreal-plugin-ec2-scenarios.html");
 	static const auto kGameLiftEndpointsUrl = TEXT("https://docs.aws.amazon.com/general/latest/gr/gamelift.html");
 	static const auto kGameLiftPricingPlanUrl = TEXT("https://aws.amazon.com/gamelift/pricing/");
+	static const auto kGameLiftContainersHelpUrl = TEXT("https://docs.aws.amazon.com/gamelift/latest/developerguide/containers-intro.html");
 	static const auto kAwsAccountCreateAwsAccountUrl = TEXT("https://repost.aws/knowledge-center/create-and-activate-aws-account");
 
 	static const auto kHowToIntegrateYourGameForAnywhereUrl = TEXT("http://docs.aws.amazon.com/gamelift/latest/developerguide/unreal-plugin-anywhere-integrate.html");

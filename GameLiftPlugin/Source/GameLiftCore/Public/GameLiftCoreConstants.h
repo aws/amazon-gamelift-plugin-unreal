@@ -11,19 +11,29 @@ namespace Menu
 	{
 		static const auto kSingleRegionFleet = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_Scenario", "Single-region fleet");
 		static const auto kFlexMatch = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_Scenario", "FlexMatch fleet");
+		static const auto kContainersSingleRegionFleet = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersSingleRegionFleet_Scenario", "Single-region Containers Fleet");
+		static const auto kContainersFlexMatch = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersFlexMath_Scenario", "FlexMatch Containers Fleet");
 		static const auto kCustom = NSLOCTEXT("SGameLiftDeploymentMenu", "Custom_Scenario", "Custom");
 
 		static const auto kSingleRegionFleetTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_ToolTip",
 			"Creates a game backend service with a single Amazon GameLift fleet.");
 
 		static const auto kFlexMatchTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_ToolTip",
-			"Uses FlexMatch, a managed matchmaking service, to match game players together.");
+		"Uses FlexMatch, a managed matchmaking service, to match game players together.");
+
+		static const auto kContainersSingleRegionFleetTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersSingleRegionFleet_ToolTip",
+			"Creates a game backend service with a single Amazon GameLift Containers fleet.");
+
+		static const auto kContainersFlexMatchTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersFlexMath_ToolTip",
+			"Uses FlexMatch, a managed matchmaking service, to match game players together across Amazon GameLift Containers fleets.");
 
 		static const auto kCustomTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "Custom_ToolTip",
 			"This is a custom user scenario.");
 
 		static const auto kSingleRegionFleetFolder = TEXT("scenario1_single_fleet");
 		static const auto kFlexMatchFolder = TEXT("scenario2_flexmatch");
+		static const auto kContainersSingleRegionFleetFolder = TEXT("scenario3_containers_single_fleet");
+		static const auto kContainersFlexMatchFolder = TEXT("scenario4_containers_flexmatch");
 		static const auto kCurrentScenarioFolder = TEXT("scenario_current");		
 		static const auto kCustomScenarioFolder = TEXT("scenario_custom");
 	}
