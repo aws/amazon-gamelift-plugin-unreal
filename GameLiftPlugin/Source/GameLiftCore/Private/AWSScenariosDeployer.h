@@ -4,6 +4,7 @@
 #pragma once
 
 #include "IAWSScenariosDeployer.h"
+#include "aws/gamelift/core/errors.h"
 #include "AwsScenarios/IAWSScenario.h"
 
 class AWSScenariosDeployer : public IAWSScenariosDeployer

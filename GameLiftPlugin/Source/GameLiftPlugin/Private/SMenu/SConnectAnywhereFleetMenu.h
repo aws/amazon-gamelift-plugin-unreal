@@ -4,11 +4,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IGameLiftAnywhereHandler.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SCompoundWidget.h"
 
 #include "Types/FTextIntPair.h"
 
+class SNamedRow;
 class SBootstrapStatus;
 class SEditableTextBox;
 class SErrorBanner;

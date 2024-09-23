@@ -12,7 +12,7 @@ enum class EFleetOperatingSystem : int
 	AmazonLinux2023
 };
 
-TArray<EFleetOperatingSystem> MakeSupportedOperatingSystemList()
+inline TArray<EFleetOperatingSystem> MakeSupportedOperatingSystemList()
 {
 	TArray<EFleetOperatingSystem> OSList;
 	OSList.Add(EFleetOperatingSystem::Windows2016);
@@ -21,7 +21,7 @@ TArray<EFleetOperatingSystem> MakeSupportedOperatingSystemList()
 	return OSList;
 }
 
-FText EFleetOperatingSystemToName(EFleetOperatingSystem OSType)
+inline FText EFleetOperatingSystemToName(EFleetOperatingSystem OSType)
 {
 	switch (OSType)
 	{
@@ -36,7 +36,7 @@ FText EFleetOperatingSystemToName(EFleetOperatingSystem OSType)
 	}
 }
 
-FText EFleetOperatingSystemToValue(EFleetOperatingSystem OSType)
+inline FText EFleetOperatingSystemToValue(EFleetOperatingSystem OSType)
 {
 	switch (OSType)
 	{
@@ -51,7 +51,7 @@ FText EFleetOperatingSystemToValue(EFleetOperatingSystem OSType)
 	}
 }
 
-EFleetOperatingSystem EFleetOperatingSystemFromValueText(const FText& OSValue)
+inline EFleetOperatingSystem EFleetOperatingSystemFromValueText(const FText& OSValue)
 {
 	if (OSValue.EqualTo(Menu::DeployManagedEC2::kWindowsServer2016Value))
 	{
