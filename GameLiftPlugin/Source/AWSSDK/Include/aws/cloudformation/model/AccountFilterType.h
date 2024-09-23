@@ -18,7 +18,7 @@ namespace Model
     NOT_SET,
     NONE,
     INTERSECTION,
-    DIFFERENCE,
+    _DIFFERENCE,
     UNION
   };
 
