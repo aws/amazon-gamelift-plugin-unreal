@@ -168,6 +168,7 @@ void FGameLiftPluginModule::RegisterMenuExtensions()
 		}), \
 		FCanExecuteAction())
 
+#pragma warning(disable:5103) //C5103: Pasting <token1> and <token2> does not result in a valid preprocessing token
 	MAP_ACTION(OpenSettings);
 	MAP_ACTION(DeployAnywhere);
 	MAP_ACTION(DeployManagedEC2);
@@ -177,6 +178,7 @@ void FGameLiftPluginModule::RegisterMenuExtensions()
 	MAP_HELP_URL_ACTION(ReportIssues);
 	MAP_HELP_URL_ACTION(OpenServiceAPIReference);
 	MAP_HELP_URL_ACTION(OpenServerSDKReference);
+	#pragma warning(default:5103) //C5103: Pasting <token1> and <token2> does not result in a valid preprocessing token	
 
 #undef MAP_ACTION
 #undef MAP_HELP_ACTION
