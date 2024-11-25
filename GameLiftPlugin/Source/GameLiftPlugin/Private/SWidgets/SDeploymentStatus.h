@@ -52,12 +52,12 @@ private:
 	TSharedPtr<SWidget> LoadingWidget;
 };
 
-TSharedRef<SDeploymentStatus> AsSDeploymentStatusRef(TSharedPtr<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentStatus> AsSDeploymentStatusRef(TSharedPtr<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentStatus>(WidgetToCast.ToSharedRef());
 }
 
-TSharedRef<SDeploymentStatus> AsSDeploymentStatusRef(TSharedRef<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentStatus> AsSDeploymentStatusRef(TSharedRef<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentStatus>(WidgetToCast);
 }

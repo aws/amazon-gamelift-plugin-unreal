@@ -7,6 +7,7 @@
 #include <string>
 
 #include "IAWSAccountInstance.h"
+#include "aws/gamelift/core/enums.h"
 
 namespace AwsScenarios
 {
