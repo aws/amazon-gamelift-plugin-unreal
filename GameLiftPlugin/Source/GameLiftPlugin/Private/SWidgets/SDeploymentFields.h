@@ -73,12 +73,12 @@ private:
 	TSharedPtr<SPathInput> OutConfigFilePathInput;
 };
 
-TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedPtr<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedPtr<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentFields>(WidgetToCast.ToSharedRef());
 }
 
-TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedRef<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedRef<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentFields>(WidgetToCast);
 }
