@@ -6,6 +6,8 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/Object.h"
+#include "GameLiftPluginConstants.h"
+
 #include "UGameLiftDeploymentStatus.generated.h"
 
 UCLASS(config = EditorPerProjectUserSettings)
@@ -15,14 +17,13 @@ class UGameLiftDeploymentStatus
 	GENERATED_UCLASS_BODY()
 
 public:
+	static void ResetStatus();
+
+public:
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText Status;
-
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText Scenario;
-	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
-	FText CustomScenarioPath;
-
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText BuildName;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
@@ -35,7 +36,8 @@ public:
 	FText ExtraServerResourcesPath;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText OutConfigFilePath;
-
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FText GameClientFilePath;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FDateTime LastUpdated;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
@@ -46,4 +48,7 @@ public:
 	FText LatestError;
 	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
 	FText DeployedRegion;
+	UPROPERTY(config, EditAnywhere, Category = "Deployment Status")
+	FString StackIdentifier;
+
 };

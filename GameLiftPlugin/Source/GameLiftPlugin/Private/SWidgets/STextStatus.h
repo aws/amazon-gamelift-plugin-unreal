@@ -40,8 +40,10 @@ public:
 	void SetIconState(EIconState IconState);
 	void SetStatusText(const FText& StatusText);
 	void SetStatusTextColor(const FSlateColor& StatusColor);
+	void SetState(EIconState IconState, const FText& StatusText, FName Color = FName());
 
 	int32 GetIconStateAsInt() const;
+	FName GetIconColor();
 
 private:
 	TWeakPtr<SWindow> ContextWindow;

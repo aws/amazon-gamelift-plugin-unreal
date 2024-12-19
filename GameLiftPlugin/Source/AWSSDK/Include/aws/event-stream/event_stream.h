@@ -65,9 +65,11 @@ struct aws_event_stream_message {
     struct aws_byte_buf message_buffer;
 };
 
-#define AWS_EVENT_STREAM_PRELUDE_LENGTH (uint32_t)(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t))
+/* Prelude (12-bytes) = Total Byte Length (4-bytes) + Headers Byte Length (4-bytes) + Prelude CRC (4-bytes) */
+#define AWS_EVENT_STREAM_PRELUDE_LENGTH (uint32_t)(12)
 
-#define AWS_EVENT_STREAM_TRAILER_LENGTH (uint32_t)(sizeof(uint32_t))
+/* Trailer (4-bytes) = Message CRC (4-bytes) */
+#define AWS_EVENT_STREAM_TRAILER_LENGTH (uint32_t)(4)
 
 enum aws_event_stream_header_value_type {
     AWS_EVENT_STREAM_HEADER_BOOL_TRUE = 0,

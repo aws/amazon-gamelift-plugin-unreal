@@ -9,6 +9,7 @@
 
 #include "GameLiftPluginConstants.h"
 
+#include "FUserProfileInfo.h"
 #include "UGameLiftSettings.generated.h"
 
 UCLASS(config = EditorPerProjectUserSettings)
@@ -19,8 +20,6 @@ class UGameLiftSettings
 
 public:
 	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
-	FText ProfileName;
-	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
 	FText AwsRegion;
 	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
 	FText S3Bucket;
@@ -28,4 +27,8 @@ public:
 	int BootstrapStatus;
 	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
 	FText BootstrapError;
+	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
+	FString CurrentProfileName;
+	UPROPERTY(config, EditAnywhere, Category = "AWS Credentials")
+	TMap<FString, FUserProfileInfo> UserProfileInfoMap;
 };

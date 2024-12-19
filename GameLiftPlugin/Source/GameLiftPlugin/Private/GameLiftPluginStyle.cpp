@@ -51,7 +51,10 @@ FName FGameLiftPluginStyle::GetStyleSetName()
 	#define SVG_PREFERRED_BRUSH IMAGE_BRUSH
 #endif
 
+const FVector2D Icon2x50(2.0f, 50.0f);
+const FVector2D Icon100x2(100.0f, 2.0f);
 const FVector2D Icon16x16(16.0f, 16.0f);
+const FVector2D Icon18x18(18.0f, 18.0f);
 const FVector2D Icon20x20(20.0f, 20.0f);
 const FVector2D Icon40x40(40.0f, 40.0f);
 const FVector2D Icon80x80(80.0f, 80.0f);
@@ -79,6 +82,12 @@ void FGameLiftPluginStyle::ConfigureColors(TSharedRef<FSlateStyleSet> StyleSet)
 	StyleSet->Set(Style::Color::kSectionHeaderBackground, FColor(48, 48, 48));
 	StyleSet->Set(Style::Color::kPanelBackground, FColor(67, 67, 67));
 #endif
+	StyleSet->Set(Style::Color::kCredentialSeparator, FColor(199, 199, 199));
+
+	// Table
+	StyleSet->Set(Style::Color::kTableRowBackground, FColor(0, 0, 0));
+	StyleSet->Set(Style::Color::kTableHeaderBackground, FColor(47, 47, 47));
+	StyleSet->Set(Style::Color::kTableSeparator, FColor(199, 199, 199, 0.2));
 
 	// Card
 	StyleSet->Set(Style::Color::kCardBackground, FColor(42, 42, 42));
@@ -90,10 +99,14 @@ void FGameLiftPluginStyle::ConfigureColors(TSharedRef<FSlateStyleSet> StyleSet)
 	// Success, warning, error colors
 	StyleSet->Set(Style::Color::kSuccessForeground, FColor::White);
 	StyleSet->Set(Style::Color::kSuccessBackground, FColor(29, 129, 2));
-	StyleSet->Set(Style::Color::kWarningForeground, FColor(51, 51, 51));  // dark grey
-	StyleSet->Set(Style::Color::kWarningBackground, FColor(166, 166, 166));
+	StyleSet->Set(Style::Color::kWarningForeground, FColor::White);
+	StyleSet->Set(Style::Color::kWarningBackground, FColor(255, 183, 1));
 	StyleSet->Set(Style::Color::kErrorForeground, FColor::White);
 	StyleSet->Set(Style::Color::kErrorBackground, FColor(214, 63, 56));
+	StyleSet->Set(Style::Color::kInfoForeground, FColor::White);
+	StyleSet->Set(Style::Color::kInfoBackground, FColor(0, 115, 187));
+	StyleSet->Set(Style::Color::kHelpForeground, FColor::White);
+	StyleSet->Set(Style::Color::kHelpBackground, FColor(56, 56, 56));
 
 	StyleSet->Set(Style::Color::kInactive, FColor(192, 192, 192));
 	StyleSet->Set(Style::Color::kSuccess, FColor(65, 194, 2));
@@ -109,6 +122,8 @@ void FGameLiftPluginStyle::ConfigureColors(TSharedRef<FSlateStyleSet> StyleSet)
 	StyleSet->Set(Style::Color::kErrorButtonNormal, FColor(242, 71, 63));
 	StyleSet->Set(Style::Color::kErrorButtonHovered, FColor(246, 107, 100));
 	StyleSet->Set(Style::Color::kErrorButtonPressed, FColor(209, 62, 55));
+
+	StyleSet->Set(Style::Color::kDisabledButton, FColor(21, 21, 21));
 
 	StyleSet->Set(Style::Color::kTooltip, FColor(192, 192, 192));
 }
@@ -172,10 +187,17 @@ void FGameLiftPluginStyle::ConfigureIcons(TSharedRef<FSlateStyleSet> StyleSet)
 	StyleSet->Set(Style::Brush::kStatusWarningIconName, new SVG_PREFERRED_BRUSH(TEXT("StatusWarning"), Icon16x16));
 	StyleSet->Set(Style::Brush::kStatusErrorIconName, new SVG_PREFERRED_BRUSH(TEXT("StatusError"), Icon16x16));
 	StyleSet->Set(Style::Brush::kStatusInactiveIconName, new SVG_PREFERRED_BRUSH(TEXT("StatusInactive"), Icon16x16));
+	StyleSet->Set(Style::Brush::kStatusInfoIconName, new SVG_PREFERRED_BRUSH(TEXT("StatusInfo"), Icon16x16));
+	StyleSet->Set(Style::Brush::kStatusHelpIconName, new SVG_PREFERRED_BRUSH(TEXT("StatusHelp"), Icon20x20));
 	StyleSet->Set(Style::Brush::kFolderOpenIconName, new SVG_PREFERRED_BRUSH(TEXT("FolderOpen"), Icon16x16));
 	StyleSet->Set(Style::Brush::kTooltipIconName, new SVG_PREFERRED_BRUSH(TEXT("Tooltip"), Icon16x16));
+	StyleSet->Set(Style::Brush::kCopyPasteIconName, new SVG_PREFERRED_BRUSH(TEXT("CopyPaste"), Icon16x16));
+	StyleSet->Set(Style::Brush::kResetIconName, new SVG_PREFERRED_BRUSH(TEXT("Reset"), Icon16x16));
+	StyleSet->Set(Style::Brush::kStartIconName, new SVG_PREFERRED_BRUSH(TEXT("Start"), Icon16x16));
+
 
 	StyleSet->Set(Style::Brush::kGameLiftTabIconName, new IMAGE_BRUSH(TEXT("GameLiftTab"), Icon16x16));
+	StyleSet->Set(Style::Brush::kGameLiftContainersTabIconName, new IMAGE_BRUSH(TEXT("GameLiftContainersTab"), Icon18x18));
 	StyleSet->Set(Style::Brush::kGameLiftToolbarIconName, new IMAGE_BRUSH(TEXT("GameLiftToolbar"), Icon40x40));
 
 	StyleSet->Set(Style::Brush::kBorderImageName, new FSlateBrush(*GetAppStyle().GetBrush("WhiteBrush")));
@@ -183,7 +205,25 @@ void FGameLiftPluginStyle::ConfigureIcons(TSharedRef<FSlateStyleSet> StyleSet)
 	StyleSet->Set(Style::Brush::kAccountIconName, new IMAGE_BRUSH(TEXT("Account"), Icon80x80));
 	StyleSet->Set(Style::Brush::kAccountMissingIconName, new IMAGE_BRUSH(TEXT("AccountMissing"), Icon80x80));
 
+	StyleSet->Set(Style::Brush::kGameLiftAnywhereIconName, new IMAGE_BRUSH(TEXT("GameLiftAnywhere"), Icon20x20));
+	StyleSet->Set(Style::Brush::kGameLiftManagedEC2IconName, new IMAGE_BRUSH(TEXT("GameLiftManagedEC2"), Icon20x20));
+
 	StyleSet->Set(Style::Brush::kGameLiftLogoIconName, new IMAGE_BRUSH(TEXT("GameLiftLogo"), Style::Brush::kGameLiftLogoIconSize));
+
+	StyleSet->Set(Style::Brush::kGameLiftDivider, new SVG_PREFERRED_BRUSH(TEXT("Divider"), Icon100x2));
+
+	StyleSet->Set(Style::Brush::kDocumentationIcon, new SVG_PREFERRED_BRUSH(TEXT("Documentation"), Icon16x16));
+	StyleSet->Set(Style::Brush::kGuidanceIcon, new SVG_PREFERRED_BRUSH(TEXT("Guidance"), Icon16x16));
+	StyleSet->Set(Style::Brush::kWhitepaperIcon, new SVG_PREFERRED_BRUSH(TEXT("Whitepaper"), Icon16x16));
+
+	// Progress bar
+	StyleSet->Set(Style::Brush::kProgressCompleteIconName, new SVG_PREFERRED_BRUSH(TEXT("ProgressCompleteIcon"), Icon18x18));
+	StyleSet->Set(Style::Brush::kProgressCompleteBarName, new SVG_PREFERRED_BRUSH(TEXT("ProgressCompleteBar"), Icon2x50));
+	StyleSet->Set(Style::Brush::kProgressIncompleteIconName, new SVG_PREFERRED_BRUSH(TEXT("ProgressIncompleteIcon"), Icon18x18));
+	StyleSet->Set(Style::Brush::kProgressIncompleteBarName, new SVG_PREFERRED_BRUSH(TEXT("ProgressIncompleteBar"), Icon2x50));
+	StyleSet->Set(Style::Brush::kInProgressIconName, new SVG_PREFERRED_BRUSH(TEXT("InProgressIcon"), Icon18x18));
+	StyleSet->Set(Style::Brush::kProgressWarningIconName, new SVG_PREFERRED_BRUSH(TEXT("ProgressWarningIcon"), Icon18x18));
+	StyleSet->Set(Style::Brush::kProgressErrorIconName, new SVG_PREFERRED_BRUSH(TEXT("ProgressErrorIcon"), Icon18x18));
 }
 
 void FGameLiftPluginStyle::ConfigureButtons(TSharedRef<FSlateStyleSet> StyleSet)
@@ -195,12 +235,14 @@ void FGameLiftPluginStyle::ConfigureButtons(TSharedRef<FSlateStyleSet> StyleSet)
 #endif
 
 	const FButtonStyle& DefaultButtonStyle = GetAppStyle().GetWidgetStyle<FButtonStyle>("Button");
-	StyleSet->Set(Style::Button::kNormalButtonStyleName, DefaultButtonStyle);
+	FButtonStyle NormalButtonStyle(DefaultButtonStyle);
+	StyleSet->Set(Style::Button::kNormalButtonStyleName, NormalButtonStyle);
 
 	FButtonStyle SuccessButtonStyle(DefaultButtonStyle);
 	SuccessButtonStyle.Normal.TintColor = StyleSet->GetColor(Style::Color::kSuccessButtonNormal);
 	SuccessButtonStyle.Hovered.TintColor = StyleSet->GetColor(Style::Color::kSuccessButtonHovered);
 	SuccessButtonStyle.Pressed.TintColor = StyleSet->GetColor(Style::Color::kSuccessButtonPressed);
+
 	StyleSet->Set(Style::Button::kSuccessButtonStyleName, SuccessButtonStyle);
 
 	FButtonStyle ErrorButtonStyle(DefaultButtonStyle);
@@ -214,6 +256,15 @@ void FGameLiftPluginStyle::ConfigureButtons(TSharedRef<FSlateStyleSet> StyleSet)
 	CloseButtonStyle.SetHovered(SVG_PREFERRED_BRUSH(TEXT("CloseX"), Icon16x16));
 	CloseButtonStyle.SetPressed(SVG_PREFERRED_BRUSH(TEXT("CloseX"), Icon16x16));
 	StyleSet->Set(Style::Button::kCloseButtonStyleName, CloseButtonStyle);
+
+	// Launch bar button styles
+	FButtonStyle LaunchBarSuccessButtonStyle(SuccessButtonStyle);
+	LaunchBarSuccessButtonStyle.Disabled.TintColor = StyleSet->GetColor(Style::Color::kDisabledButton);
+	StyleSet->Set(Style::Button::kLaunchBarSuccessButtonStyle, LaunchBarSuccessButtonStyle);
+
+	FButtonStyle LaunchBarNormalButtonStyle(NormalButtonStyle);
+	LaunchBarNormalButtonStyle.Disabled.TintColor = StyleSet->GetColor(Style::Color::kDisabledButton);
+	StyleSet->Set(Style::Button::kLaunchBarNormalButtonStyle, LaunchBarNormalButtonStyle);
 }
 
 #undef IMAGE_BRUSH

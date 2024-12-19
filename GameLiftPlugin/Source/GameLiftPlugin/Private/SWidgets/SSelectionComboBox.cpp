@@ -14,6 +14,7 @@ void SSelectionComboBox::Construct(const FArguments& InArgs)
 	UnselectedText = InArgs._UnselectedText;
 	OnListBuilding = InArgs._OnListBuilding;
 	OnItemSelected = InArgs._OnItemSelected;
+	HideDescription = InArgs._HideDescription;
 
 	RequestToRebuildList();
 
@@ -130,6 +131,7 @@ TSharedRef<SWidget> SSelectionComboBox::OnGetMenuContent()
 			[
 				SNew(STextBlock).Text(Selection.Description)
 				.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kNoteItalic)
+				.Visibility(HideDescription ? EVisibility::Collapsed : EVisibility::Visible)
 			]
 		);
 	}

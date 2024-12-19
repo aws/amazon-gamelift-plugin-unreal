@@ -6,22 +6,32 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 #include "SWidgets/SSectionsWithHeaders.h"
+#include "SWidgets/SSectionStep.h"
 
 class SPathInput;
+class SGameLiftSettingsAwsAccountMenu;
 
 class SSetProfileSection : public SCompoundWidget
 {
 	SLATE_BEGIN_ARGS(SSetProfileSection) {}
 
+	SLATE_ARGUMENT_DEFAULT(FString, ReadDeveloperGuideLink) { TEXT("") };
+
 	SLATE_END_ARGS()
 
 public:
 	void Construct(const FArguments& InArgs);
+
+	TSharedRef<SGameLiftSettingsAwsAccountMenu> GetAwsAccountMenuRef();
 	
 	SSectionsWithHeaders::FSectionInfo GetSectionInfo();
+
+private:
+	TSharedPtr<SGameLiftSettingsAwsAccountMenu> AwsAccountMenu;
+
 };
 
-class SIntegrateGameSection : public SCompoundWidget
+class SIntegrateGameSection : public SSectionStep
 {
 	SLATE_BEGIN_ARGS(SIntegrateGameSection) {}
 
@@ -34,30 +44,31 @@ class SIntegrateGameSection : public SCompoundWidget
 public:
 	void Construct(const FArguments& InArgs);
 
-	SSectionsWithHeaders::FSectionInfo GetSectionInfo();
-
-	void UpdateUI();
-
 	const FString& GetGameServerPath() const;
-	const FString& GetGameClientPath() const;
-
-	void LoadImages();
-	FReply SwitchActiveToggler(int index);
-	void GenerateTogglerButtons();
-	TSharedRef<SWidget> MakeTogglerButtonWidget(const FText& SectionName, const FSlateBrush* ImageBrush, FVector2D ImageSize, int index);
-	void GenerateTogglerContent();
 
 private:
 	void OnServerPathInputUpdated(const FString& NewPath);
-	void OnClientPathInputUpdated(const FString& NewPath);
+
+	void SetPaths();
+	void UpdateUIBasedOnCurrentState();
+	void CompleteSection();
+	void StartSection() override;
+
+	TSharedRef<SWidget> CreateUnrealSourceWarningMessage();
+	TSharedRef<SWidget> CreateSubmissionButton();
+	TSharedRef<SWidget> CreateModifyButton();
+
+	FReply OnSubmissionButtonClicked();
+	FReply OnModifyButtonClicked();
 
 	TSharedPtr<SPathInput> GameServerPathInput;
-	TSharedPtr<SPathInput> GameClientPathInput;
+	TSharedPtr<SWidgetSwitcher> SectionSwitcher;
 
-	int ActiveTogglerTab = 0;
-	TSharedPtr<SHorizontalBox> TogglerButtonsBox;
-	TSharedPtr<SVerticalBox> TogglerContentBox;
+	TSharedPtr<SWidget> UnrealSourceWarningMessage;
+	TSharedPtr<SButton> SubmissionButton;
+	TSharedPtr<SButton> ModifyButton;
 
 	FString HowToIntegrateYourGameLinkUrl;
-};
 
+	bool HideBuildPathInput;
+};

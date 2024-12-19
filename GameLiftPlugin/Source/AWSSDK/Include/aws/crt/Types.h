@@ -57,6 +57,7 @@ namespace Aws
         AWS_CRT_CPP_API ByteBuf ByteBufFromEmptyArray(const uint8_t *array, size_t len) noexcept;
         AWS_CRT_CPP_API ByteBuf ByteBufFromArray(const uint8_t *array, size_t capacity) noexcept;
         AWS_CRT_CPP_API ByteBuf ByteBufNewCopy(Allocator *alloc, const uint8_t *array, size_t len);
+        AWS_CRT_CPP_API ByteBuf ByteBufInit(Allocator *alloc, size_t len);
         AWS_CRT_CPP_API void ByteBufDelete(ByteBuf &);
 
         AWS_CRT_CPP_API ByteCursor ByteCursorFromCString(const char *str) noexcept;
@@ -65,8 +66,8 @@ namespace Aws
         AWS_CRT_CPP_API ByteCursor ByteCursorFromByteBuf(const ByteBuf &) noexcept;
         AWS_CRT_CPP_API ByteCursor ByteCursorFromArray(const uint8_t *array, size_t len) noexcept;
 
-        AWS_CRT_CPP_API Vector<uint8_t> Base64Decode(const String &decode);
-        AWS_CRT_CPP_API String Base64Encode(const Vector<uint8_t> &encode);
+        AWS_CRT_CPP_API Vector<uint8_t> Base64Decode(const String &decode) noexcept;
+        AWS_CRT_CPP_API String Base64Encode(const Vector<uint8_t> &encode) noexcept;
 
         template <typename RawType, typename TargetType> using TypeConvertor = std::function<TargetType(RawType)>;
 

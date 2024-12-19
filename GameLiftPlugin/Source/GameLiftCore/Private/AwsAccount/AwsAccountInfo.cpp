@@ -20,10 +20,11 @@ namespace AwsAccountInfoInternal
 	}
 } // namespace AwsAccountInfoInternal
 
-int AwsAccountInfo::BuildAccountInfo()
+int AwsAccountInfo::BuildAccountInfo(std::string BootstrapBucketName)
 {
 	StdGameName = Convertors::FSToStdS(FApp::GetName());
 	StdBuildConfiguration = "dev";
+	StdBucketName = BootstrapBucketName;
 
 	UGeneralProjectSettings* ProjectSettings = GetMutableDefault<UGeneralProjectSettings>();
 	StdCompanyName = Convertors::FSToStdS(ProjectSettings->CompanyName);
@@ -34,6 +35,11 @@ int AwsAccountInfo::BuildAccountInfo()
 void AwsAccountInfo::SetGameName(std::string NewGameName)
 {
 	StdGameName = NewGameName;
+}
+
+void AwsAccountInfo::SetBucketName(std::string BucketName)
+{
+	StdBucketName = BucketName;
 }
 
 GameLift::AccountInfo AwsAccountInfo::GetAccountInfo() const
@@ -48,12 +54,19 @@ GameLift::AccountInfo AwsAccountInfo::GetAccountInfo() const
 	GameLiftAccountInfo.accountId = GetCString(StdAccountId);
 	GameLiftAccountInfo.companyName = GetCString(StdCompanyName);
 	GameLiftAccountInfo.gameName = GetCString(StdGameName);
+	GameLiftAccountInfo.bucketName = GetCString(StdBucketName);
+
 	return GameLiftAccountInfo;
 }
 
 const std::string& AwsAccountInfo::GetAccountId() const
 {
 	return StdAccountId;
+}
+
+const std::string& AwsAccountInfo::GetBucketName() const
+{
+	return StdBucketName;
 }
 
 const std::string& AwsAccountInfo::GetBuildConfiguration() const

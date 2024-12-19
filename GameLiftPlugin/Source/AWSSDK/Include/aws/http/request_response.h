@@ -139,7 +139,8 @@ typedef void(aws_http_message_transform_fn)(
  * This is always invoked on the HTTP connection's event-loop thread.
  *
  * Return AWS_OP_SUCCESS to continue processing the stream.
- * Return AWS_OP_ERR to indicate failure and cancel the stream.
+ * Return aws_raise_error(E) to indicate failure and cancel the stream.
+ * The error you raise will be reflected in the error_code passed to the on_complete callback.
  */
 typedef int(aws_http_on_incoming_headers_fn)(
     struct aws_http_stream *stream,
@@ -153,7 +154,8 @@ typedef int(aws_http_on_incoming_headers_fn)(
  * This is always invoked on the HTTP connection's event-loop thread.
  *
  * Return AWS_OP_SUCCESS to continue processing the stream.
- * Return AWS_OP_ERR to indicate failure and cancel the stream.
+ * Return aws_raise_error(E) to indicate failure and cancel the stream.
+ * The error you raise will be reflected in the error_code passed to the on_complete callback.
  */
 typedef int(aws_http_on_incoming_header_block_done_fn)(
     struct aws_http_stream *stream,
@@ -171,7 +173,8 @@ typedef int(aws_http_on_incoming_header_block_done_fn)(
  * aws_http_stream_update_window().
  *
  * Return AWS_OP_SUCCESS to continue processing the stream.
- * Return AWS_OP_ERR to indicate failure and cancel the stream.
+ * Return aws_raise_error(E) to indicate failure and cancel the stream.
+ * The error you raise will be reflected in the error_code passed to the on_complete callback.
  */
 typedef int(
     aws_http_on_incoming_body_fn)(struct aws_http_stream *stream, const struct aws_byte_cursor *data, void *user_data);
@@ -181,20 +184,22 @@ typedef int(
  * This is always invoked on the HTTP connection's event-loop thread.
  *
  * Return AWS_OP_SUCCESS to continue processing the stream.
- * Return AWS_OP_ERR to indicate failure and cancel the stream.
+ * Return aws_raise_error(E) to indicate failure and cancel the stream.
+ * The error you raise will be reflected in the error_code passed to the on_complete callback.
  */
 typedef int(aws_http_on_incoming_request_done_fn)(struct aws_http_stream *stream, void *user_data);
 
 /**
- * Invoked when request/response stream is completely destroyed.
- * This may be invoked synchronously when aws_http_stream_release() is called.
- * This is invoked even if the stream is never activated.
+ * Invoked when a request/response stream is complete, whether successful or unsuccessful
+ * This is always invoked on the HTTP connection's event-loop thread.
+ * This will not be invoked if the stream is never activated.
  */
 typedef void(aws_http_on_stream_complete_fn)(struct aws_http_stream *stream, int error_code, void *user_data);
 
 /**
  * Invoked when request/response stream destroy completely.
  * This can be invoked within the same thead who release the refcount on http stream.
+ * This is invoked even if the stream is never activated.
  */
 typedef void(aws_http_on_stream_destroy_fn)(void *user_data);
 
@@ -300,6 +305,16 @@ struct aws_http_make_request_options {
      * when data has been supplied via `aws_http2_stream_write_data`
      */
     bool http2_use_manual_data_writes;
+
+    /**
+     * Optional (ignored if 0).
+     * After a request is fully sent, if the server does not begin responding within N milliseconds, then fail with
+     * AWS_ERROR_HTTP_RESPONSE_FIRST_BYTE_TIMEOUT.
+     * It override the connection level settings, when the request completes, the
+     * original monitoring options will be applied back to the connection.
+     * TODO: Only supported in HTTP/1.1 now, support it in HTTP/2
+     */
+    uint64_t response_first_byte_timeout_ms;
 };
 
 struct aws_http_request_handler_options {
@@ -486,7 +501,9 @@ struct aws_http2_stream_write_data_options {
 };
 
 #define AWS_HTTP_REQUEST_HANDLER_OPTIONS_INIT                                                                          \
-    { .self_size = sizeof(struct aws_http_request_handler_options), }
+    {                                                                                                                  \
+        .self_size = sizeof(struct aws_http_request_handler_options),                                                  \
+    }
 
 AWS_EXTERN_C_BEGIN
 
@@ -1098,6 +1115,18 @@ void aws_http_stream_update_window(struct aws_http_stream *stream, size_t increm
  */
 AWS_HTTP_API
 uint32_t aws_http_stream_get_id(const struct aws_http_stream *stream);
+
+/**
+ * Cancel the stream in flight.
+ * For HTTP/1.1 streams, it's equivalent to closing the connection.
+ * For HTTP/2 streams, it's equivalent to calling reset on the stream with `AWS_HTTP2_ERR_CANCEL`.
+ *
+ * the stream will complete with the error code provided, unless the stream is
+ * already completing for other reasons, or the stream is not activated,
+ * in which case this call will have no impact.
+ */
+AWS_HTTP_API
+void aws_http_stream_cancel(struct aws_http_stream *stream, int error_code);
 
 /**
  * Reset the HTTP/2 stream (HTTP/2 only).

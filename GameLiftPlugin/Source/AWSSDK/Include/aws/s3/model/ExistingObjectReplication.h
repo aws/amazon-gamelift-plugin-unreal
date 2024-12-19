@@ -23,11 +23,12 @@ namespace Model
 {
 
   /**
-   * <p>Optional configuration to replicate existing source bucket objects. For more
-   * information, see <a
-   * href="https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-what-is-isnot-replicated.html#existing-object-replication">Replicating
-   * Existing Objects</a> in the <i>Amazon S3 User Guide</i>. </p><p><h3>See
-   * Also:</h3>   <a
+   * <p>Optional configuration to replicate existing source bucket objects. </p>
+   *  <p>This parameter is no longer supported. To replicate existing objects,
+   * see <a
+   * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-batch-replication-batch.html">Replicating
+   * existing objects with S3 Batch Replication</a> in the <i>Amazon S3 User
+   * Guide</i>.</p> <p><h3>See Also:</h3>   <a
    * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ExistingObjectReplication">AWS
    * API Reference</a></p>
    */
@@ -41,36 +42,17 @@ namespace Model
     AWS_S3_API void AddToNode(Aws::Utils::Xml::XmlNode& parentNode) const;
 
 
+    ///@{
     /**
      * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
      */
     inline const ExistingObjectReplicationStatus& GetStatus() const{ return m_status; }
-
-    /**
-     * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
-     */
     inline bool StatusHasBeenSet() const { return m_statusHasBeenSet; }
-
-    /**
-     * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
-     */
     inline void SetStatus(const ExistingObjectReplicationStatus& value) { m_statusHasBeenSet = true; m_status = value; }
-
-    /**
-     * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
-     */
     inline void SetStatus(ExistingObjectReplicationStatus&& value) { m_statusHasBeenSet = true; m_status = std::move(value); }
-
-    /**
-     * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
-     */
     inline ExistingObjectReplication& WithStatus(const ExistingObjectReplicationStatus& value) { SetStatus(value); return *this;}
-
-    /**
-     * <p>Specifies whether Amazon S3 replicates existing source bucket objects. </p>
-     */
     inline ExistingObjectReplication& WithStatus(ExistingObjectReplicationStatus&& value) { SetStatus(std::move(value)); return *this;}
-
+    ///@}
   private:
 
     ExistingObjectReplicationStatus m_status;

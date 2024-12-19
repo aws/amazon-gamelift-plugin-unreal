@@ -23,20 +23,17 @@ public class AWSSDK : ModuleRules
 		"aws-c-s3",
 		"aws-c-sdkutils",
 		"aws-crt-cpp",
-		"aws-cpp-sdk-access-management",
 		"aws-cpp-sdk-apigateway",
 		"aws-cpp-sdk-cloudformation",
-		"aws-cpp-sdk-cognito-identity",
 		"aws-cpp-sdk-cognito-idp",
 		"aws-cpp-sdk-core",
-		"aws-cpp-sdk-iam",
-		"aws-cpp-sdk-kinesis",
 		"aws-cpp-sdk-lambda",
 		"aws-cpp-sdk-s3",
 		"aws-cpp-sdk-secretsmanager",
 		"aws-cpp-sdk-ssm",
 		"aws-cpp-sdk-sts",
 		"aws-cpp-sdk-gamelift",
+		"aws-cpp-sdk-ecr",
 	};
 
 	// Reference: https://aws.amazon.com/blogs/gametech/how-to-integrate-the-aws-c-sdk-with-unreal-engine/

@@ -40,106 +40,45 @@ namespace Model
     AWS_COGNITOIDENTITYPROVIDER_API ListUserImportJobsResult& operator=(const Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue>& result);
 
 
+    ///@{
     /**
      * <p>The user import jobs.</p>
      */
     inline const Aws::Vector<UserImportJobType>& GetUserImportJobs() const{ return m_userImportJobs; }
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline void SetUserImportJobs(const Aws::Vector<UserImportJobType>& value) { m_userImportJobs = value; }
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline void SetUserImportJobs(Aws::Vector<UserImportJobType>&& value) { m_userImportJobs = std::move(value); }
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline ListUserImportJobsResult& WithUserImportJobs(const Aws::Vector<UserImportJobType>& value) { SetUserImportJobs(value); return *this;}
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline ListUserImportJobsResult& WithUserImportJobs(Aws::Vector<UserImportJobType>&& value) { SetUserImportJobs(std::move(value)); return *this;}
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline ListUserImportJobsResult& AddUserImportJobs(const UserImportJobType& value) { m_userImportJobs.push_back(value); return *this; }
-
-    /**
-     * <p>The user import jobs.</p>
-     */
     inline ListUserImportJobsResult& AddUserImportJobs(UserImportJobType&& value) { m_userImportJobs.push_back(std::move(value)); return *this; }
+    ///@}
 
-
+    ///@{
     /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
+     * <p>The identifier that Amazon Cognito returned with the previous request to this
+     * operation. When you include a pagination token in your request, Amazon Cognito
+     * returns the next set of items in the list. By use of this token, you can
+     * paginate through the full list of items.</p>
      */
     inline const Aws::String& GetPaginationToken() const{ return m_paginationToken; }
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline void SetPaginationToken(const Aws::String& value) { m_paginationToken = value; }
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline void SetPaginationToken(Aws::String&& value) { m_paginationToken = std::move(value); }
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline void SetPaginationToken(const char* value) { m_paginationToken.assign(value); }
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline ListUserImportJobsResult& WithPaginationToken(const Aws::String& value) { SetPaginationToken(value); return *this;}
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline ListUserImportJobsResult& WithPaginationToken(Aws::String&& value) { SetPaginationToken(std::move(value)); return *this;}
-
-    /**
-     * <p>An identifier that can be used to return the next set of user import jobs in
-     * the list.</p>
-     */
     inline ListUserImportJobsResult& WithPaginationToken(const char* value) { SetPaginationToken(value); return *this;}
+    ///@}
 
-
+    ///@{
     
     inline const Aws::String& GetRequestId() const{ return m_requestId; }
-
-    
     inline void SetRequestId(const Aws::String& value) { m_requestId = value; }
-
-    
     inline void SetRequestId(Aws::String&& value) { m_requestId = std::move(value); }
-
-    
     inline void SetRequestId(const char* value) { m_requestId.assign(value); }
-
-    
     inline ListUserImportJobsResult& WithRequestId(const Aws::String& value) { SetRequestId(value); return *this;}
-
-    
     inline ListUserImportJobsResult& WithRequestId(Aws::String&& value) { SetRequestId(std::move(value)); return *this;}
-
-    
     inline ListUserImportJobsResult& WithRequestId(const char* value) { SetRequestId(value); return *this;}
-
+    ///@}
   private:
 
     Aws::Vector<UserImportJobType> m_userImportJobs;

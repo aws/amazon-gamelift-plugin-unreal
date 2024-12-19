@@ -7,7 +7,7 @@
 
 #include "GameLiftPluginConstants.h"
 
-#include "SMenu/SGameLiftDeployAnywhereMenu.h"
+#include "SMenu/Anywhere/SGameLiftDeployAnywhereMenu.h"
 
 #include "GameLiftPluginStyle.h"
 
@@ -19,7 +19,7 @@ void FGameLiftDeployAnywhereTab::Register()
 		FOnSpawnTab::CreateRaw(this, &FGameLiftDeployAnywhereTab::HandleSpawnTab))
 		.SetDisplayName(Tabs::kDeployAnywhereTabTitle)
 		.SetTooltipText(Tabs::kDeployAnywhereTabTooltip)
-		.SetIcon(FSlateIcon(FGameLiftPluginStyle::Get().GetStyleSetName(), Style::Brush::kGameLiftTabIconName))
+		.SetIcon(FSlateIcon(FGameLiftPluginStyle::Get().GetStyleSetName(), Style::Brush::kGameLiftAnywhereIconName))
 		//.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory());
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 }

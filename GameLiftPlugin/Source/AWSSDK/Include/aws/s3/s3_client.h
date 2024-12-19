@@ -7,6 +7,7 @@
  */
 
 #include <aws/auth/signing_config.h>
+#include <aws/common/ref_count.h>
 #include <aws/io/retry_strategy.h>
 #include <aws/s3/s3.h>
 
@@ -19,6 +20,7 @@ struct aws_http_message;
 struct aws_http_headers;
 struct aws_tls_connection_options;
 struct aws_input_stream;
+struct aws_hash_table;
 
 struct aws_s3_client;
 struct aws_s3_request;
@@ -29,6 +31,8 @@ struct aws_uri;
 struct aws_string;
 
 struct aws_s3_request_metrics;
+struct aws_s3express_credentials_provider;
+struct aws_credentials_properties_s3express;
 
 /**
  * A Meta Request represents a group of generated requests that are being done on behalf of the
@@ -78,6 +82,7 @@ enum aws_s3_meta_request_type {
      * - only {bucket}/{key} format is supported for source and passing arn as
      *   source will not work
      * - source bucket is assumed to be in the same region as dest
+     * - source bucket and dest bucket must both be either directory buckets or regular buckets.
      */
     AWS_S3_META_REQUEST_TYPE_COPY_OBJECT,
 
@@ -85,11 +90,21 @@ enum aws_s3_meta_request_type {
 };
 
 /**
- * The type of S3 request made. Used by metrics.
+ * The type of a single S3 HTTP request. Used by metrics.
+ * A meta-request can make multiple S3 HTTP requests under the hood.
+ *
+ * For example, AWS_S3_META_REQUEST_TYPE_PUT_OBJECT for a large file will
+ * do multipart upload, resulting in 3+ HTTP requests:
+ * AWS_S3_REQUEST_TYPE_CREATE_MULTIPART_UPLOAD, one or more AWS_S3_REQUEST_TYPE_UPLOAD_PART,
+ * and finally AWS_S3_REQUEST_TYPE_COMPLETE_MULTIPART_UPLOAD.
+ *
+ * aws_s3_request_type_operation_name() returns the S3 operation name
+ * for types that map (e.g. AWS_S3_REQUEST_TYPE_HEAD_OBJECT -> "HeadObject"),
+ * or empty string for types that don't map (e.g. AWS_S3_REQUEST_TYPE_UNKNOWN -> "").
  */
 enum aws_s3_request_type {
-    /* Same as the original HTTP request passed to aws_s3_meta_request_options */
-    AWS_S3_REQUEST_TYPE_DEFAULT,
+    /* The actual type of the single S3 HTTP request is unknown */
+    AWS_S3_REQUEST_TYPE_UNKNOWN,
 
     /* S3 APIs */
     AWS_S3_REQUEST_TYPE_HEAD_OBJECT,
@@ -100,8 +115,15 @@ enum aws_s3_request_type {
     AWS_S3_REQUEST_TYPE_ABORT_MULTIPART_UPLOAD,
     AWS_S3_REQUEST_TYPE_COMPLETE_MULTIPART_UPLOAD,
     AWS_S3_REQUEST_TYPE_UPLOAD_PART_COPY,
+    AWS_S3_REQUEST_TYPE_COPY_OBJECT,
+    AWS_S3_REQUEST_TYPE_PUT_OBJECT,
+    AWS_S3_REQUEST_TYPE_CREATE_SESSION,
 
+    /* Max enum value */
     AWS_S3_REQUEST_TYPE_MAX,
+
+    /** @deprecated Use AWS_S3_REQUEST_TYPE_UNKNOWN if the actual S3 HTTP request type is unknown */
+    AWS_S3_REQUEST_TYPE_DEFAULT = AWS_S3_REQUEST_TYPE_UNKNOWN,
 };
 
 /**
@@ -177,7 +199,11 @@ struct aws_s3_meta_request_progress {
 };
 
 /**
- * Invoked to report progress of multi-part upload and copy object requests.
+ * Invoked to report progress of a meta-request.
+ * For PutObject, progress refers to bytes uploaded.
+ * For CopyObject, progress refers to bytes copied.
+ * For GetObject, progress refers to bytes downloaded.
+ * For anything else, progress refers to response body bytes received.
  */
 typedef void(aws_s3_meta_request_progress_fn)(
     struct aws_s3_meta_request *meta_request,
@@ -185,8 +211,7 @@ typedef void(aws_s3_meta_request_progress_fn)(
     void *user_data);
 
 /**
- * Invoked to report the telemetry of the meta request once a single request finishes. Invoked from the thread of the
- * connection that request made from.
+ * Invoked to report the telemetry of the meta request once a single request finishes.
  * Note: *metrics is only valid for the duration of the callback. If you need to keep it around, use
  * `aws_s3_request_metrics_acquire`
  */
@@ -225,6 +250,28 @@ enum aws_s3_checksum_location {
     AWS_SCL_TRAILER,
 };
 
+enum aws_s3_recv_file_option {
+    /**
+     * Create a new file if it doesn't exist, otherwise replace the existing file.
+     */
+    AWS_S3_RECV_FILE_CREATE_OR_REPLACE = 0,
+    /**
+     * Always create a new file. If the file already exists, AWS_ERROR_S3_RECV_FILE_ALREADY_EXISTS will be raised.
+     */
+    AWS_S3_RECV_FILE_CREATE_NEW,
+    /**
+     * Create a new file if it doesn't exist, otherwise append to the existing file.
+     */
+    AWS_S3_RECV_FILE_CREATE_OR_APPEND,
+
+    /**
+     * Write to an existing file at the specified position, defined by the `recv_file_position`.
+     * If the file does not exist, AWS_ERROR_S3_RECV_FILE_NOT_FOUND will be raised.
+     * If `recv_file_position` is not configured, start overwriting data at the beginning of the
+     * file (byte 0).
+     */
+    AWS_S3_RECV_FILE_WRITE_TO_POSITION,
+};
 /**
  * Info about a single part, for you to review before the upload completes.
  */
@@ -281,6 +328,34 @@ typedef int(aws_s3_meta_request_upload_review_fn)(
     const struct aws_s3_upload_review *review,
     void *user_data);
 
+/**
+ * The factory function for S3 client to create a S3 Express credentials provider.
+ * The S3 client will be the only owner of the S3 Express credentials provider.
+ *
+ * During S3 client destruction, S3 client will start the destruction of the provider, and wait the
+ * on_provider_shutdown_callback to be invoked before the S3 client finish destruction.
+ *
+ * Note to implement the factory properly:
+ * - Make sure `on_provider_shutdown_callback` will be invoked after the provider finish shutdown, otherwise,
+ * leak will happen.
+ * - The provider must not acquire a reference to the client; otherwise, a circular reference will cause a deadlock.
+ * - The `client` provided CANNOT be used within the factory function call or the destructor.
+ *
+ * @param allocator    memory allocator to create the provider.
+ * @param client    The S3 client uses and owns the provider.
+ * @param on_provider_shutdown_callback    The callback to be invoked when the provider finishes shutdown.
+ * @param shutdown_user_data    The user data to invoke shutdown callback with
+ * @param user_data    The user data with the factory
+ *
+ * @return The aws_s3express_credentials_provider.
+ */
+typedef struct aws_s3express_credentials_provider *(
+    aws_s3express_provider_factory_fn)(struct aws_allocator *allocator,
+                                       struct aws_s3_client *client,
+                                       aws_simple_completion_callback on_provider_shutdown_callback,
+                                       void *shutdown_user_data,
+                                       void *factory_user_data);
+
 /* Keepalive properties are TCP only.
  * If interval or timeout are zero, then default values are used.
  */
@@ -301,7 +376,7 @@ struct aws_s3_client_config {
      * throughput_target_gbps. (Recommended) */
     uint32_t max_active_connections_override;
 
-    /* Region that the S3 bucket lives in. */
+    /* Region that the client default to. */
     struct aws_byte_cursor region;
 
     /* Client bootstrap used for common staples such as event loop group, host resolver, etc.. s*/
@@ -317,13 +392,37 @@ struct aws_s3_client_config {
     enum aws_s3_meta_request_tls_mode tls_mode;
 
     /* TLS Options to be used for each connection, if tls_mode is ENABLED. When compiling with BYO_CRYPTO, and tls_mode
-     * is ENABLED, this is required. Otherwise, this is optional. */
-    struct aws_tls_connection_options *tls_connection_options;
+     * is ENABLED, this is required. Otherwise, this is optional.
+     */
+    const struct aws_tls_connection_options *tls_connection_options;
 
-    /* Signing options to be used for each request. Specify NULL to not sign requests. */
-    struct aws_signing_config_aws *signing_config;
+    /**
+     * Required.
+     * Configure the signing for the requests made from the client.
+     * - Credentials or credentials provider is required. Other configs are all optional, and will be default to what
+     *      needs to sign the request for S3, only overrides when Non-zero/Not-empty is set.
+     * - To skip signing, you can config it with anonymous credentials.
+     * - S3 Client will derive the right config for signing process based on this.
+     *
+     * Notes:
+     * - For AWS_SIGNING_ALGORITHM_V4_S3EXPRESS, S3 client will use the credentials in the config to derive the
+     * S3 Express credentials that are used in the signing process.
+     * - For other auth algorithm, client may make modifications to signing config before passing it on to signer.
+     *
+     * TODO: deprecate this structure from auth, introduce a new S3 specific one.
+     */
+    const struct aws_signing_config_aws *signing_config;
 
-    /* Size of parts the files will be downloaded or uploaded in. */
+    /**
+     * Optional.
+     * Size of parts the object will be downloaded or uploaded in, in bytes.
+     * This only affects AWS_S3_META_REQUEST_TYPE_GET_OBJECT and AWS_S3_META_REQUEST_TYPE_PUT_OBJECT.
+     * If not set, this defaults to 8 MiB.
+     * The client will adjust the part size for AWS_S3_META_REQUEST_TYPE_PUT_OBJECT if needed for service limits (max
+     * number of parts per upload is 10,000, minimum upload part size is 5 MiB).
+     *
+     * You can also set this per meta-request, via `aws_s3_meta_request_options.part_size`.
+     */
     uint64_t part_size;
 
     /* If the part size needs to be adjusted for service limits, this is the maximum size it will be adjusted to. On 32
@@ -331,14 +430,24 @@ struct aws_s3_client_config {
      * is 5TiB for now. We should be good enough for all the cases. */
     uint64_t max_part_size;
 
-    /* The size threshold in bytes for when to use multipart uploads for a AWS_S3_META_REQUEST_TYPE_PUT_OBJECT meta
-     * request. Uploads over this size will automatically use a multipart upload strategy,while uploads smaller or
-     * equal to this threshold will use a single request to upload the whole object. If not set, `part_size` will be
-     * used as threshold. */
+    /**
+     * Optional.
+     * The size threshold in bytes for when to use multipart uploads.
+     * Uploads larger than this will use the multipart upload strategy.
+     * Uploads smaller or equal to this will use a single HTTP request.
+     * This only affects AWS_S3_META_REQUEST_TYPE_PUT_OBJECT.
+     * If set, this should be at least `part_size`.
+     * If not set, maximal of `part_size` and 5 MiB will be used.
+     *
+     * You can also set this per meta-request, via `aws_s3_meta_request_options.multipart_upload_threshold`.
+     */
     uint64_t multipart_upload_threshold;
 
-    /* Throughput target in Gbps that we are trying to reach. */
+    /* Throughput target in gigabits per second (Gbps) that we are trying to reach. */
     double throughput_target_gbps;
+
+    /* How much memory can we use. This will be capped to SIZE_MAX */
+    uint64_t memory_limit_in_bytes;
 
     /* Retry strategy to use. If NULL, a default retry strategy will be used. */
     struct aws_retry_strategy *retry_strategy;
@@ -360,7 +469,7 @@ struct aws_s3_client_config {
      * If the connection_type is AWS_HPCT_HTTP_LEGACY, it will be converted to AWS_HPCT_HTTP_TUNNEL if tls_mode is
      * ENABLED. Otherwise, it will be converted to AWS_HPCT_HTTP_FORWARD.
      */
-    struct aws_http_proxy_options *proxy_options;
+    const struct aws_http_proxy_options *proxy_options;
 
     /**
      * Optional.
@@ -369,7 +478,7 @@ struct aws_s3_client_config {
      * configuration from environment.
      * Only works when proxy_options is not set. If both are set, configuration from proxy_options is used.
      */
-    struct proxy_env_var_settings *proxy_ev_settings;
+    const struct proxy_env_var_settings *proxy_ev_settings;
 
     /**
      * Optional.
@@ -381,7 +490,7 @@ struct aws_s3_client_config {
      * Optional.
      * Set keepalive to periodically transmit messages for detecting a disconnected peer.
      */
-    struct aws_s3_tcp_keep_alive_options *tcp_keep_alive_options;
+    const struct aws_s3_tcp_keep_alive_options *tcp_keep_alive_options;
 
     /**
      * Optional.
@@ -389,7 +498,7 @@ struct aws_s3_client_config {
      * If the transfer speed falls below the specified minimum_throughput_bytes_per_second, the operation is aborted.
      * If set to NULL, default values are used.
      */
-    struct aws_http_connection_monitoring_options *monitoring_options;
+    const struct aws_http_connection_monitoring_options *monitoring_options;
 
     /**
      * Enable backpressure and prevent response data from downloading faster than you can handle it.
@@ -413,6 +522,36 @@ struct aws_s3_client_config {
      * Ignored unless `enable_read_backpressure` is true.
      */
     size_t initial_read_window;
+
+    /**
+     * To enable S3 Express support or not.
+     */
+    bool enable_s3express;
+
+    /**
+     * Optional.
+     * Only used when `enable_s3express` is set.
+     *
+     * If set, client will invoke the factory to get the provider to use, when needed.
+     *
+     * If not set, client will create a default S3 Express provider under the hood.
+     */
+    aws_s3express_provider_factory_fn *s3express_provider_override_factory;
+    void *factory_user_data;
+
+    /**
+     * THIS IS AN EXPERIMENTAL AND UNSTABLE API
+     * (Optional)
+     * An array of network interface names. The client will distribute the
+     * connections across network interface names provided in this array. If any interface name is invalid, goes down,
+     * or has any issues like network access, you will see connection failures.
+     *
+     * This option is only supported on Linux, MacOS, and platforms that have either SO_BINDTODEVICE or IP_BOUND_IF. It
+     * is not supported on Windows. `AWS_ERROR_PLATFORM_NOT_SUPPORTED` will be raised on unsupported platforms. On
+     * Linux, SO_BINDTODEVICE is used and requires kernel version >= 5.7 or root privileges.
+     */
+    const struct aws_byte_cursor *network_interface_names_array;
+    size_t num_network_interface_names;
 };
 
 struct aws_s3_checksum_config {
@@ -420,19 +559,19 @@ struct aws_s3_checksum_config {
     /**
      * The location of client added checksum header.
      *
-     * If AWS_SCL_NONE. No request payload checksum will be add and calculated.
+     * If AWS_SCL_NONE. No request payload checksum will be calculated or added.
      *
-     * If AWS_SCL_HEADER, the checksum will be calculated by client and added related header to the request sent.
+     * If AWS_SCL_HEADER, the client will calculate the checksum and add it to the headers.
      *
-     * If AWS_SCL_TRAILER, the payload will be aws_chunked encoded, The checksum will be calculate while reading the
-     * payload by client. Related header will be added to the trailer part of the encoded payload. Note the payload of
-     * the original request cannot be aws-chunked encoded already. Otherwise, error will be raised.
+     * If AWS_SCL_TRAILER, the payload will be aws_chunked encoded, The client will calculate the checksum and add it to
+     * the trailer. Note the payload of the original request cannot be aws-chunked encoded already, this will cause an
+     * error.
      */
     enum aws_s3_checksum_location location;
 
     /**
      * The checksum algorithm used.
-     * Must be set if location is not AWS_SCL_NONE. Must be AWS_SCA_NONE if location is AWS_SCL_NONE.
+     * Must be set if location is not AWS_SCL_NONE.
      */
     enum aws_s3_checksum_algorithm checksum_algorithm;
 
@@ -457,7 +596,7 @@ struct aws_s3_checksum_config {
      *
      * If the response checksum was validated by client, the result will indicate which algorithm was picked.
      */
-    struct aws_array_list *validate_checksum_algorithms;
+    const struct aws_array_list *validate_checksum_algorithms;
 };
 
 /**
@@ -466,21 +605,83 @@ struct aws_s3_checksum_config {
  * There are several ways to pass the request's body data:
  * 1) If the data is already in memory, set the body-stream on `message`.
  * 2) If the data is on disk, set `send_filepath` for best performance.
- * 3) If the data will be be produced in asynchronous chunks, set `send_async_stream`.
+ * 3) If the data is available, but copying each chunk is asynchronous, set `send_async_stream`.
+ * 4) If you're not sure when each chunk of data will be available, use `send_using_async_writes`.
  */
 struct aws_s3_meta_request_options {
-    /* TODO: The meta request options cannot control the request to be split or not. Should consider to add one */
-
     /* The type of meta request we will be trying to accelerate. */
     enum aws_s3_meta_request_type type;
 
-    /* Signing options to be used for each request created for this meta request.  If NULL, options in the client will
-     * be used. If not NULL, these options will override the client options. */
+    /**
+     * The S3 operation name (e.g. "CreateBucket").
+     * This MUST be set if type is AWS_S3_META_REQUEST_TYPE_DEFAULT;
+     * it is automatically populated for other meta-request types.
+     * The canonical operation names are listed here:
+     * https://docs.aws.amazon.com/AmazonS3/latest/API/API_Operations_Amazon_Simple_Storage_Service.html
+     *
+     * This name is used to fill out details in metrics and error reports.
+     * It also drives some operation-specific behavior.
+     * If you pass the wrong name, you risk getting the wrong behavior.
+     *
+     * For example, every operation except "GetObject" has its response checked
+     * for error, even if the HTTP status-code was 200 OK
+     * (see https://repost.aws/knowledge-center/s3-resolve-200-internalerror).
+     * If you used AWS_S3_META_REQUEST_TYPE_DEFAULT to do GetObject, but mis-named
+     * it "Download", and the object looked like XML with an error code,
+     * then the meta-request would fail. You may log the full response body,
+     * and leak sensitive data.
+     */
+    struct aws_byte_cursor operation_name;
+
+    /**
+     * Configure the signing for each request created for this meta request. If NULL, options in the client will be
+     *  used.
+     * - The credentials will be obtained based on the precedence of:
+     *      1. `credentials` from `signing_config` in `aws_s3_meta_request_options`
+     *      2. `credentials_provider` from `signing_config` in `aws_s3_meta_request_options`
+     *      3. `credentials` from `signing_config` cached in the client
+     *      4. `credentials_provider` cached in the client
+     * - To skip signing, you can config it with anonymous credentials.
+     * - S3 Client will derive the right config for signing process based on this.
+     *
+     * Notes:
+     * - For AWS_SIGNING_ALGORITHM_V4_S3EXPRESS, S3 client will use the credentials in the config to derive the
+     * S3 Express credentials that are used in the signing process.
+     * - For other auth algorithm, client may make modifications to signing config before passing it on to signer.
+     **/
     const struct aws_signing_config_aws *signing_config;
 
     /* Initial HTTP message that defines what operation we are doing.
      * Do not set the message's body-stream if the body is being passed by other means (see note above) */
     struct aws_http_message *message;
+
+    /**
+     * Optional.
+     * If set, the received data will be written into this file.
+     * the `body_callback` will NOT be invoked.
+     * This gives a better performance when receiving data to write to a file.
+     * See `aws_s3_recv_file_option` for the configuration on the receive file.
+     */
+    struct aws_byte_cursor recv_filepath;
+
+    /**
+     * Optional.
+     * Default to AWS_S3_RECV_FILE_CREATE_OR_REPLACE.
+     * This only works with recv_filepath set.
+     * See `aws_s3_recv_file_option`.
+     */
+    enum aws_s3_recv_file_option recv_file_option;
+    /**
+     * Optional.
+     * The specified position to start writing at for the recv file when `recv_file_option` is set to
+     * AWS_S3_RECV_FILE_WRITE_TO_POSITION, ignored otherwise.
+     */
+    uint64_t recv_file_position;
+    /**
+     * Set it to be true to delete the receive file on failure, otherwise, the file will be left as-is.
+     * This only works with recv_filepath set.
+     */
+    bool recv_file_delete_on_failure;
 
     /**
      * Optional.
@@ -494,15 +695,58 @@ struct aws_s3_meta_request_options {
      * Optional - EXPERIMENTAL/UNSTABLE
      * If set, the request body comes from this async stream.
      * Use this when outgoing data will be produced in asynchronous chunks.
+     * The S3 client will read from the stream whenever it's ready to upload another chunk.
+     *
+     * WARNING: The S3 client can deadlock if many async streams are "stalled",
+     * never completing their async read. If you're not sure when (if ever)
+     * data will be ready, use `send_using_async_writes` instead.
+     *
      * Do not set if the body is being passed by other means (see note above).
      */
     struct aws_async_input_stream *send_async_stream;
+
+    /**
+     * Optional - EXPERIMENTAL/UNSTABLE
+     * Set this to send request body data using the async aws_s3_meta_request_poll_write()
+     * or aws_s3_meta_request_write() functions.
+     * Use this when outgoing data will be produced in asynchronous chunks,
+     * and you're not sure when (if ever) each chunk will be ready.
+     *
+     * This only works with AWS_S3_META_REQUEST_TYPE_PUT_OBJECT.
+     *
+     * Do not set if the body is being passed by other means (see note above).
+     */
+    bool send_using_async_writes;
 
     /**
      * Optional.
      * if set, the flexible checksum will be performed by client based on the config.
      */
     const struct aws_s3_checksum_config *checksum_config;
+
+    /**
+     * Optional.
+     * Size of parts the object will be downloaded or uploaded in, in bytes.
+     * This only affects AWS_S3_META_REQUEST_TYPE_GET_OBJECT and AWS_S3_META_REQUEST_TYPE_PUT_OBJECT.
+     * If not set, the value from `aws_s3_client_config.part_size` is used, which defaults to 8MiB.
+     *
+     * The client will adjust the part size for AWS_S3_META_REQUEST_TYPE_PUT_OBJECT if needed for service limits (max
+     * number of parts per upload is 10,000, minimum upload part size is 5 MiB).
+     */
+    uint64_t part_size;
+
+    /**
+     * Optional.
+     * The size threshold in bytes for when to use multipart uploads.
+     * Uploads larger than this will use the multipart upload strategy.
+     * Uploads smaller or equal to this will use a single HTTP request.
+     * This only affects AWS_S3_META_REQUEST_TYPE_PUT_OBJECT.
+     * If set, this should be at least `part_size`.
+     * If not set, `part_size` adjusted by client will be used as the threshold.
+     * If both `part_size` and `multipart_upload_threshold` are not set,
+     * the values from `aws_s3_client_config` are used.
+     */
+    uint64_t multipart_upload_threshold;
 
     /* User data for all callbacks. */
     void *user_data;
@@ -534,6 +778,7 @@ struct aws_s3_meta_request_options {
 
     /**
      * Invoked to report progress of the meta request execution.
+     * See `aws_s3_meta_request_progress_fn`.
      */
     aws_s3_meta_request_progress_fn *progress_callback;
 
@@ -543,9 +788,6 @@ struct aws_s3_meta_request_options {
      * If set the request will keep track of the metrics from `aws_s3_request_metrics`, and fire the callback when the
      * request finishes receiving response.
      * See `aws_s3_meta_request_telemetry_fn`
-     *
-     * Notes:
-     * - The callback will be invoked multiple times from different threads.
      */
     aws_s3_meta_request_telemetry_fn *telemetry_callback;
 
@@ -570,7 +812,7 @@ struct aws_s3_meta_request_options {
      * - Both Host and Endpoint is set - Host header must match Authority of
      *   Endpoint uri. Port and Scheme from endpoint is used.
      */
-    struct aws_uri *endpoint;
+    const struct aws_uri *endpoint;
 
     /**
      * Optional.
@@ -580,6 +822,15 @@ struct aws_s3_meta_request_options {
      * from the buffer and compare them them to previously uploaded part checksums.
      */
     struct aws_s3_meta_request_resume_token *resume_token;
+
+    /*
+     * Optional.
+     * Total object size hint, in bytes.
+     * The optimal strategy for downloading a file depends on its size.
+     * Set this hint to help the S3 client choose the best strategy for this particular file.
+     * This is just used as an estimate, so it's okay to provide an approximate value if the exact size is unknown.
+     */
+    const uint64_t *object_size_hint;
 };
 
 /* Result details of a meta request.
@@ -594,11 +845,22 @@ struct aws_s3_meta_request_options {
  */
 struct aws_s3_meta_request_result {
 
-    /* HTTP Headers for the failed request that triggered finish of the meta request.  NULL if no request failed. */
+    /* If meta request failed due to an HTTP error response from S3, these are the headers.
+     * NULL if meta request failed for another reason. */
     struct aws_http_headers *error_response_headers;
 
-    /* Response body for the failed request that triggered finishing of the meta request.  NULL if no request failed.*/
+    /* If meta request failed due to an HTTP error response from S3, this the body.
+     * NULL if meta request failed for another reason, or if the response had no body (such as a HEAD response). */
     struct aws_byte_buf *error_response_body;
+
+    /* If meta request failed due to an HTTP error response from S3,
+     * this is the name of the S3 operation it was responding to.
+     * For example, if a AWS_S3_META_REQUEST_TYPE_PUT_OBJECT fails this could be
+     * "PutObject, "CreateMultipartUpload", "UploadPart", "CompleteMultipartUpload", or others.
+     * For AWS_S3_META_REQUEST_TYPE_DEFAULT, this is the same value passed to
+     * aws_s3_meta_request_options.operation_name.
+     * NULL if the meta request failed for another reason. */
+    struct aws_string *error_response_operation_name;
 
     /* Response status of the failed request or of the entire meta request. */
     int response_status;
@@ -651,6 +913,116 @@ AWS_S3_API
 struct aws_s3_meta_request *aws_s3_client_make_meta_request(
     struct aws_s3_client *client,
     const struct aws_s3_meta_request_options *options);
+
+/**
+ * The result of an `aws_s3_meta_request_poll_write()` call.
+ * Think of this like Rust's `Poll<Result<size_t, int>>`, or C++'s `optional<expected<size_t, int>>`.
+ */
+struct aws_s3_meta_request_poll_write_result {
+    bool is_pending;
+    int error_code;
+    size_t bytes_processed;
+};
+
+/**
+ * Attempt to write data.
+ *
+ * You must set `aws_s3_meta_request_options.send_using_async_writes` to use this function.
+ *
+ * This is a non-blocking poll-style async function, similar to Rust's:
+ * https://docs.rs/futures/latest/futures/io/trait.AsyncWrite.html#tymethod.poll_write
+ * If you prefer completion-style async functions, and your data can outlive
+ * the callstack, use aws_s3_meta_request_write() instead.
+ *
+ * Check the returned `result` struct to see what happened:
+ * 1)   If `result.is_pending == true` then no work was done.
+ *      The waker callback will be invoked when you can call poll_write() again.
+ *      Do not call poll_write() again before the waker is invoked.
+ *
+ * 2)   Else if `result.error_code != 0` then poll_write() did not succeed
+ *      and you should not call it again. The meta request is guaranteed to finish soon
+ *      (you don't need to worry about canceling the meta request yourself after a failed write).
+ *      A common error code is AWS_ERROR_S3_REQUEST_HAS_COMPLETED, indicating
+ *      the meta request completed for reasons unrelated to the poll_write() call
+ *      (e.g. CreateMultipartUpload received a 403 Forbidden response).
+ *      AWS_ERROR_INVALID_STATE usually indicates that you're calling poll_write()
+ *      incorrectly (e.g. not waiting for waker callback from previous poll_write() call).
+ *
+ * 3)   Else `result.bytes_processed` tells you how much data was processed.
+ *      `bytes_processed` may be less than the `data.len` you passed in.
+ *      Continue calling poll_write() with the remaining data until everything is processed.
+ *      `result.bytes_processed` won't be 0 unless you passed in `data.len` of 0.
+ *
+ * @param meta_request  Meta request
+ *
+ * @param data          The data to send. The data can be any size.
+ *                      `result.bytes_processed` indicates how many bytes were
+ *                      processed by this call.
+ *
+ * @param eof           Pass true to signal EOF (end of file).
+ *                      If poll_write() doesn't process all your data
+ *                      (`result.is_pending` or `result.byte_processed < data.len`)
+ *                      then EOF was ignored, and you need to pass it again
+ *                      to subsequent poll_write() calls.
+ *
+ * @param waker         Waker callback.
+ *                      If `result.is_pending == true`, then the waker will be called
+ *                      exactly once when it's a good time to call poll_write() again.
+ *                      If `result.is_pending == false`, the waker will never be called.
+ *
+ * @param user_data     Pointer to be passed to the waker callback.
+ *
+ * WARNING: This feature is experimental.
+ */
+AWS_S3_API
+struct aws_s3_meta_request_poll_write_result aws_s3_meta_request_poll_write(
+    struct aws_s3_meta_request *meta_request,
+    struct aws_byte_cursor data,
+    bool eof,
+    aws_simple_completion_callback *waker,
+    void *user_data);
+
+/**
+ * Write the next chunk of data.
+ *
+ * You must set `aws_s3_meta_request_options.send_using_async_writes` to use this function.
+ *
+ * This function is asynchronous, and returns a future (see <aws/io/future.h>).
+ * You may not call write() again until the future completes.
+ *
+ * If the future completes with an error code, then write() did not succeed
+ * and you should not call it again. If the future contains any error code,
+ * the meta request is guaranteed to finish soon (you don't need to worry about
+ * canceling the meta request yourself after a failed write).
+ * A common error code is AWS_ERROR_S3_REQUEST_HAS_COMPLETED, indicating
+ * the meta request completed for reasons unrelated to the write() call
+ * (e.g. CreateMultipartUpload received a 403 Forbidden response).
+ * AWS_ERROR_INVALID_STATE usually indicates that you're calling write()
+ * incorrectly (e.g. not waiting for previous write to complete).
+ *
+ * You MUST keep the data in memory until the future completes.
+ * If you cannot do this, use aws_s3_meta_request_poll_write() instead.
+ *
+ * You can wait any length of time between calls to write().
+ * If there's not enough data to upload a part, the data will be copied
+ * to a buffer and the future will immediately complete.
+ *
+ * @param meta_request  Meta request
+ *
+ * @param data          The data to send. The data can be any size.
+ *
+ * @param eof           Pass true to signal EOF (end of file).
+ *                      Do not call write() again after passing true.
+ *
+ * This function never returns NULL.
+ *
+ * WARNING: This feature is experimental.
+ */
+AWS_S3_API
+struct aws_future_void *aws_s3_meta_request_write(
+    struct aws_s3_meta_request *meta_request,
+    struct aws_byte_cursor data,
+    bool eof);
 
 /**
  * Increment the flow-control window, so that response data continues downloading.
@@ -816,6 +1188,17 @@ void aws_s3_init_default_signing_config(
     struct aws_credentials_provider *credentials_provider);
 
 /**
+ * Return operation name for aws_s3_request_type,
+ * or empty string if the type doesn't map to an actual operation.
+ * For example:
+ * AWS_S3_REQUEST_TYPE_HEAD_OBJECT -> "HeadObject"
+ * AWS_S3_REQUEST_TYPE_UNKNOWN -> ""
+ * AWS_S3_REQUEST_TYPE_MAX -> ""
+ */
+AWS_S3_API
+const char *aws_s3_request_type_operation_name(enum aws_s3_request_type type);
+
+/**
  * Add a reference, keeping this object alive.
  * The reference must be released when you are done with it, or it's memory will never be cleaned up.
  * Always returns the same pointer that was passed in.
@@ -966,7 +1349,19 @@ int aws_s3_request_metrics_get_thread_id(const struct aws_s3_request_metrics *me
 AWS_S3_API
 int aws_s3_request_metrics_get_request_stream_id(const struct aws_s3_request_metrics *metrics, uint32_t *out_stream_id);
 
-/* Get the request type from request metrics. */
+/**
+ * Get the S3 operation name of the request (e.g. "HeadObject").
+ * If unavailable, AWS_ERROR_S3_METRIC_DATA_NOT_AVAILABLE will be raised.
+ * If available, out_operation_name will be set to a string.
+ * Be warned this string's lifetime is tied to the metrics object.
+ */
+AWS_S3_API
+int aws_s3_request_metrics_get_operation_name(
+    const struct aws_s3_request_metrics *metrics,
+    const struct aws_string **out_operation_name);
+
+/* Get the request type from request metrics.
+ * If you just need a string, aws_s3_request_metrics_get_operation_name() is more reliable. */
 AWS_S3_API
 void aws_s3_request_metrics_get_request_type(
     const struct aws_s3_request_metrics *metrics,

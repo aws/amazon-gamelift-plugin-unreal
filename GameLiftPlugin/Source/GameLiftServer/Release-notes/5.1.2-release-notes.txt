@@ -1,0 +1,2 @@
+- Introduced logging capabilities for the C++ Server SDK; logs are now accessible.
+- Improved the reliability of SDK message transmission by implementing more robust reconnection mechanisms in the event of network interruptions or random message drops.
