@@ -11,6 +11,7 @@
 
 #include "Types/FTextIntPair.h"
 
+class SNamedRow;
 class SBootstrapStatus;
 class SEditableTextBox;
 class SErrorBanner;
