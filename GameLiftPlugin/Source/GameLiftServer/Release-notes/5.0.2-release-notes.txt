@@ -1,0 +1,6 @@
+- Support for Unreal Engine 5.1.1
+- Support for Amazon GameLift SDK 5.0
+- Added support for new SDK 5.0 APIs
+- Removed APIs no longer supported in SDK 5.0
+- Changed InitSDK to reflect new FServerParameter requirement
+- Added additional GameLift ERROR types

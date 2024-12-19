@@ -10,6 +10,7 @@
 #include "GameLiftCoreLog.h"
 #include "IGameLiftCoreModule.h"
 #include "Utils/StringConvertors.h"
+#include "Utils/UnrealVersion.h"
 
 #define LOCTEXT_NAMESPACE "GameLiftAnywhereHandler"
 
@@ -100,9 +101,12 @@ GameLiftAnywhereCreateFleetResult GameLiftAnywhereHandler::CreateFleet(const FSt
 	check(AccountInstance);
 	check(AccountInstance->GetInstance());
 
+	FString CurrentVersion = UnrealVersion::GetCurrentEngineVersion();
+	FString FleetDescriptionWithVersion = FString::Format(TEXT("{0} Using Unreal Engine Version {1}"), { Anywhere::kAnywhereFleetDescription, CurrentVersion });
+
 	std::string StdFleetName = Convertors::FSToStdS(InFleetName);
 	std::string StdCustomLocation = Convertors::FSToStdS(InCustomLocation);
-	std::string StdFleetDescription = Convertors::FSToStdS(FString(Anywhere::kAnywhereFleetDescription));
+	std::string StdFleetDescription = Convertors::FSToStdS(FleetDescriptionWithVersion);
 	std::string StdTagKey = Convertors::FSToStdS(FString(Anywhere::kAnywhereFleetTagKey));
 	std::string StdTagValue = Convertors::FSToStdS(FString(Anywhere::kAnywhereFleetTagValue));
 

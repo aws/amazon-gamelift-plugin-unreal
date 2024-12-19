@@ -19,6 +19,8 @@ class SAccountStartupCard : public SCompoundWidget
 
 	SLATE_ARGUMENT_DEFAULT(FText, DescriptionText) { FText() };
 
+	SLATE_ARGUMENT_DEFAULT(FText, MiddleDescriptionText) { FText() };
+
 	SLATE_ARGUMENT_DEFAULT(FText, LinkText) { FText() };
 
 	SLATE_ARGUMENT_DEFAULT(FString, LinkUrl) { FString() };

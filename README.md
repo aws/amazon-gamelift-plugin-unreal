@@ -5,11 +5,11 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/total)
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/latest/total)
 
-Compatible with Unreal Engine 5 (versions 5.0, 5.1, 5.2 and 5.3).
+Compatible with Unreal Engine 5 (versions 5.0, 5.1, 5.2, 5.3, 5.4, and 5.5).
 
 # Overview
 
-Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1, 5.2 and 5.3, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift.
+Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1, 5.2, 5.3, 5.4, and 5.5, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift.
 
 You can use the following built-in templates to deploy your game for some of the common scenarios.
 * Single-region fleet: Deploy your game server to one fleet in a single AWS Region. Use this scenario to experiment with your install scripts and runtime deployment, as well as your integration.

@@ -36,6 +36,7 @@
 #include <aws/ssm/model/DeleteDocumentResult.h>
 #include <aws/ssm/model/DeleteInventoryResult.h>
 #include <aws/ssm/model/DeleteMaintenanceWindowResult.h>
+#include <aws/ssm/model/DeleteOpsItemResult.h>
 #include <aws/ssm/model/DeleteOpsMetadataResult.h>
 #include <aws/ssm/model/DeleteParameterResult.h>
 #include <aws/ssm/model/DeleteParametersResult.h>
@@ -62,6 +63,7 @@
 #include <aws/ssm/model/DescribeInstancePatchStatesResult.h>
 #include <aws/ssm/model/DescribeInstancePatchStatesForPatchGroupResult.h>
 #include <aws/ssm/model/DescribeInstancePatchesResult.h>
+#include <aws/ssm/model/DescribeInstancePropertiesResult.h>
 #include <aws/ssm/model/DescribeInventoryDeletionsResult.h>
 #include <aws/ssm/model/DescribeMaintenanceWindowExecutionTaskInvocationsResult.h>
 #include <aws/ssm/model/DescribeMaintenanceWindowExecutionTasksResult.h>
@@ -156,6 +158,35 @@
 #include <aws/ssm/model/UpdatePatchBaselineResult.h>
 #include <aws/ssm/model/UpdateResourceDataSyncResult.h>
 #include <aws/ssm/model/UpdateServiceSettingResult.h>
+#include <aws/ssm/model/DescribeAutomationExecutionsRequest.h>
+#include <aws/ssm/model/GetInventorySchemaRequest.h>
+#include <aws/ssm/model/GetInventoryRequest.h>
+#include <aws/ssm/model/DescribeMaintenanceWindowScheduleRequest.h>
+#include <aws/ssm/model/DescribePatchGroupsRequest.h>
+#include <aws/ssm/model/DeleteAssociationRequest.h>
+#include <aws/ssm/model/ListOpsMetadataRequest.h>
+#include <aws/ssm/model/ListComplianceItemsRequest.h>
+#include <aws/ssm/model/DescribeAvailablePatchesRequest.h>
+#include <aws/ssm/model/DescribeMaintenanceWindowsRequest.h>
+#include <aws/ssm/model/ListOpsItemRelatedItemsRequest.h>
+#include <aws/ssm/model/ListAssociationsRequest.h>
+#include <aws/ssm/model/ListCommandsRequest.h>
+#include <aws/ssm/model/GetDefaultPatchBaselineRequest.h>
+#include <aws/ssm/model/DescribeInventoryDeletionsRequest.h>
+#include <aws/ssm/model/DescribeInstanceInformationRequest.h>
+#include <aws/ssm/model/GetOpsSummaryRequest.h>
+#include <aws/ssm/model/ListResourceDataSyncRequest.h>
+#include <aws/ssm/model/DescribeOpsItemsRequest.h>
+#include <aws/ssm/model/DescribePatchBaselinesRequest.h>
+#include <aws/ssm/model/ListDocumentsRequest.h>
+#include <aws/ssm/model/DescribeActivationsRequest.h>
+#include <aws/ssm/model/DescribeAssociationRequest.h>
+#include <aws/ssm/model/ListCommandInvocationsRequest.h>
+#include <aws/ssm/model/ListOpsItemEventsRequest.h>
+#include <aws/ssm/model/ListResourceComplianceSummariesRequest.h>
+#include <aws/ssm/model/DescribeParametersRequest.h>
+#include <aws/ssm/model/ListComplianceSummariesRequest.h>
+#include <aws/ssm/model/DescribeInstancePropertiesRequest.h>
 /* End of service model headers required in SSMClient header */
 
 namespace Aws
@@ -189,7 +220,7 @@ namespace Aws
 
   namespace SSM
   {
-    using SSMClientConfiguration = Aws::Client::GenericClientConfiguration<false>;
+    using SSMClientConfiguration = Aws::Client::GenericClientConfiguration;
     using SSMEndpointProviderBase = Aws::SSM::Endpoint::SSMEndpointProviderBase;
     using SSMEndpointProvider = Aws::SSM::Endpoint::SSMEndpointProvider;
 
@@ -214,6 +245,7 @@ namespace Aws
       class DeleteDocumentRequest;
       class DeleteInventoryRequest;
       class DeleteMaintenanceWindowRequest;
+      class DeleteOpsItemRequest;
       class DeleteOpsMetadataRequest;
       class DeleteParameterRequest;
       class DeleteParametersRequest;
@@ -240,6 +272,7 @@ namespace Aws
       class DescribeInstancePatchStatesRequest;
       class DescribeInstancePatchStatesForPatchGroupRequest;
       class DescribeInstancePatchesRequest;
+      class DescribeInstancePropertiesRequest;
       class DescribeInventoryDeletionsRequest;
       class DescribeMaintenanceWindowExecutionTaskInvocationsRequest;
       class DescribeMaintenanceWindowExecutionTasksRequest;
@@ -355,6 +388,7 @@ namespace Aws
       typedef Aws::Utils::Outcome<DeleteDocumentResult, SSMError> DeleteDocumentOutcome;
       typedef Aws::Utils::Outcome<DeleteInventoryResult, SSMError> DeleteInventoryOutcome;
       typedef Aws::Utils::Outcome<DeleteMaintenanceWindowResult, SSMError> DeleteMaintenanceWindowOutcome;
+      typedef Aws::Utils::Outcome<DeleteOpsItemResult, SSMError> DeleteOpsItemOutcome;
       typedef Aws::Utils::Outcome<DeleteOpsMetadataResult, SSMError> DeleteOpsMetadataOutcome;
       typedef Aws::Utils::Outcome<DeleteParameterResult, SSMError> DeleteParameterOutcome;
       typedef Aws::Utils::Outcome<DeleteParametersResult, SSMError> DeleteParametersOutcome;
@@ -381,6 +415,7 @@ namespace Aws
       typedef Aws::Utils::Outcome<DescribeInstancePatchStatesResult, SSMError> DescribeInstancePatchStatesOutcome;
       typedef Aws::Utils::Outcome<DescribeInstancePatchStatesForPatchGroupResult, SSMError> DescribeInstancePatchStatesForPatchGroupOutcome;
       typedef Aws::Utils::Outcome<DescribeInstancePatchesResult, SSMError> DescribeInstancePatchesOutcome;
+      typedef Aws::Utils::Outcome<DescribeInstancePropertiesResult, SSMError> DescribeInstancePropertiesOutcome;
       typedef Aws::Utils::Outcome<DescribeInventoryDeletionsResult, SSMError> DescribeInventoryDeletionsOutcome;
       typedef Aws::Utils::Outcome<DescribeMaintenanceWindowExecutionTaskInvocationsResult, SSMError> DescribeMaintenanceWindowExecutionTaskInvocationsOutcome;
       typedef Aws::Utils::Outcome<DescribeMaintenanceWindowExecutionTasksResult, SSMError> DescribeMaintenanceWindowExecutionTasksOutcome;
@@ -496,6 +531,7 @@ namespace Aws
       typedef std::future<DeleteDocumentOutcome> DeleteDocumentOutcomeCallable;
       typedef std::future<DeleteInventoryOutcome> DeleteInventoryOutcomeCallable;
       typedef std::future<DeleteMaintenanceWindowOutcome> DeleteMaintenanceWindowOutcomeCallable;
+      typedef std::future<DeleteOpsItemOutcome> DeleteOpsItemOutcomeCallable;
       typedef std::future<DeleteOpsMetadataOutcome> DeleteOpsMetadataOutcomeCallable;
       typedef std::future<DeleteParameterOutcome> DeleteParameterOutcomeCallable;
       typedef std::future<DeleteParametersOutcome> DeleteParametersOutcomeCallable;
@@ -522,6 +558,7 @@ namespace Aws
       typedef std::future<DescribeInstancePatchStatesOutcome> DescribeInstancePatchStatesOutcomeCallable;
       typedef std::future<DescribeInstancePatchStatesForPatchGroupOutcome> DescribeInstancePatchStatesForPatchGroupOutcomeCallable;
       typedef std::future<DescribeInstancePatchesOutcome> DescribeInstancePatchesOutcomeCallable;
+      typedef std::future<DescribeInstancePropertiesOutcome> DescribeInstancePropertiesOutcomeCallable;
       typedef std::future<DescribeInventoryDeletionsOutcome> DescribeInventoryDeletionsOutcomeCallable;
       typedef std::future<DescribeMaintenanceWindowExecutionTaskInvocationsOutcome> DescribeMaintenanceWindowExecutionTaskInvocationsOutcomeCallable;
       typedef std::future<DescribeMaintenanceWindowExecutionTasksOutcome> DescribeMaintenanceWindowExecutionTasksOutcomeCallable;
@@ -640,6 +677,7 @@ namespace Aws
     typedef std::function<void(const SSMClient*, const Model::DeleteDocumentRequest&, const Model::DeleteDocumentOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteDocumentResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DeleteInventoryRequest&, const Model::DeleteInventoryOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteInventoryResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DeleteMaintenanceWindowRequest&, const Model::DeleteMaintenanceWindowOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteMaintenanceWindowResponseReceivedHandler;
+    typedef std::function<void(const SSMClient*, const Model::DeleteOpsItemRequest&, const Model::DeleteOpsItemOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteOpsItemResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DeleteOpsMetadataRequest&, const Model::DeleteOpsMetadataOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteOpsMetadataResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DeleteParameterRequest&, const Model::DeleteParameterOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteParameterResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DeleteParametersRequest&, const Model::DeleteParametersOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DeleteParametersResponseReceivedHandler;
@@ -666,6 +704,7 @@ namespace Aws
     typedef std::function<void(const SSMClient*, const Model::DescribeInstancePatchStatesRequest&, const Model::DescribeInstancePatchStatesOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeInstancePatchStatesResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DescribeInstancePatchStatesForPatchGroupRequest&, const Model::DescribeInstancePatchStatesForPatchGroupOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeInstancePatchStatesForPatchGroupResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DescribeInstancePatchesRequest&, const Model::DescribeInstancePatchesOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeInstancePatchesResponseReceivedHandler;
+    typedef std::function<void(const SSMClient*, const Model::DescribeInstancePropertiesRequest&, const Model::DescribeInstancePropertiesOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeInstancePropertiesResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DescribeInventoryDeletionsRequest&, const Model::DescribeInventoryDeletionsOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeInventoryDeletionsResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DescribeMaintenanceWindowExecutionTaskInvocationsRequest&, const Model::DescribeMaintenanceWindowExecutionTaskInvocationsOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeMaintenanceWindowExecutionTaskInvocationsResponseReceivedHandler;
     typedef std::function<void(const SSMClient*, const Model::DescribeMaintenanceWindowExecutionTasksRequest&, const Model::DescribeMaintenanceWindowExecutionTasksOutcome&, const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) > DescribeMaintenanceWindowExecutionTasksResponseReceivedHandler;

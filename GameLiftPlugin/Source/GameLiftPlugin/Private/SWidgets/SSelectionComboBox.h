@@ -25,6 +25,8 @@ class SSelectionComboBox : public SCompoundWidget
 
 	SLATE_ARGUMENT(FText, UnselectedText)
 
+	SLATE_ARGUMENT_DEFAULT(bool, HideDescription) { false };
+
 	SLATE_EVENT(FOnBuildSelectionList, OnListBuilding)
 
 	SLATE_EVENT(FOnItemSelected, OnItemSelected)
@@ -67,4 +69,6 @@ private:
 
 	static constexpr int kUnassignedSelectionId = -1;
 	int CurrentSelected = 0;
+
+	bool HideDescription;
 };

@@ -35,6 +35,7 @@ public:
 
 	void SetGameOnlyMode();
 	void SetFullMode();
+	void SetAllFieldsReadOnly(bool ReadOnly);
 
 	void SetBuildName(const FText& Name);
 	void SetBuildOperatingSystem(const FText& OSValue);
@@ -42,6 +43,7 @@ public:
 	void SetBuildFilePath(const FText& Path);
 	void SetExtraServerResourcesPath(const FText& Path);
 	void SetOutConfigFilePath(const FText& Path);
+	void SetDeploymentScenario(const FText& Name);
 
 	const FText& GetBuildName() const;
 	FText GetBuildOperatingSystem() const;
@@ -49,6 +51,7 @@ public:
 	const FText& GetBuildFilePath() const;
 	const FText& GetExtraServerResourcesPath() const;
 	const FText& GetOutConfigFilePath() const;
+	const FText& GetDeploymentScenario() const;
 	Modes GetCurrentState() const;
 
 private:
@@ -71,14 +74,16 @@ private:
 	TSharedPtr<SPathInput> BuildFilePathInput;
 	TSharedPtr<SPathInput> ExtraServerResourcesPathInput;
 	TSharedPtr<SPathInput> OutConfigFilePathInput;
+	TSharedPtr<SPathInput> GameClientFilePathInput;
+	FText DeploymentScenario;
 };
 
-TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedPtr<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedPtr<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentFields>(WidgetToCast.ToSharedRef());
 }
 
-TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedRef<SWidget> WidgetToCast)
+inline TSharedRef<SDeploymentFields> AsSDeploymentFieldsRef(TSharedRef<SWidget> WidgetToCast)
 {
 	return StaticCastSharedRef<SDeploymentFields>(WidgetToCast);
 }

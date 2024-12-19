@@ -1,0 +1,31 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+# THIS IS A SAMPLE CLOUDFORMATION PARAMETERS FILE
+GameNameParameter:
+  value: "{{AWSGAMELIFT::SYS::GAMENAME}}"
+LambdaZipS3BucketParameter:
+  value: "{{AWSGAMELIFT::VARS::LambdaZipS3BucketParameter}}"
+LambdaZipS3KeyParameter:
+  value: "{{AWSGAMELIFT::VARS::LambdaZipS3KeyParameter}}"
+ApiGatewayStageNameParameter:
+  value: "{{AWSGAMELIFT::VARS::ApiGatewayStageNameParameter}}"
+ContainerGroupDefinitionNameParameter:
+  value: "{{AWSGAMELIFT::VARS::ContainerGroupDefinitionNameParameter}}"
+ContainerImageNameParameter:
+  value: "{{AWSGAMELIFT::VARS::ContainerImageNameParameter}}"
+ContainerImageUriParameter:
+  value: "{{AWSGAMELIFT::VARS::ContainerImageUriParameter}}"
+LaunchPathParameter:
+  value: "{{AWSGAMELIFT::VARS::LaunchPathParameter}}"
+TotalVcpuLimitParameter:
+  value: "{{AWSGAMELIFT::VARS::TotalVcpuLimitParameter}}"
+TotalMemoryLimitParameter:
+  value: "{{AWSGAMELIFT::VARS::TotalMemoryLimitParameter}}"
+FleetUdpFromPortParameter:
+  value: "{{AWSGAMELIFT::VARS::FleetUdpFromPortParameter}}"
+FleetUdpToPortParameter:
+  value: "{{AWSGAMELIFT::VARS::FleetUdpToPortParameter}}"
+UnrealEngineVersionParameter:
+  value: "{{AWSGAMELIFT::VARS::UnrealEngineVersionParameter}}"

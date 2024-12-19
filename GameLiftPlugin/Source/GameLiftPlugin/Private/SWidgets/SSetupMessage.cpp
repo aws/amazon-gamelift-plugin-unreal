@@ -27,48 +27,65 @@
 
 FOnSetupMessageStateChanged SSetupMessage::OnSetupMessageStateChangedMultiDelegate;
 
-TSharedRef<SWidget> SSetupMessage::MakeRow(FName IconName, const FText& Message, const FText& ButtonMessage)
+TSharedRef<SWidget> SSetupMessage::MakeRow(FName IconName, const FText& Message, const FText& ButtonMessage, const char* ButtonStyle, TSharedPtr<SWidget> RowWidget, bool IconVAlignTop, bool ButtonVAlignTop)
 {
+	const int IconSize = 18;
+
 	TSharedRef<SHorizontalBox> Result = SNew(SHorizontalBox)
 		// Status icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
-		.Padding(8.0f)
-		.VAlign(VAlign_Center)
+		.Padding(SPadding::SetupMessageIconPadding)
+		.VAlign(IconVAlignTop ? VAlign_Top : VAlign_Center)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SBox)
-			.WidthOverride(16)
-			.HeightOverride(16)
-			[
-				SNew(SImage)
-				.Image(FGameLiftPluginStyle::Get().GetBrush(IconName))
-			]
-		]
-
-		// Status text
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.VAlign(VAlign_Center)
-		[
-			SNew(STextBlock)
-			.ColorAndOpacity(this, &SSetupMessage::GetTextColor)
-			.Text(Message)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
+				.WidthOverride(IconSize)
+				.HeightOverride(IconSize)
+				[
+					SNew(SImage)
+						.Image(FGameLiftPluginStyle::Get().GetBrush(IconName))
+				]
 		];
+
+		if (RowWidget != nullptr)
+		{
+			Result->AddSlot()
+				.FillWidth(1)
+				.Padding(SPadding::SetupMessageContentPadding)
+				[
+					RowWidget.ToSharedRef()
+				];
+		}
+		else
+		{
+			// Status text
+			Result->AddSlot()
+				.VAlign(VAlign_Center)
+				.Padding(SPadding::SetupMessageContentPadding)
+				[
+					SNew(STextBlock)
+						.ColorAndOpacity(this, &SSetupMessage::GetTextColor)
+						.Text(Message)
+						.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
+						.AutoWrapText(true)
+				];
+		}
 		
-	if (!ButtonMessage.IsEmpty())
+	if (!ButtonMessage.IsEmpty() || !FText::FromString(ButtonStyle).IsEmpty())
 	{
 		Result->AddSlot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Center)
-		.Padding(SPadding::Right2x)
-		[
-			SNew(SButton)
-			.OnClicked(this, &SSetupMessage::OnButtonPressed)
-			.Text(ButtonMessage)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
-		];
+			.HAlign(HAlign_Right)
+			.VAlign(ButtonVAlignTop ? VAlign_Top : VAlign_Center)
+			.Padding(ButtonVAlignTop ? SPadding::CloseButtonTopPadding : SPadding::Right2x)
+			.AutoWidth()
+			[
+				SNew(SButton)
+				.OnClicked(this, &SSetupMessage::OnButtonPressed)
+				.Text(ButtonMessage)
+				.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
+				.ButtonStyle(FGameLiftPluginStyle::Get(), ButtonStyle)
+			];
 	}
 
 	return Result;
@@ -81,35 +98,58 @@ void SSetupMessage::Construct(const FArguments& InArgs)
 	OnUpdateStateEachTick = InArgs._OnUpdateStateEachTick;
 	CachedSetupState = InArgs._SetState;
 
-	TSharedRef<SWidget> WarningWidget = MakeRow(InArgs._WarningIcon, InArgs._WarningText, InArgs._WarningButtonText);
-	TSharedRef<SWidget> FailureWidget = MakeRow(InArgs._FailureIcon, InArgs._FailureText, InArgs._FailureButtonText);
-	TSharedRef<SWidget> ReadyToGoWidget = MakeRow(InArgs._ReadyToGoIcon, InArgs._ReadyToGoText, InArgs._ReadyToGoButtonText);
+	TSharedRef<SWidget> HelpWidget = MakeRow(InArgs._HelpIcon, InArgs._HelpText, InArgs._HelpButtonText,
+		InArgs._HelpButtonStyle, InArgs._HelpRowWidget, InArgs._IconVAlignTop, InArgs._ButtonVAlignTop);
+	TSharedRef<SWidget> InfoWidget = MakeRow(InArgs._InfoIcon, InArgs._InfoText, InArgs._InfoButtonText, 
+		InArgs._InfoButtonStyle, InArgs._InfoRowWidget, InArgs._IconVAlignTop, InArgs._ButtonVAlignTop);
+	TSharedRef<SWidget> WarningWidget = MakeRow(InArgs._WarningIcon, InArgs._WarningText, InArgs._WarningButtonText, 
+		InArgs._WarningButtonStyle, InArgs._WarningRowWidget, InArgs._IconVAlignTop, InArgs._ButtonVAlignTop);
+	TSharedRef<SWidget> FailureWidget = MakeRow(InArgs._FailureIcon, InArgs._FailureText, InArgs._FailureButtonText, 
+		InArgs._FailureButtonStyle, InArgs._FailureRowWidget, InArgs._IconVAlignTop, InArgs._ButtonVAlignTop);
+	TSharedRef<SWidget> ReadyToGoWidget = MakeRow(InArgs._ReadyToGoIcon, InArgs._ReadyToGoText, InArgs._ReadyToGoButtonText, 
+		InArgs._ReadyToGoButtonStyle, InArgs._ReadyToGoRowWidget, InArgs._IconVAlignTop, InArgs._ButtonVAlignTop);
 
 	ChildSlot
 	[
 		SNew(SBorder)
 		.BorderBackgroundColor(this, &SSetupMessage::GetBorderColor)
 		.BorderImage(FGameLiftPluginStyle::Get().GetBrush(Style::Brush::kBorderImageName))
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		.Padding(SPadding::Border)
 		[
-			SNew(SWidgetSwitcher)
-			.WidgetIndex(this, &SSetupMessage::GetSetupStateAsInt)
+			SNew(SBorder)
+			.BorderBackgroundColor(FColor::Black)
+			.BorderImage(FGameLiftPluginStyle::Get().GetBrush(Style::Brush::kBorderImageName))
+			[
+				SNew(SWidgetSwitcher)
+				.WidgetIndex(this, &SSetupMessage::GetSetupStateAsInt)
 
-			// Locked slot
-			+ SWidgetSwitcher::Slot()
-			[
-				WarningWidget
-			]
-			+ SWidgetSwitcher::Slot()
-			[
-				FailureWidget
-			]
-			+ SWidgetSwitcher::Slot()
-			[
-				ReadyToGoWidget
-			] 
-			+ SWidgetSwitcher::Slot()
-			[
-				SNew(SBox)
+				// Locked slot
+				+ SWidgetSwitcher::Slot()
+				[
+					HelpWidget
+				]
+				+ SWidgetSwitcher::Slot()
+				[
+					InfoWidget
+				]
+				+ SWidgetSwitcher::Slot()
+				[
+					WarningWidget
+				]
+				+ SWidgetSwitcher::Slot()
+				[
+					FailureWidget
+				]
+				+ SWidgetSwitcher::Slot()
+				[
+					ReadyToGoWidget
+				]
+				+ SWidgetSwitcher::Slot()
+				[
+					SNew(SBox)
+				]
 			]
 		]
 	];
@@ -180,6 +220,10 @@ FSlateColor SSetupMessage::GetBorderColor() const
 {
 	switch (CachedSetupState)
 	{
+		case ESetupMessageState::HelpMessage:
+			return FGameLiftPluginStyle::Get().GetColor(Style::Color::kHelpBackground);
+		case ESetupMessageState::InfoMessage:
+			return FGameLiftPluginStyle::Get().GetColor(Style::Color::kInfoBackground);
 		case ESetupMessageState::DismissedMessage:
 			return FLinearColor().Transparent;
 		case ESetupMessageState::WarningMessage:
@@ -197,6 +241,10 @@ FSlateColor SSetupMessage::GetTextColor() const
 {
 	switch (CachedSetupState)
 	{
+		case ESetupMessageState::HelpMessage:
+			return FGameLiftPluginStyle::Get().GetColor(Style::Color::kHelpForeground);
+		case ESetupMessageState::InfoMessage:
+			return FGameLiftPluginStyle::Get().GetColor(Style::Color::kInfoForeground);
 		case ESetupMessageState::WarningMessage:
 			return FGameLiftPluginStyle::Get().GetColor(Style::Color::kWarningForeground);
 		case ESetupMessageState::FailureMessage:

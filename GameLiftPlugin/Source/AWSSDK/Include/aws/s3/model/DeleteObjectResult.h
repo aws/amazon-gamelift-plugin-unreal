@@ -33,105 +33,53 @@ namespace Model
     AWS_S3_API DeleteObjectResult& operator=(const Aws::AmazonWebServiceResult<Aws::Utils::Xml::XmlDocument>& result);
 
 
+    ///@{
     /**
-     * <p>Specifies whether the versioned object that was permanently deleted was
-     * (true) or was not (false) a delete marker.</p>
+     * <p>Indicates whether the specified object version that was permanently deleted
+     * was (true) or was not (false) a delete marker before deletion. In a simple
+     * DELETE, this header indicates whether (true) or not (false) the current version
+     * of the object is a delete marker.</p>  <p>This functionality is not
+     * supported for directory buckets.</p> 
      */
     inline bool GetDeleteMarker() const{ return m_deleteMarker; }
-
-    /**
-     * <p>Specifies whether the versioned object that was permanently deleted was
-     * (true) or was not (false) a delete marker.</p>
-     */
     inline void SetDeleteMarker(bool value) { m_deleteMarker = value; }
-
-    /**
-     * <p>Specifies whether the versioned object that was permanently deleted was
-     * (true) or was not (false) a delete marker.</p>
-     */
     inline DeleteObjectResult& WithDeleteMarker(bool value) { SetDeleteMarker(value); return *this;}
+    ///@}
 
-
+    ///@{
     /**
      * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
+     * operation.</p>  <p>This functionality is not supported for directory
+     * buckets.</p> 
      */
     inline const Aws::String& GetVersionId() const{ return m_versionId; }
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline void SetVersionId(const Aws::String& value) { m_versionId = value; }
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline void SetVersionId(Aws::String&& value) { m_versionId = std::move(value); }
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline void SetVersionId(const char* value) { m_versionId.assign(value); }
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline DeleteObjectResult& WithVersionId(const Aws::String& value) { SetVersionId(value); return *this;}
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline DeleteObjectResult& WithVersionId(Aws::String&& value) { SetVersionId(std::move(value)); return *this;}
-
-    /**
-     * <p>Returns the version ID of the delete marker created as a result of the DELETE
-     * operation.</p>
-     */
     inline DeleteObjectResult& WithVersionId(const char* value) { SetVersionId(value); return *this;}
+    ///@}
 
-
+    ///@{
     
     inline const RequestCharged& GetRequestCharged() const{ return m_requestCharged; }
-
-    
     inline void SetRequestCharged(const RequestCharged& value) { m_requestCharged = value; }
-
-    
     inline void SetRequestCharged(RequestCharged&& value) { m_requestCharged = std::move(value); }
-
-    
     inline DeleteObjectResult& WithRequestCharged(const RequestCharged& value) { SetRequestCharged(value); return *this;}
-
-    
     inline DeleteObjectResult& WithRequestCharged(RequestCharged&& value) { SetRequestCharged(std::move(value)); return *this;}
+    ///@}
 
-
+    ///@{
     
     inline const Aws::String& GetRequestId() const{ return m_requestId; }
-
-    
     inline void SetRequestId(const Aws::String& value) { m_requestId = value; }
-
-    
     inline void SetRequestId(Aws::String&& value) { m_requestId = std::move(value); }
-
-    
     inline void SetRequestId(const char* value) { m_requestId.assign(value); }
-
-    
     inline DeleteObjectResult& WithRequestId(const Aws::String& value) { SetRequestId(value); return *this;}
-
-    
     inline DeleteObjectResult& WithRequestId(Aws::String&& value) { SetRequestId(std::move(value)); return *this;}
-
-    
     inline DeleteObjectResult& WithRequestId(const char* value) { SetRequestId(value); return *this;}
-
+    ///@}
   private:
 
     bool m_deleteMarker;

@@ -28,6 +28,14 @@
 
 #define MAX_ANYWHERE_FLEETS 20
 #define MAX_ANYWHERE_STR_LEN 1024
+#define MAX_REPO_COUNT 20
+#define MAX_REPO_STR_LEN 1024
+#define MAX_IMAGE_COUNT 20
+#define MAX_IMAGE_STR_LEN 1024
+#define MAX_CGD_COUNT 20
+#define MAX_CGD_STR_LEN 1024
+#define MAX_CGD_STATUS_STR_LEN 32
+#define MAX_FLEETID_STR_LEN 64
 
 /**
  * @brief  GameLiftAccount instance handle created by calling #GameLiftAccountInstanceCreate()
@@ -130,8 +138,8 @@ extern "C"
      * @return The result code of the operation. GAMELIFT_SUCCESS if successful, else a non-zero value in case of error. Consult errors.h file for details.
      */
     GAMELIFT_API unsigned int GameLiftGetAwsAccountId(DISPATCH_RECEIVER_HANDLE dispatchReceiver, CharPtrCallback resultCb, const char* accessKey, const char* secretKey, FuncLogCallback logCb);
-    
-    // -------- Instance functions, these require a GameLiftAccount instance handle 
+
+    // -------- Instance functions, these require a GameLiftAccount instance handle
     /**
      * @brief Create a GameLiftAccount instance, which can be used to access the GameLiftAccount API.
      *
@@ -187,9 +195,35 @@ extern "C"
      * @return AWS Account Id.
      */
     GAMELIFT_API const char* GameLiftGetAwsAccountIdByAccountInstance(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance);
-    
+
     /**
-     * @brief Get the GAMELIFT_ROOT path where the "instance" templates and settings are going to be stored.
+     * @brief Generate the default bootstrap bucket name based on current account info.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance created with GameLiftAccountInstanceCreate().
+     * @return generated bucket name.
+     */
+    GAMELIFT_API const char* GameLiftAccountGetDefaultBucketName(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance);
+
+    /**
+     * @brief Get the existing boostrap bucket name for the current account.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance created with GameLiftAccountInstanceCreate().
+     * @return bucket name, or an empty string if GameLiftAccountInstanceBootstrap() or GameLiftAccountSetBucketName() hasn't been called yet.
+     */
+    GAMELIFT_API const char* GameLiftAccountGetBucketName(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance);
+
+    /**
+     * @brief Set the bucket name for the current account overwrites value provided by GameLiftAccountInstanceCreate().
+     *
+     * @details This value can be fetched by GameLiftAccountGetBucketName() and defaults to an empty string until this method is called.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance created with GameLiftAccountInstanceCreate().
+     * @param bucketName New value for Bucket Name.
+     */
+    GAMELIFT_API void GameLiftAccountSetBucketName(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, const char* bucketName);
+
+    /**
+     * @brief Get the game name for the current account.
      *
      * @param accountInstance Pointer to a GameLiftAccount instance created with GameLiftAccountInstanceCreate().
      * @return game name, or an empty string if GameLiftAccountSetGameName() hasn't been called yet or if not specified in GameLiftAccountInstanceCreate().
@@ -969,7 +1003,7 @@ extern "C"
 
     /**
      * @brief Create Anywhere custom location request structure, provided to #GameLiftAnywhereCreateCustomLocation().
-     * 
+     *
      * @details If succeedIfExisting is set to true, the operation would succeed even if the location was already created.
      */
     struct GAMELIFT_ANYWHERE_CREATE_LOCATION_REQUEST : public GAMELIFT_ERROR_HANDLER {
@@ -1054,7 +1088,7 @@ extern "C"
         const char* authToken = nullptr;
         int64_t milisecondsSinceEpoch = 0;
     };
-    
+
     /**
      * @brief Create an Anywhere custom location.
      *
@@ -1305,6 +1339,200 @@ extern "C"
      * @param playerSessionInfo Player session information.
      */
     GAMELIFT_API void GameLiftPlayerSessionGetInfo(GAMELIFT_PLAYERSESSION_INSTANCE_HANDLE playerSessionInstance, GAMELIFT_PLAYERSESSION_INFO* playerSessionInfo);
+
+#pragma endregion
+
+#pragma region GameLiftECR
+    /**
+     * @brief Repo name and uri from describe repositories call
+     */
+    struct GAMELIFT_ECR_DESCRIBE_REPO_INFO {
+        struct RepoInfo
+        {
+            char repoName[MAX_REPO_STR_LEN + 1];
+            char repoUri[MAX_REPO_STR_LEN + 1];
+        };
+
+        RepoInfo repos[MAX_REPO_COUNT];
+        int numRepos = 0;
+    };
+
+    /**
+     * @brief Image digest and tag from list iamges call
+     */
+    struct GAMELIFT_ECR_LIST_IMAGES_INFO {
+        struct ImageInfo
+        {
+            char imageDigest[MAX_IMAGE_STR_LEN + 1];
+            char imageTag[MAX_IMAGE_STR_LEN + 1];
+        };
+
+        ImageInfo images[MAX_IMAGE_COUNT];
+        int numImages = 0;
+    };
+
+    /**
+     * @brief ERC Repo uri
+     */
+    struct GAMELIFT_ECR_REPO_URI {
+        char repoUri[MAX_REPO_STR_LEN + 1];
+    };
+
+    /**
+     * @brief Error info passed to a error handler callback #ECRFuncErrorCallback when calling ECR APIs.
+     */
+    struct ECR_ERROR_INFO {
+        Aws::ECR::ECRErrors errorType = Aws::ECR::ECRErrors::UNKNOWN;
+        const char* errorMessage = nullptr;
+    };
+
+    /**
+     * @brief Error handler callback. Refer to #ECR_ERROR_HANDLER.
+     */
+    typedef void (*ECRFuncErrorCallback)(DISPATCH_RECEIVER_HANDLE errorReceiver, ECR_ERROR_INFO* errorInfo);
+
+    /**
+     * @brief Error handler passed as a part of request when calling ECR APIs.
+     */
+    struct ECR_ERROR_HANDLER {
+        ECRFuncErrorCallback errorCb = nullptr;
+        DISPATCH_RECEIVER_HANDLE errorReceiver = nullptr;
+    };
+
+    /**
+     * @brief Create describe ecr repositories request structure, provided to #GameLiftECRDescribeRepositories().
+     */
+    struct GAMELIFT_ECR_DESCRIBE_REPOSITORIES_REQUEST : public ECR_ERROR_HANDLER {
+    };
+
+    /**
+     * @brief Create list ecr images request structure, provided to #GameLiftECRListImages().
+     */
+    struct GAMELIFT_ECR_LIST_IMAGES_REQUEST : public ECR_ERROR_HANDLER {
+        const char* repositoryName = nullptr;
+    };
+
+    /**
+     * @brief Create create ecr repository request structure, provided to #GameLiftECRCreateRepository().
+     */
+    struct GAMELIFT_ECR_CREATE_REPO_REQUEST : public ECR_ERROR_HANDLER {
+        const char* repositoryName = nullptr;
+    };
+
+    /**
+     * @brief Create a ECR private Repository
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient.
+     * @param createRepositoryRequest Pointer to a request input structure.
+     * @param repoUri structure to be filled by uri of created repository
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftECRCreateRepository(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_ECR_CREATE_REPO_REQUEST* createRepositoryRequest, GAMELIFT_ECR_REPO_URI* repoUri);
+
+    /**
+     * @brief Describes image repositories in a registry.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient.
+     * @param describeRepositoriesRequest Pointer to a request input structure.
+     * @param describeRepoInfo structure to be filled by list of repositories' names and uris
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftECRDescribeRepositories(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_ECR_DESCRIBE_REPOSITORIES_REQUEST* describeRepositoriesRequest, GAMELIFT_ECR_DESCRIBE_REPO_INFO* describeRepoInfo);
+
+    /**
+     * @brief List all images that exist in the specified ecr repositories with current AWS account for the selected region.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient.
+     * @param listImagesRequest Pointer to a request input structure.
+     * @param listImageInfo structure to be filled by list of images' info
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftECRListImages(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_ECR_LIST_IMAGES_REQUEST* listImagesRequest, GAMELIFT_ECR_LIST_IMAGES_INFO* listImageInfo);
+
+#pragma endregion
+
+#pragma region GameLiftContainers
+    /**
+     * @brief Containers list cgd info structure, provided to #GameLiftContainersListCgds().
+     */
+    struct GAMELIFT_CONTAINERS_LIST_CGD_INFO {
+        struct CgdInfo
+        {
+            char cgdName[MAX_CGD_STR_LEN + 1];
+        };
+
+        CgdInfo cgds[MAX_CGD_COUNT];
+        int numCgds = 0;
+    };
+
+    /**
+     * @brief Containers describe cgd info structure, provided to #GameLiftContainersDescribeCgd().
+     */
+    struct GAMELIFT_CONTAINERS_DESCRIBE_CGD_INFO {
+        char cgdStatus[MAX_CGD_STATUS_STR_LEN + 1];
+        int cgdVersion = 0;
+    };
+
+    /**
+     * @brief Containers describe container fleet info structure, provided to #GameLiftContainersDescribeContainerFleet().
+     */
+    struct GAMELIFT_CONTAINERS_DESCRIBE_CONTAINER_FLEET_INFO {
+        char fleetId[MAX_FLEETID_STR_LEN + 1];
+        Aws::String instanceType;
+        Aws::GameLift::Model::ContainerFleetStatus containerFleetStatus = Aws::GameLift::Model::ContainerFleetStatus::NOT_SET;
+        Aws::GameLift::Model::ContainerFleetBillingType containerFleetBillingType = Aws::GameLift::Model::ContainerFleetBillingType::NOT_SET;
+    };
+
+    /**
+     * @brief Create Containers list cgd request structure, provided to #GameLiftContainersListCgds().
+     */
+    struct GAMELIFT_CONTAINERS_LIST_CGDS_REQUEST : public GAMELIFT_ERROR_HANDLER {
+    };
+
+    /**
+     * @brief Create describe cgd request structure, provided to #GameLiftContainersDescribeCgd().
+     */
+    struct GAMELIFT_CONTAINERS_DESCRIBE_CGD_REQUEST : public GAMELIFT_ERROR_HANDLER {
+        const char* cgdName = nullptr;
+    };
+
+    /**
+     * @brief Create describe container fleet request structure, provided to #GameLiftContainersDescribeContainerFleet().
+     */
+    struct GAMELIFT_CONTAINERS_DESCRIBE_CONTAINER_FLEET_REQUEST : public GAMELIFT_ERROR_HANDLER {
+        const char* fleetId = nullptr;
+    };
+
+    /**
+     * @brief Retrieves information on all container group definitions that exist in the current AWS account for the selected region.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient.
+     * @param listCgdsRequest Pointer to a request input structure.
+     * @param listCgdInfo structure to be filled by list of cgds' names
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftContainersListCgds(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_CONTAINERS_LIST_CGDS_REQUEST* listCgdsRequest, GAMELIFT_CONTAINERS_LIST_CGD_INFO* listCgdInfo);
+
+
+    /**
+     * @brief Retrieves the properties of a container group definition, including all container definitions in the group.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient.
+     * @param describeCgdRequest Pointer to a request input structure.
+     * @param describeCgdInfo structure to be filled by specified cgd's status
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftContainersDescribeCgd(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_CONTAINERS_DESCRIBE_CGD_REQUEST* describeCgdRequest, GAMELIFT_CONTAINERS_DESCRIBE_CGD_INFO* describeCgdInfo);
+
+    /**
+     * @brief Retrieves the properties of a container fleet.
+     *
+     * @param accountInstance Pointer to a GameLiftAccount instance that contains a GameLiftClient. Might need to make sure the game name is set to ensure it gets correct stack name
+     * @param describeContainerFleetRequest Pointer to a request input structure.
+     * @param describeContainerFleetInfo structure to be filled by specified container fleet's status
+     * @return true if the operation succeeds.
+     */
+    GAMELIFT_API bool GameLiftContainersDescribeContainerFleet(GAMELIFT_ACCOUNT_INSTANCE_HANDLE accountInstance, GAMELIFT_CONTAINERS_DESCRIBE_CONTAINER_FLEET_REQUEST* describeContainerFleetRequest, GAMELIFT_CONTAINERS_DESCRIBE_CONTAINER_FLEET_INFO* describeContainerFleetInfo);
 
 #pragma endregion
 }

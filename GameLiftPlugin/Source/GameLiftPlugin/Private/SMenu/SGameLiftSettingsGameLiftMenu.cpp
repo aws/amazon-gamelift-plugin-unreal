@@ -26,13 +26,6 @@ void SGameLiftSettingsGameLiftMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-		// GameLift Intro
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(SPadding::Top2x_Bottom + SPadding::Right2x)
-		[
-			MakeGameLiftIntroWidget()
-		]
 		// Get Started
 		+ SVerticalBox::Slot()
 		.Padding(SPadding::Top_Bottom2x + SPadding::Right2x)
@@ -42,86 +35,60 @@ void SGameLiftSettingsGameLiftMenu::Construct(const FArguments& InArgs)
 	];
 }
 
-TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::MakeGameLiftIntroWidget() const
-{
-	return SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		.Padding(SPadding::Left_Right)
-		[
-			SNew(SBox)
-			.WidthOverride(Style::Brush::kGameLiftLogoIconSize.X)
-			.HeightOverride(Style::Brush::kGameLiftLogoIconSize.Y)
-			[
-				SNew(SImage)
-				.Image(FGameLiftPluginStyle::Get().GetBrush(Style::Brush::kGameLiftLogoIconName))
-			]
-		]
-		+ SHorizontalBox::Slot()
-		.Padding(SPadding::Left)
-		.VAlign(VAlign_Center)
-		[
-			SNew(SRichTextBlock)
-			.Text(Settings::GameLift::kGameLiftIntroDescriptionText)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
-			.DecoratorStyleSet(&FGameLiftPluginStyle::Get())
-			.AutoWrapText(true)
-		]
-	;
-}
-
 TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::MakeGetStartedWidget() const
 {
-	FVector2D SampleGameImageSize(200, 100);
 
 	TSharedRef<SSubtitleBlock> GetStartedTextBlock = SNew(SSubtitleBlock)
 		.Text(Settings::GameLift::kGameLiftGetStartedTitleText);
 
-	TSharedRef<SGridPanel> GetStartGridPanel = SNew(SGridPanel)
-		// Anywhere
-		+ SGridPanel::Slot(0, 1)
-		.Padding(SPadding::Top_Bottom + SPadding::Right)
-		[
-			MakeSetUpAnywhereButtonSwicher()
-		]
-		+ SGridPanel::Slot(1, 1)
-		.Padding(SPadding::Top_Bottom + SPadding::Left)
-		.HAlign(HAlign_Left)
+	TSharedRef<STextBlock> GetStartedDescriptionBlock = SNew(STextBlock)
+		.Text(Settings::GameLift::kGameLiftGetStartedDescriptionText)
+		.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
+		.AutoWrapText(true);
+
+	TSharedRef<SWidget> AnywhereFleetCard = CreateFleetCard(
+		Style::Brush::kGameLiftAnywhereIconName,
+		Settings::GameLift::kGameLiftSetUpAnywhereTitleText,
+		Settings::GameLift::kGameLiftSetUpAnywhereDescriptionText,
+		MakeSetUpAnywhereButtonSwitcher()
+	);
+
+	TSharedRef<SWidget> ManagedEC2FleetCard = CreateFleetCard(
+		Style::Brush::kGameLiftManagedEC2IconName,
+		Settings::GameLift::kGameLiftSetUpManagedEC2TitleText,
+		Settings::GameLift::kGameLiftSetUpManagedEC2DescriptionText,
+		SNew(SButton)
+		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
-		[
-			SNew(STextBlock)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
-			.Text(Settings::GameLift::kGameLiftSetUpAnywhereDescriptionText)
-		]
-		// EC2
-		+ SGridPanel::Slot(0, 2)
-		.Padding(SPadding::Top_Bottom + SPadding::Right)
-		[
-			SNew(SButton)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			.Text(Settings::GameLift::kGameLiftSetUpManagedEC2ButtonText)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
-			.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
-			.OnClicked_Lambda([]
+		.Text(Settings::GameLift::kGameLiftSetUpManagedEC2ButtonText)
+		.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
+		.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
+		.OnClicked_Lambda([]
 			{
 				FGameLiftPluginModule* Module = FModuleManager::GetModulePtr<FGameLiftPluginModule>(Plugin::GameLiftPluginTabName);
 				Module->DeployManagedEC2ButtonClicked();
 				return FReply::Handled();
 			})
-		]
-		+ SGridPanel::Slot(1, 2)
-		.Padding(SPadding::Top_Bottom + SPadding::Left)
-		.HAlign(HAlign_Left)
+    );
+
+	TSharedRef<SWidget> ContainersFleetCard = CreateFleetCard(
+		Style::Brush::kGameLiftContainersTabIconName,
+		Settings::GameLift::kGameLiftSetUpContainersTitleText,
+		Settings::GameLift::kGameLiftSetUpContainersDescriptionText,
+		SNew(SButton)
+		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
-		[
-			SNew(STextBlock)
-			.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
-			.Text(Settings::GameLift::kGameLiftSetUpManagedEC2DescriptionText)
-		];
-	
+		.Text(Settings::GameLift::kGameLiftSetUpContainersButtonText)
+		.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
+		.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
+		.OnClicked_Lambda([]
+			{
+				FGameLiftPluginModule* Module = FModuleManager::GetModulePtr<FGameLiftPluginModule>(Plugin::GameLiftPluginTabName);
+				Module->DeployContainersButtonClicked();
+				return FReply::Handled();
+			})
+	);
+
 	// Combine widgets
 	return SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
@@ -132,12 +99,106 @@ TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::MakeGetStartedWidget() const
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.Padding(SPadding::Top_Bottom2x)
 		[
-			GetStartGridPanel
+			GetStartedDescriptionBlock
+		]
+		+ SVerticalBox::Slot()
+        .AutoHeight()
+		.Padding(SPadding::Top2x_Bottom)
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
+			[
+				AnywhereFleetCard
+			]
+			+ SHorizontalBox::Slot()
+			[
+				ManagedEC2FleetCard
+			]
+			+ SHorizontalBox::Slot()
+			[
+				ContainersFleetCard
+			]
 		];
 }
 
-TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::MakeSetUpAnywhereButtonSwicher() const
+TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::CreateFleetCard(const FString& IconName, const FText TitleText,
+													const FText DescriptionText, TSharedRef<SWidget> ButtonWidget) const
+{
+	return SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
+			.Padding(SPadding::Right2x)
+			[
+				SNew(SBorder)
+				.BorderImage(FGameLiftPluginStyle::Get().GetBrush(Style::Brush::kBorderImageName))
+				.BorderBackgroundColor(FColor::Black)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				.Padding(2)
+				[
+					SNew(SBorder)
+					.BorderImage(FGameLiftPluginStyle::Get().GetBrush(Style::Brush::kBorderImageName))
+					.BorderBackgroundColor(FGameLiftPluginStyle::Get().GetSlateColor(Style::Color::kCardBackground))
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+					.Padding(SPadding::All2x)
+					[
+						SNew(SVerticalBox)
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Top)
+						.Padding(SPadding::Bottom)
+						[
+							SNew(SBox)
+							.WidthOverride(45)
+							.HeightOverride(40)
+							[
+								SNew(SImage)
+								.Image(FGameLiftPluginStyle::Get().GetBrush(FName(IconName)))
+							]
+						]
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(SPadding::Top_Bottom)
+						[
+							SNew(STextBlock)
+							.Text(TitleText)
+							.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kTitleStyleName)
+						]
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(SPadding::Top + SPadding::Bottom2x)
+						[
+							SNew(SBox)
+							.WidthOverride(310)
+							[
+								SNew(STextBlock)
+								.Text(DescriptionText)
+								.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
+								.AutoWrapText(true)
+							]
+						]
+						+ SVerticalBox::Slot()
+						.Padding(SPadding::Top_Bottom)
+						.HAlign(HAlign_Center)
+						[
+							SNew(SBox)
+							.WidthOverride(270)
+							.HeightOverride(30)
+							[
+								ButtonWidget
+							]
+						]
+					]
+				]
+			];
+}
+
+TSharedRef<SWidget> SGameLiftSettingsGameLiftMenu::MakeSetUpAnywhereButtonSwitcher() const
 {
 	return SNew(SWidgetSwitcher)
 		.WidgetIndex_Lambda([]

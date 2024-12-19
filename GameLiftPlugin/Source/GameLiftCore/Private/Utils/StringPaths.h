@@ -38,6 +38,17 @@ namespace Paths
 		return CloudFormationRootPath;
 	}
 
+	inline const auto& ContainersTemplatePath()
+	{
+		static FString ContainersTemplateRootPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(
+			PluginRootPath(),
+			TEXT("Resources"),
+			TEXT("Containers"),
+			TEXT("SampleDockerfile")
+		));
+		return ContainersTemplateRootPath;
+	}
+
 	inline const auto ScenarioPath(const FString& Scenario)
 	{
 		return FPaths::Combine(CloudFormationRootPath(), Scenario);

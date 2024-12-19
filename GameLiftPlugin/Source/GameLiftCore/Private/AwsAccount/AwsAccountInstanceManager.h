@@ -12,7 +12,7 @@ public:
 	AwsAccountInstanceManager();
 	virtual ~AwsAccountInstanceManager();
 
-	int BuildInstance(const FString& Profile, TSharedRef<IAWSConfigFileProfile> ProfileReader, const FString& RootPath, const FString& PluginRootPath);
+	int BuildInstance(const FString& Profile, TSharedRef<IAWSConfigFileProfile> ProfileReader, const FString& ExistingBucketName, const FString& RootPath, const FString& PluginRootPath);
 	void ReleaseInstance();
 
 	void SetBucketName(const FString& NewBucketName);

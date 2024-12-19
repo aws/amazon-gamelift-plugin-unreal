@@ -11,6 +11,7 @@
 #include <aws/apigateway/model/UpdateStageRequest.h>
 #include <aws/cloudformation/model/DescribeStackResourceRequest.h>
 #include <aws/gamelift/GameLiftClient.h>
+#include <aws/ecr/ECRClient.h>
 #include <aws/s3/model/Bucket.h>
 #include <aws/s3/model/CreateBucketRequest.h>
 #include <aws/s3/model/PutBucketLifecycleConfigurationRequest.h>
@@ -63,6 +64,7 @@ namespace GameLift
         Aws::APIGateway::APIGatewayClient* m_apigwyClient;
         Aws::Lambda::LambdaClient* m_lambdaClient;
         Aws::GameLift::GameLiftClient* m_gameLiftClient; // note: This is the client used to call AWS SDK GameLift APIs, not the client used for the game client build.
+        Aws::ECR::ECRClient* m_ecrClient;
 
         std::string m_pluginRoot;
         std::string m_gameliftRoot;
@@ -73,6 +75,8 @@ namespace GameLift
         std::string m_instanceFunctionsPath;
         std::string m_instanceCloudformationPath;
         std::string m_instanceGameServerPath;
+
+        std::string m_stackName;
 
         std::string composeSecretId(const std::string& secretName);
         bool hasBootstrapBucket(const std::string& bootstrapBucketName);
@@ -124,10 +128,29 @@ namespace GameLift
             return m_accountInfo.gameName;
         }
 
+        // Generates default bootstrap bucket name based on account info. 
+        inline const std::string GetDefaultBucketName()
+        {
+            return GetDefaultBootstrapBucketName(m_accountInfo, getShortRegionCode());
+        }
+
+        // Gets the name of the created bootstrap bucket for this account
+        inline const std::string& GetBucketName()
+        {
+            return m_accountInfo.bucketName;
+        }
+
+        inline void SetBucketName(const std::string& bucketName)
+        {
+            m_accountInfo.bucketName = bucketName;
+        }
+
         inline void SetGameName(const std::string& gameName)
         {
             m_accountInfo.gameName = gameName;
         }
+
+        inline const std::string GetDeploymentStackName();
 
         // Sets the root directory of the plugin's installation
         inline void SetPluginRoot(const std::string& pluginRoot)
@@ -237,6 +260,12 @@ namespace GameLift
             m_cfnClient = cfnClient;
         }
 
+        // Gets the CFNClient.
+        inline const Aws::CloudFormation::CloudFormationClient* GetCloudFormationClient() const
+        {
+            return m_cfnClient;
+        }
+
         // Sets the SecretsManagerClient explicitly.
         // It's the caller responsibility to call delete on the instance passed to this method.
         inline void SetSecretsManagerClient(Aws::SecretsManager::SecretsManagerClient* secretsClient)
@@ -269,6 +298,19 @@ namespace GameLift
         inline const Aws::GameLift::GameLiftClient* GetGameLiftClient() const
         {
             return m_gameLiftClient;
+        }
+
+        // Sets the ECRClient explicitly.
+        // It's the caller responsibility to call delete on the instance passed to this method.
+        inline void SetECRClient(Aws::ECR::ECRClient* ecrClient)
+        {
+            m_ecrClient = ecrClient;
+        }
+
+        // Gets the ECRClient.
+        inline const Aws::ECR::ECRClient* GetECRClient() const
+        {
+            return m_ecrClient;
         }
     };
 }

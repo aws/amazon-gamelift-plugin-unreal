@@ -28,8 +28,8 @@ namespace STS
   {
     public:
       typedef Aws::Client::AWSXMLClient BASECLASS;
-      static const char* SERVICE_NAME;
-      static const char* ALLOCATION_TAG;
+      static const char* GetServiceName();
+      static const char* GetAllocationTag();
 
       typedef STSClientConfiguration ClientConfigurationType;
       typedef STSEndpointProvider EndpointProviderType;
@@ -39,14 +39,14 @@ namespace STS
         * is not specified, it will be initialized to default values.
         */
         STSClient(const Aws::STS::STSClientConfiguration& clientConfiguration = Aws::STS::STSClientConfiguration(),
-                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = Aws::MakeShared<STSEndpointProvider>(ALLOCATION_TAG));
+                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = nullptr);
 
        /**
         * Initializes client to use SimpleAWSCredentialsProvider, with default http client factory, and optional client config. If client config
         * is not specified, it will be initialized to default values.
         */
         STSClient(const Aws::Auth::AWSCredentials& credentials,
-                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = Aws::MakeShared<STSEndpointProvider>(ALLOCATION_TAG),
+                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = nullptr,
                   const Aws::STS::STSClientConfiguration& clientConfiguration = Aws::STS::STSClientConfiguration());
 
        /**
@@ -54,7 +54,7 @@ namespace STS
         * the default http client factory will be used
         */
         STSClient(const std::shared_ptr<Aws::Auth::AWSCredentialsProvider>& credentialsProvider,
-                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = Aws::MakeShared<STSEndpointProvider>(ALLOCATION_TAG),
+                  std::shared_ptr<STSEndpointProviderBase> endpointProvider = nullptr,
                   const Aws::STS::STSClientConfiguration& clientConfiguration = Aws::STS::STSClientConfiguration());
 
 
@@ -598,13 +598,13 @@ namespace STS
          * href="http://docs.aws.amazon.com/goto/WebAPI/sts-2011-06-15/GetCallerIdentity">AWS
          * API Reference</a></p>
          */
-        virtual Model::GetCallerIdentityOutcome GetCallerIdentity(const Model::GetCallerIdentityRequest& request) const;
+        virtual Model::GetCallerIdentityOutcome GetCallerIdentity(const Model::GetCallerIdentityRequest& request = {}) const;
 
         /**
          * A Callable wrapper for GetCallerIdentity that returns a future to the operation so that it can be executed in parallel to other requests.
          */
         template<typename GetCallerIdentityRequestT = Model::GetCallerIdentityRequest>
-        Model::GetCallerIdentityOutcomeCallable GetCallerIdentityCallable(const GetCallerIdentityRequestT& request) const
+        Model::GetCallerIdentityOutcomeCallable GetCallerIdentityCallable(const GetCallerIdentityRequestT& request = {}) const
         {
             return SubmitCallable(&STSClient::GetCallerIdentity, request);
         }
@@ -613,7 +613,7 @@ namespace STS
          * An Async wrapper for GetCallerIdentity that queues the request into a thread executor and triggers associated callback when operation has finished.
          */
         template<typename GetCallerIdentityRequestT = Model::GetCallerIdentityRequest>
-        void GetCallerIdentityAsync(const GetCallerIdentityRequestT& request, const GetCallerIdentityResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const
+        void GetCallerIdentityAsync(const GetCallerIdentityResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr, const GetCallerIdentityRequestT& request = {}) const
         {
             return SubmitAsync(&STSClient::GetCallerIdentity, request, handler, context);
         }
@@ -781,13 +781,13 @@ namespace STS
          * href="http://docs.aws.amazon.com/goto/WebAPI/sts-2011-06-15/GetSessionToken">AWS
          * API Reference</a></p>
          */
-        virtual Model::GetSessionTokenOutcome GetSessionToken(const Model::GetSessionTokenRequest& request) const;
+        virtual Model::GetSessionTokenOutcome GetSessionToken(const Model::GetSessionTokenRequest& request = {}) const;
 
         /**
          * A Callable wrapper for GetSessionToken that returns a future to the operation so that it can be executed in parallel to other requests.
          */
         template<typename GetSessionTokenRequestT = Model::GetSessionTokenRequest>
-        Model::GetSessionTokenOutcomeCallable GetSessionTokenCallable(const GetSessionTokenRequestT& request) const
+        Model::GetSessionTokenOutcomeCallable GetSessionTokenCallable(const GetSessionTokenRequestT& request = {}) const
         {
             return SubmitCallable(&STSClient::GetSessionToken, request);
         }
@@ -796,7 +796,7 @@ namespace STS
          * An Async wrapper for GetSessionToken that queues the request into a thread executor and triggers associated callback when operation has finished.
          */
         template<typename GetSessionTokenRequestT = Model::GetSessionTokenRequest>
-        void GetSessionTokenAsync(const GetSessionTokenRequestT& request, const GetSessionTokenResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const
+        void GetSessionTokenAsync(const GetSessionTokenResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr, const GetSessionTokenRequestT& request = {}) const
         {
             return SubmitAsync(&STSClient::GetSessionToken, request, handler, context);
         }
@@ -809,7 +809,6 @@ namespace STS
         void init(const STSClientConfiguration& clientConfiguration);
 
         STSClientConfiguration m_clientConfiguration;
-        std::shared_ptr<Aws::Utils::Threading::Executor> m_executor;
         std::shared_ptr<STSEndpointProviderBase> m_endpointProvider;
   };
 

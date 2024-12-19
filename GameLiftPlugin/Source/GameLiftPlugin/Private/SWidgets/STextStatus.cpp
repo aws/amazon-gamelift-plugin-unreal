@@ -90,6 +90,20 @@ void STextStatus::SetStatusText(const FText& StatusText)
 	StatusTextBlock->SetText(StatusText);
 }
 
+void STextStatus::SetState(EIconState IconState, const FText& StatusText, FName Color)
+{
+	CurrentIconState = IconState;
+	StatusTextBlock->SetText(StatusText);
+	if (!Color.IsNone())
+	{
+		SetStatusTextColor(FGameLiftPluginStyle::Get().GetColor(Color));
+	}
+	else 
+	{
+		SetStatusTextColor(FGameLiftPluginStyle::Get().GetColor(GetIconColor()));
+	}
+}
+
 void STextStatus::SetStatusTextColor(const FSlateColor& StatusColor)
 {
 	StatusTextBlock->SetColorAndOpacity(StatusColor);
@@ -98,6 +112,23 @@ void STextStatus::SetStatusTextColor(const FSlateColor& StatusColor)
 int32 STextStatus::GetIconStateAsInt() const
 {
 	return (int32)CurrentIconState;
+}
+
+FName STextStatus::GetIconColor()
+{
+	switch (CurrentIconState)
+	{
+	case EIconState::Inactive:
+		return Style::Color::kInactive;
+	case EIconState::Success:
+		return Style::Color::kSuccess;
+	case EIconState::Error:
+		return Style::Color::kError;
+	case EIconState::Loading:
+		return Style::Color::kLoading;
+	default:
+		return FName();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

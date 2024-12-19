@@ -10,12 +10,16 @@
 #include "SWidgets/SNamedRow.h"
 #include "SWidgets/SOnlineHyperlink.h"
 #include "SWidgets/SPathInput.h"
+#include "SWidgets/SSetupMessage.h"
 
 #include "Settings/UGameLiftAnywhereStatus.h"
 #include "Settings/UGameLiftSettings.h"
+#include "Settings/UGameLiftDeploymentStatus.h"
 #include "Types/EBootstrapMessageState.h"
+#include "Types/EDeploymentMessageState.h"
 #include "Widgets/SCanvas.h"
 #include "Widgets/Text/SRichTextBlock.h"
+#include "Widgets/Layout/SWidgetSwitcher.h"
 
 #include "Engine/Engine.h"
 #include "IGameLiftCoreModule.h"
@@ -27,11 +31,17 @@ void SSetProfileSection::Construct(const FArguments& InArgs)
 {
 	ChildSlot
 	[
-		SNew(SGameLiftSettingsAwsAccountMenu)
+		SAssignNew(AwsAccountMenu, SGameLiftSettingsAwsAccountMenu)
 		.ProfileManagementEnabled(false)
 		.HideButtonsWhenBootstrapped(true)
 		.ShowBootstrapStatusOnly(true)
+		.ReadDeveloperGuideLink(InArgs._ReadDeveloperGuideLink)
 	];
+}
+
+TSharedRef<SGameLiftSettingsAwsAccountMenu> SSetProfileSection::GetAwsAccountMenuRef()
+{
+	return AwsAccountMenu.ToSharedRef();
 }
 
 SSectionsWithHeaders::FSectionInfo SSetProfileSection::GetSectionInfo()
@@ -47,276 +57,217 @@ SSectionsWithHeaders::FSectionInfo SSetProfileSection::GetSectionInfo()
 void SIntegrateGameSection::Construct(const FArguments& InArgs)
 {
 	HowToIntegrateYourGameLinkUrl = InArgs._HowToIntegrateYourGameLinkUrl;
-
-	LoadImages();
+	HideBuildPathInput = InArgs._HideBuildPathInput;
 
 	// Initialize the toggler early to hold a reference to it.
-	TogglerButtonsBox = SNew(SHorizontalBox);
-	TogglerContentBox = SNew(SVerticalBox);
-	GenerateTogglerButtons();
-	GenerateTogglerContent();
 
-	ChildSlot
-	[
-		SNew(SVerticalBox)
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(SPadding::Top_Bottom + SPadding::Right2x)
+	SSectionStep::Construct(
+		SSectionStep::FArguments()
+		.HeaderTitle(Menu::DeployCommon::kIntegrateGameHeader)
+		.HeaderDescription(HideBuildPathInput ? Menu::DeployCommon::kIntegrateGameEC2Description : Menu::DeployCommon::kIntegrateGameAnywhereDescription)
+		.BodyContent()
 		[
-			SNew(SBorder)
-			.BorderBackgroundColor(FColor(0,0,0))
-			[
-				SNew(SBorder)
-				.BorderBackgroundColor(FGameLiftPluginStyle::Get().GetSlateColor(Style::Color::kCardBackground))
-				.BorderImage(FGameLiftPluginStyle::GetAppStyle().GetBrush("WhiteTexture"))
-				.Padding(SPadding::Top2x_Bottom2x + SPadding::Left2x_Right2x)
+			SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						TogglerButtonsBox.ToSharedRef()
-					]
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						TogglerContentBox.ToSharedRef()
-					]
+					CreateUnrealSourceWarningMessage()
 				]
-			]
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(SPadding::Top2x_Bottom + SPadding::Right2x)
-		[
-			SNew(SNamedRow)
-			.NameText(Menu::DeployCommon::kGameServerPathTitle)
-			.RowWidget(
-				SAssignNew(GameServerPathInput, SPathInput)
-				.Title(Menu::DeployCommon::kGameServerPathTitle)
-				.PathHint(Menu::DeployCommon::kGameServerPathHint)
-				.IsFileSelection(true)
-				.ToolTipText(Menu::DeployCommon::kGameServerPathTooltip)
-				.OnPathUpdated_Raw(this, &SIntegrateGameSection::OnServerPathInputUpdated)
-			)
-			.Visibility(InArgs._HideBuildPathInput ? EVisibility::Collapsed : EVisibility::Visible)
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(SPadding::Top_Bottom + SPadding::Right2x)
-		[
-			SNew(SNamedRow)
-			.NameText(Menu::DeployCommon::kGameClientPathTitle)
-			.RowWidget(
-				SAssignNew(GameClientPathInput, SPathInput)
-				.Title(Menu::DeployCommon::kGameClientPathTitle)
-				.PathHint(Menu::DeployCommon::kGameClientPathHint)
-				.IsFileSelection(true)
-				.ToolTipText(Menu::DeployCommon::kGameClientPathTooltip)
-				.OnPathUpdated_Raw(this, &SIntegrateGameSection::OnClientPathInputUpdated)
-			)
-			.Visibility(InArgs._HideBuildPathInput ? EVisibility::Collapsed : EVisibility::Visible)
-		]
-	];
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(SPadding::Top2x)
+				[
+					SNew(SNamedRow)
+						.NameText(Menu::DeployCommon::kGameServerPathTitle)
+						.RowWidget(
+							SAssignNew(GameServerPathInput, SPathInput)
+							.Title(Menu::DeployCommon::kGameServerPathTitle)
+							.PathHint(Menu::DeployCommon::kGameServerPathHint)
+							.IsFileSelection(true)
+							.ToolTipText(Menu::DeployCommon::kGameServerPathTooltip)
+							.OnPathUpdated_Raw(this, &SIntegrateGameSection::OnServerPathInputUpdated)
+						)
+						.Visibility(HideBuildPathInput ? EVisibility::Collapsed : EVisibility::Visible)
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.Padding(SPadding::Top3x)
+				[
+					SAssignNew(SectionSwitcher, SWidgetSwitcher)
+						+ SWidgetSwitcher::Slot()
+						[
+							CreateSubmissionButton()
+						]
+						+ SWidgetSwitcher::Slot()
+						[
+							CreateModifyButton()
+						]
+				]
+		]);
 
 	// Call once during startup.
-	UpdateUI();
+	SetPaths();
+	UpdateUIBasedOnCurrentState();
 }
 
-SSectionsWithHeaders::FSectionInfo SIntegrateGameSection::GetSectionInfo()
+TSharedRef<SWidget> SIntegrateGameSection::CreateUnrealSourceWarningMessage()
 {
-	SSectionsWithHeaders::FSectionInfo OutSectionInfo;
-	OutSectionInfo.HeaderTitle = Menu::DeployCommon::kIntegrateGameHeader;
-	OutSectionInfo.Body = SharedThis(this);
-	OutSectionInfo.IsCollapsed = false;
+	TSharedPtr<SVerticalBox> RowWidget = SNew(SVerticalBox);
 
-	return OutSectionInfo;
+	RowWidget->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.FillWidth(2)
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SBox)
+						.WidthOverride(Style::kMessageTextBoxWidth)
+						[
+							SNew(STextBlock)
+								.Text(Menu::DeployCommon::kUnrealSourceWarningMessageText)
+								.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
+								.AutoWrapText(true)
+						]
+				]
+				+ SHorizontalBox::Slot()
+				.FillWidth(1)
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						.Padding(SPadding::Right2x)
+						[
+							SNew(SOnlineHyperlink)
+								.Text(Menu::DeployCommon::kReadIntegrationGuideText)
+								.Link(HowToIntegrateYourGameLinkUrl)
+						]
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						.Padding(SPadding::Right2x)
+						[
+							SNew(SButton)
+								.Text(Menu::DeployCommon::kDownloadSourceText)
+								.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
+								.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
+								.OnClicked_Lambda([]()
+									{
+										FPlatformProcess::LaunchURL(Url::kUnrealSourceUrl, NULL, NULL);
+										return FReply::Handled();
+									})
+						]
+				]
+		];
+		
+	return SAssignNew(UnrealSourceWarningMessage, SSetupMessage)
+		.WarningRowWidget(RowWidget)
+		.WarningButtonStyle(Style::Button::kCloseButtonStyleName)
+		.OnButtonClicked_Lambda([&]
+			{
+				UnrealSourceWarningMessage->SetVisibility(EVisibility::Collapsed);
+			})
+		.SetState(ESetupMessageState::WarningMessage);
 }
 
-void SIntegrateGameSection::UpdateUI()
+TSharedRef<SWidget> SIntegrateGameSection::CreateSubmissionButton()
+{
+	return SAssignNew(SubmissionButton, SButton)
+		.Text(HideBuildPathInput ? Menu::DeployManagedEC2::kConfirmIntegrationCompleteButtonText : Menu::DeployCommon::kSetServerBuildButtonText)
+		.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kSuccessButtonStyleName)
+		.OnClicked_Raw(this, &SIntegrateGameSection::OnSubmissionButtonClicked)
+		.IsEnabled_Lambda([&]
+			{
+				if (!HideBuildPathInput && GetGameServerPath().IsEmpty())
+				{
+					return false;
+				}
+				return true;
+			});
+}
+
+TSharedRef<SWidget> SIntegrateGameSection::CreateModifyButton()
+{
+	return SAssignNew(ModifyButton, SButton)
+		.Text(Menu::DeployAnywhere::kModifyPath)
+		.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
+		.OnClicked_Raw(this, &SIntegrateGameSection::OnModifyButtonClicked);
+}
+
+FReply SIntegrateGameSection::OnSubmissionButtonClicked()
+{
+	CompleteSection();
+	StartNextSection();
+	GameServerPathInput->SetReadonly(true);
+
+	if (!HideBuildPathInput)
+	{
+		SectionSwitcher->SetActiveWidgetIndex(1);
+	}
+
+	SubmissionButton->SetVisibility(EVisibility::Collapsed);
+
+	return FReply::Handled();
+}
+
+FReply SIntegrateGameSection::OnModifyButtonClicked()
+{
+	GameServerPathInput->SetReadonly(false);
+	SectionSwitcher->SetActiveWidgetIndex(0);
+
+	ResetAndCollapseNextSections();
+
+	return FReply::Handled();
+}
+
+void SIntegrateGameSection::SetPaths()
 {
 	UGameLiftAnywhereStatus* AnywhereStatus = GetMutableDefault<UGameLiftAnywhereStatus>();
 
 	GameServerPathInput->SetSelectedPath(AnywhereStatus->PathToServerBuild);
-	GameClientPathInput->SetSelectedPath(AnywhereStatus->PathToClientBuild);
+}
+
+void SIntegrateGameSection::UpdateUIBasedOnCurrentState()
+{
+	// TODO: Add state for each section completion
+	UGameLiftDeploymentStatus* DeploySettings = GetMutableDefault<UGameLiftDeploymentStatus>();
+	EDeploymentMessageState State = EDeploymentMessageStateFromString(DeploySettings->Status.ToString());
+
+	if (State != EDeploymentMessageState::NoDeploymentMessage && HideBuildPathInput)
+	{
+		CompleteSection();
+	}
+	else if (!HideBuildPathInput && !GameServerPathInput->GetSelectedPath().IsEmpty())
+	{
+		OnSubmissionButtonClicked();
+	}
+	else 
+	{
+		StartSection();
+	}
+}
+
+void SIntegrateGameSection::CompleteSection()
+{
+	SetPaths();
+	SetProgressBarState(SProgressBar::EProgressBarUIState::ProgressComplete);
+	SubmissionButton->SetVisibility(EVisibility::Collapsed);
+}
+
+void SIntegrateGameSection::StartSection()
+{
+	SubmissionButton->SetVisibility(EVisibility::Visible);
 }
 
 const FString& SIntegrateGameSection::GetGameServerPath() const
 {
 	return GameServerPathInput->GetSelectedPath().ToString();
-}
-
-const FString& SIntegrateGameSection::GetGameClientPath() const
-{
-	return GameClientPathInput->GetSelectedPath().ToString();
-}
-
-void SIntegrateGameSection::LoadImages()
-{
-	// Stub for future development.
-}
-
-void SIntegrateGameSection::GenerateTogglerButtons()
-{
-	// Stub for future development.
-}
-
-TSharedRef<SWidget> SIntegrateGameSection::MakeTogglerButtonWidget(const FText& SectionName, const FSlateBrush* ImageBrush, FVector2D ImageSize, int index)
-{	
-	const FSlateBrush* TogglerBrush = (ActiveTogglerTab == index) ? FGameLiftPluginStyle::GetAppStyle().GetBrush("WhiteTexture") : nullptr;
-
-	return
-		SNew(SButton)
-		.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kFlatButtonStyleName)
-		.OnClicked(this, &SIntegrateGameSection::SwitchActiveToggler, index)
-		.ContentPadding(FMargin(0.0f, 0.0f))
-		.Content()
-		[
-			SNew(SBorder)
-			.BorderBackgroundColor(FGameLiftPluginStyle::Get().GetSlateColor(Style::Color::kTogglerBorder))
-			.BorderImage(TogglerBrush)
-			.Padding(1.0f)
-			[
-				SNew(SBorder)
-				.BorderBackgroundColor(FGameLiftPluginStyle::Get().GetSlateColor(Style::Color::kTogglerBackground))
-				.BorderImage(TogglerBrush)
-				.Padding(SPadding::All)
-				.Cursor(EMouseCursor::Hand)
-				[
-					SNew(SVerticalBox)
-					// Image
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Center)
-					.VAlign(VAlign_Center)
-					[
-						SNew(SBox)
-						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Fill)
-						.WidthOverride(ImageSize.X)
-						.HeightOverride(ImageSize.Y)
-						[
-							SNew(SImage)
-							.Image(ImageBrush)
-						]
-					]
-					// Title
-					+ SVerticalBox::Slot()
-					.Padding(SPadding::All + SPadding::Top)
-					.AutoHeight()
-					[
-						SNew(SRichTextBlock)
-						.Text(SectionName)
-					]
-				]
-			]
-		]
-	;
-}
-
-
-void SIntegrateGameSection::GenerateTogglerContent()
-{
-	const FSlateBrush* BoxBrush = FGameLiftPluginStyle::GetAppStyle().GetBrush("WhiteTexture");
-
-	const int PrimaryColumnWidthOverride = 280;
-
-	TogglerContentBox->ClearChildren();
-
-	//if (ActiveTogglerTab == 0)
-	{
-		TogglerContentBox->AddSlot()
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.Padding(SPadding::Top_Bottom)
-			.AutoHeight()
-			[
-				SNew(SBorder)
-				.BorderBackgroundColor(FGameLiftPluginStyle::Get().GetSlateColor(Style::Color::kTogglerBackground))
-				.BorderImage(BoxBrush)
-				.Padding(SPadding::All + SPadding::Left_Right + SPadding::Top)
-				[
-					SNew(STextBlock)
-					.Text(Menu::DeployCommon::kIntegrateGameDescription)
-					.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kParagraph)
-					.AutoWrapText(true)
-					.LineHeightPercentage(1.25f)
-				]
-			]
-			+ SVerticalBox::Slot()
-			.Padding(SPadding::All)
-			.AutoHeight()
-			[
-				SNew(SNamedRow)
-				.NameText(Menu::DeployCommon::kNewProjectStep1)
-				.PrimaryColumnWidthOverride(PrimaryColumnWidthOverride)
-				.SecondaryColumnLeftPadding(true)
-				.RowWidget(
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					[
-						SNew(SOnlineHyperlink)
-						.Text(Menu::DeployCommon::kNewProjectStep1_Button)
-						.Link(Menu::DeployCommon::kNewProjectStep1_Url)
-					]
-				)
-			]
-			+ SVerticalBox::Slot()
-			.Padding(SPadding::All)
-			.AutoHeight()
-			[
-				SNew(SNamedRow)
-				.NameText(Menu::DeployCommon::kNewProjectStep2)
-				.PrimaryColumnWidthOverride(PrimaryColumnWidthOverride)
-				.RowWidget(
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					[
-						SNew(SButton)
-						.Text(Menu::DeployCommon::kNewProjectStep2_Button)
-						.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kNormalButtonStyleName)
-						.TextStyle(FGameLiftPluginStyle::Get(), Style::Text::kButtonNormal)
-						.OnClicked_Lambda([]() {
-							FPlatformProcess::LaunchURL(Menu::DeployCommon::kNewProjectStep2_Url, NULL, NULL);
-							return FReply::Handled();
-						})
-					]
-				)
-			]
-			+ SVerticalBox::Slot()
-			.Padding(SPadding::All)
-			.AutoHeight()
-			[
-				SNew(SNamedRow)
-				.NameText(Menu::DeployCommon::kNewProjectStep3)
-				.PrimaryColumnWidthOverride(PrimaryColumnWidthOverride)
-				.SecondaryColumnLeftPadding(true)
-				.RowWidget(
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					[
-						SNew(SOnlineHyperlink)
-						.Text(Menu::DeployCommon::kNewProjectStep3_Button)
-						.Link(HowToIntegrateYourGameLinkUrl)
-					]
-				)
-			]
-		];
-	}
-}
-
-FReply SIntegrateGameSection::SwitchActiveToggler(int index)
-{
-	ActiveTogglerTab = index;
-	GenerateTogglerButtons();
-	GenerateTogglerContent();
-	return FReply::Handled();
 }
 
 void SIntegrateGameSection::OnServerPathInputUpdated(const FString& NewPath)
@@ -325,16 +276,6 @@ void SIntegrateGameSection::OnServerPathInputUpdated(const FString& NewPath)
 	{
 		UGameLiftAnywhereStatus* AnywhereStatus = GetMutableDefault<UGameLiftAnywhereStatus>();
 		AnywhereStatus->PathToServerBuild = NewPath;
-		AnywhereStatus->SaveConfig();
-	}
-}
-
-void SIntegrateGameSection::OnClientPathInputUpdated(const FString& NewPath)
-{
-	if (!NewPath.IsEmpty())
-	{
-		UGameLiftAnywhereStatus* AnywhereStatus = GetMutableDefault<UGameLiftAnywhereStatus>();
-		AnywhereStatus->PathToClientBuild = NewPath;
 		AnywhereStatus->SaveConfig();
 	}
 }

@@ -278,11 +278,10 @@ enum aws_tls_negotiation_status {
  * aws_tls_handler_new_fn contains multiple callbacks. Namely: aws_tls_on_negotiation_result_fn. You are responsible for
  * invoking this function when TLs session negotiation has completed.
  */
-typedef struct aws_channel_handler *(aws_tls_handler_new_fn)(
-    struct aws_allocator *allocator,
-    struct aws_tls_connection_options *options,
-    struct aws_channel_slot *slot,
-    void *user_data);
+typedef struct aws_channel_handler *(aws_tls_handler_new_fn)(struct aws_allocator *allocator,
+                                                             struct aws_tls_connection_options *options,
+                                                             struct aws_channel_slot *slot,
+                                                             void *user_data);
 
 /**
  * Invoked when it's time to start TLS negotiation. Note: the aws_tls_options passed to your aws_tls_handler_new_fn
@@ -675,7 +674,8 @@ AWS_IO_API void aws_tls_connection_options_init_from_ctx(
 AWS_IO_API void aws_tls_connection_options_clean_up(struct aws_tls_connection_options *connection_options);
 
 /**
- * Copies 'from' to 'to'
+ * Cleans up 'to' and copies 'from' to 'to'.
+ * 'to' must be initialized.
  */
 AWS_IO_API int aws_tls_connection_options_copy(
     struct aws_tls_connection_options *to,
@@ -802,18 +802,6 @@ AWS_IO_API struct aws_tls_ctx *aws_tls_ctx_acquire(struct aws_tls_ctx *ctx);
  * Decrements a tls context's ref count.  When the ref count drops to zero, the object will be destroyed.
  */
 AWS_IO_API void aws_tls_ctx_release(struct aws_tls_ctx *ctx);
-
-/**
- * Not necessary if you are installing more handlers into the channel, but if you just want to have TLS for arbitrary
- * data and use the channel handler directly, this function allows you to write data to the channel and have it
- * encrypted.
- */
-AWS_IO_API int aws_tls_handler_write(
-    struct aws_channel_handler *handler,
-    struct aws_channel_slot *slot,
-    struct aws_byte_buf *buf,
-    aws_channel_on_message_write_completed_fn *on_write_completed,
-    void *completion_user_data);
 
 /**
  * Returns a byte buffer by copy of the negotiated protocols. If there is no agreed upon protocol, len will be 0 and

@@ -1,0 +1,2 @@
+- Added support for GameLift container fleets.
+- Added the option to initialize the SDK using AWS Region and AWS Credentials, providing an alternative to AuthToken based authentication.

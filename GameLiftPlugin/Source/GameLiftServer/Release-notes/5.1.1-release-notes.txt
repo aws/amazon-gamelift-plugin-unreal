@@ -1,0 +1,2 @@
+- Improved the reliability of the SDK by adding automatic reconnection in the event of network interruption.
+- Fixed a problem with converting the expiration time returned from GetFleetRoleCredentials.

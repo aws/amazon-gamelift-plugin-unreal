@@ -9,6 +9,7 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/s3/model/ChecksumAlgorithm.h>
 #include <aws/s3/model/BucketLifecycleConfiguration.h>
+#include <aws/s3/model/TransitionDefaultMinimumObjectSize.h>
 #include <aws/core/utils/memory/stl/AWSMap.h>
 #include <utility>
 
@@ -42,6 +43,7 @@ namespace Model
 
     AWS_S3_API Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
 
+    AWS_S3_API bool HasEmbeddedError(IOStream &body, const Http::HeaderValueCollection &header) const override;
     AWS_S3_API Aws::String GetChecksumAlgorithmName() const override;
 
     /**
@@ -49,51 +51,25 @@ namespace Model
      */
     AWS_S3_API EndpointParameters GetEndpointContextParams() const override;
 
+    ///@{
     /**
      * <p>The name of the bucket for which to set the configuration.</p>
      */
     inline const Aws::String& GetBucket() const{ return m_bucket; }
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline bool BucketHasBeenSet() const { return m_bucketHasBeenSet; }
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline void SetBucket(const Aws::String& value) { m_bucketHasBeenSet = true; m_bucket = value; }
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline void SetBucket(Aws::String&& value) { m_bucketHasBeenSet = true; m_bucket = std::move(value); }
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline void SetBucket(const char* value) { m_bucketHasBeenSet = true; m_bucket.assign(value); }
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithBucket(const Aws::String& value) { SetBucket(value); return *this;}
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithBucket(Aws::String&& value) { SetBucket(std::move(value)); return *this;}
-
-    /**
-     * <p>The name of the bucket for which to set the configuration.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithBucket(const char* value) { SetBucket(value); return *this;}
+    ///@}
 
-
+    ///@{
     /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
+     * <p>Indicates the algorithm used to create the checksum for the object when you
+     * use the SDK. This header will not provide any additional functionality if you
+     * don't use the SDK. When you send this header, there must be a corresponding
      * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
      * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
      * Request</code>. For more information, see <a
@@ -103,205 +79,79 @@ namespace Model
      * <code>ChecksumAlgorithm</code> parameter.</p>
      */
     inline const ChecksumAlgorithm& GetChecksumAlgorithm() const{ return m_checksumAlgorithm; }
-
-    /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
-     * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
-     * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
-     * Request</code>. For more information, see <a
-     * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">Checking
-     * object integrity</a> in the <i>Amazon S3 User Guide</i>.</p> <p>If you provide
-     * an individual checksum, Amazon S3 ignores any provided
-     * <code>ChecksumAlgorithm</code> parameter.</p>
-     */
     inline bool ChecksumAlgorithmHasBeenSet() const { return m_checksumAlgorithmHasBeenSet; }
-
-    /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
-     * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
-     * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
-     * Request</code>. For more information, see <a
-     * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">Checking
-     * object integrity</a> in the <i>Amazon S3 User Guide</i>.</p> <p>If you provide
-     * an individual checksum, Amazon S3 ignores any provided
-     * <code>ChecksumAlgorithm</code> parameter.</p>
-     */
     inline void SetChecksumAlgorithm(const ChecksumAlgorithm& value) { m_checksumAlgorithmHasBeenSet = true; m_checksumAlgorithm = value; }
-
-    /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
-     * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
-     * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
-     * Request</code>. For more information, see <a
-     * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">Checking
-     * object integrity</a> in the <i>Amazon S3 User Guide</i>.</p> <p>If you provide
-     * an individual checksum, Amazon S3 ignores any provided
-     * <code>ChecksumAlgorithm</code> parameter.</p>
-     */
     inline void SetChecksumAlgorithm(ChecksumAlgorithm&& value) { m_checksumAlgorithmHasBeenSet = true; m_checksumAlgorithm = std::move(value); }
-
-    /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
-     * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
-     * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
-     * Request</code>. For more information, see <a
-     * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">Checking
-     * object integrity</a> in the <i>Amazon S3 User Guide</i>.</p> <p>If you provide
-     * an individual checksum, Amazon S3 ignores any provided
-     * <code>ChecksumAlgorithm</code> parameter.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithChecksumAlgorithm(const ChecksumAlgorithm& value) { SetChecksumAlgorithm(value); return *this;}
-
-    /**
-     * <p>Indicates the algorithm used to create the checksum for the object when using
-     * the SDK. This header will not provide any additional functionality if not using
-     * the SDK. When sending this header, there must be a corresponding
-     * <code>x-amz-checksum</code> or <code>x-amz-trailer</code> header sent.
-     * Otherwise, Amazon S3 fails the request with the HTTP status code <code>400 Bad
-     * Request</code>. For more information, see <a
-     * href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">Checking
-     * object integrity</a> in the <i>Amazon S3 User Guide</i>.</p> <p>If you provide
-     * an individual checksum, Amazon S3 ignores any provided
-     * <code>ChecksumAlgorithm</code> parameter.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithChecksumAlgorithm(ChecksumAlgorithm&& value) { SetChecksumAlgorithm(std::move(value)); return *this;}
+    ///@}
 
-
+    ///@{
     /**
      * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
      */
     inline const BucketLifecycleConfiguration& GetLifecycleConfiguration() const{ return m_lifecycleConfiguration; }
-
-    /**
-     * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
-     */
     inline bool LifecycleConfigurationHasBeenSet() const { return m_lifecycleConfigurationHasBeenSet; }
-
-    /**
-     * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
-     */
     inline void SetLifecycleConfiguration(const BucketLifecycleConfiguration& value) { m_lifecycleConfigurationHasBeenSet = true; m_lifecycleConfiguration = value; }
-
-    /**
-     * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
-     */
     inline void SetLifecycleConfiguration(BucketLifecycleConfiguration&& value) { m_lifecycleConfigurationHasBeenSet = true; m_lifecycleConfiguration = std::move(value); }
-
-    /**
-     * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithLifecycleConfiguration(const BucketLifecycleConfiguration& value) { SetLifecycleConfiguration(value); return *this;}
-
-    /**
-     * <p>Container for lifecycle rules. You can add as many as 1,000 rules.</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithLifecycleConfiguration(BucketLifecycleConfiguration&& value) { SetLifecycleConfiguration(std::move(value)); return *this;}
+    ///@}
 
-
+    ///@{
     /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
+     * <p>The account ID of the expected bucket owner. If the account ID that you
+     * provide does not match the actual owner of the bucket, the request fails with
+     * the HTTP status code <code>403 Forbidden</code> (access denied).</p>
      */
     inline const Aws::String& GetExpectedBucketOwner() const{ return m_expectedBucketOwner; }
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline bool ExpectedBucketOwnerHasBeenSet() const { return m_expectedBucketOwnerHasBeenSet; }
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline void SetExpectedBucketOwner(const Aws::String& value) { m_expectedBucketOwnerHasBeenSet = true; m_expectedBucketOwner = value; }
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline void SetExpectedBucketOwner(Aws::String&& value) { m_expectedBucketOwnerHasBeenSet = true; m_expectedBucketOwner = std::move(value); }
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline void SetExpectedBucketOwner(const char* value) { m_expectedBucketOwnerHasBeenSet = true; m_expectedBucketOwner.assign(value); }
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithExpectedBucketOwner(const Aws::String& value) { SetExpectedBucketOwner(value); return *this;}
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithExpectedBucketOwner(Aws::String&& value) { SetExpectedBucketOwner(std::move(value)); return *this;}
-
-    /**
-     * <p>The account ID of the expected bucket owner. If the bucket is owned by a
-     * different account, the request fails with the HTTP status code <code>403
-     * Forbidden</code> (access denied).</p>
-     */
     inline PutBucketLifecycleConfigurationRequest& WithExpectedBucketOwner(const char* value) { SetExpectedBucketOwner(value); return *this;}
+    ///@}
 
+    ///@{
+    /**
+     * <p>Indicates which default minimum object size behavior is applied to the
+     * lifecycle configuration.</p> <ul> <li> <p> <code>all_storage_classes_128K</code>
+     * - Objects smaller than 128 KB will not transition to any storage class by
+     * default. </p> </li> <li> <p> <code>varies_by_storage_class</code> - Objects
+     * smaller than 128 KB will transition to Glacier Flexible Retrieval or Glacier
+     * Deep Archive storage classes. By default, all other storage classes will prevent
+     * transitions smaller than 128 KB. </p> </li> </ul> <p>To customize the minimum
+     * object size for any transition you can add a filter that specifies a custom
+     * <code>ObjectSizeGreaterThan</code> or <code>ObjectSizeLessThan</code> in the
+     * body of your transition rule. Custom filters always take precedence over the
+     * default transition behavior.</p>
+     */
+    inline const TransitionDefaultMinimumObjectSize& GetTransitionDefaultMinimumObjectSize() const{ return m_transitionDefaultMinimumObjectSize; }
+    inline bool TransitionDefaultMinimumObjectSizeHasBeenSet() const { return m_transitionDefaultMinimumObjectSizeHasBeenSet; }
+    inline void SetTransitionDefaultMinimumObjectSize(const TransitionDefaultMinimumObjectSize& value) { m_transitionDefaultMinimumObjectSizeHasBeenSet = true; m_transitionDefaultMinimumObjectSize = value; }
+    inline void SetTransitionDefaultMinimumObjectSize(TransitionDefaultMinimumObjectSize&& value) { m_transitionDefaultMinimumObjectSizeHasBeenSet = true; m_transitionDefaultMinimumObjectSize = std::move(value); }
+    inline PutBucketLifecycleConfigurationRequest& WithTransitionDefaultMinimumObjectSize(const TransitionDefaultMinimumObjectSize& value) { SetTransitionDefaultMinimumObjectSize(value); return *this;}
+    inline PutBucketLifecycleConfigurationRequest& WithTransitionDefaultMinimumObjectSize(TransitionDefaultMinimumObjectSize&& value) { SetTransitionDefaultMinimumObjectSize(std::move(value)); return *this;}
+    ///@}
 
+    ///@{
     
     inline const Aws::Map<Aws::String, Aws::String>& GetCustomizedAccessLogTag() const{ return m_customizedAccessLogTag; }
-
-    
     inline bool CustomizedAccessLogTagHasBeenSet() const { return m_customizedAccessLogTagHasBeenSet; }
-
-    
     inline void SetCustomizedAccessLogTag(const Aws::Map<Aws::String, Aws::String>& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag = value; }
-
-    
     inline void SetCustomizedAccessLogTag(Aws::Map<Aws::String, Aws::String>&& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag = std::move(value); }
-
-    
     inline PutBucketLifecycleConfigurationRequest& WithCustomizedAccessLogTag(const Aws::Map<Aws::String, Aws::String>& value) { SetCustomizedAccessLogTag(value); return *this;}
-
-    
     inline PutBucketLifecycleConfigurationRequest& WithCustomizedAccessLogTag(Aws::Map<Aws::String, Aws::String>&& value) { SetCustomizedAccessLogTag(std::move(value)); return *this;}
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(const Aws::String& key, const Aws::String& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(key, value); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(Aws::String&& key, const Aws::String& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(std::move(key), value); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(const Aws::String& key, Aws::String&& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(key, std::move(value)); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(Aws::String&& key, Aws::String&& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(std::move(key), std::move(value)); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(const char* key, Aws::String&& value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(key, std::move(value)); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(Aws::String&& key, const char* value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(std::move(key), value); return *this; }
-
-    
     inline PutBucketLifecycleConfigurationRequest& AddCustomizedAccessLogTag(const char* key, const char* value) { m_customizedAccessLogTagHasBeenSet = true; m_customizedAccessLogTag.emplace(key, value); return *this; }
-
+    ///@}
   private:
 
     Aws::String m_bucket;
@@ -315,6 +165,9 @@ namespace Model
 
     Aws::String m_expectedBucketOwner;
     bool m_expectedBucketOwnerHasBeenSet = false;
+
+    TransitionDefaultMinimumObjectSize m_transitionDefaultMinimumObjectSize;
+    bool m_transitionDefaultMinimumObjectSizeHasBeenSet = false;
 
     Aws::Map<Aws::String, Aws::String> m_customizedAccessLogTag;
     bool m_customizedAccessLogTagHasBeenSet = false;

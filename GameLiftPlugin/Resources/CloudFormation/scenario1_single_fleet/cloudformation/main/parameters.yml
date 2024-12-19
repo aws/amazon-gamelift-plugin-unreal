@@ -37,4 +37,6 @@ FleetUdpToPortParameter:
   value: "7780"
 FleetNameParameter:
   value: "Single-Region Fleet"
+UnrealEngineVersionParameter:
+  value: "{{AWSGAMELIFT::VARS::UnrealEngineVersionParameter}}"
 
