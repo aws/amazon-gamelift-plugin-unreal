@@ -7,6 +7,19 @@
 UGameLiftContainersStatus::UGameLiftContainersStatus(const FObjectInitializer & ObjectInitializer)
     : Super(ObjectInitializer)
 {
+    LoadConfig();
+
+    auto SetDefault = [&](FText& Field, auto&& Definition)
+    {
+        if (Field.IsEmpty())
+        {
+            Field = FText::FromString(Definition);
+        }
+    };
+
+    SetDefault(Status, Menu::DeployManagedEC2::kNoDeployment);
+
+    SaveConfig();
 }
 
 void UGameLiftContainersStatus::ResetStatus()
