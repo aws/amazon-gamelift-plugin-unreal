@@ -1,5 +1,9 @@
 CHANGELOG
 
+# 2.0.1 (1/9/2025)
+
+- Fixed an issue with initializing containers status.
+
 # 2.0.0 (12/19/2024)
 
 This version supports Unreal Engine 5.1.1 - 5.5.
