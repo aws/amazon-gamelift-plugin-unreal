@@ -57,7 +57,7 @@ AWSBootstrapProfile::AWSBootstrapProfile() :
 }
 
 bool AWSBootstrapProfile::ConfigureAccount(const FString& ProfileName, 
-	TSharedRef<IAWSConfigFileProfile> ProfileReader, const FString& NewBucketName)
+	TSharedRef<IAWSConfigFileProfile> ProfileReader, const FString& ExistingBucketName)
 {
 	UE_LOG(GameLiftCoreLog, Log, TEXT("%s"), Bootstrap::Logs::kBootstrapStarted);
 	AwsBootstrapInternal::sLatestDeploymentLogErrorMessage.Clear();
@@ -68,7 +68,7 @@ bool AWSBootstrapProfile::ConfigureAccount(const FString& ProfileName,
 	FString PluginRootPath = Paths::ScenarioPath("scenario_common");
 	FString GameLiftRootPath = Paths::ScenarioInstancePath("scenario_common");
 
-	LastError = AccountInstance->BuildInstance(ProfileName, ProfileReader, GameLiftRootPath, PluginRootPath);
+	LastError = AccountInstance->BuildInstance(ProfileName, ProfileReader, ExistingBucketName, GameLiftRootPath, PluginRootPath);
 
 	if (LastError != GameLift::GAMELIFT_SUCCESS)
 	{
@@ -77,18 +77,49 @@ bool AWSBootstrapProfile::ConfigureAccount(const FString& ProfileName,
 		return false;
 	}
 
-	AccountInstance->SetBucketName(NewBucketName);
+	AccountInstance->SetBucketName(ExistingBucketName);
 
 	AwsAccountInstance = std::move(AccountInstance);
 	return true;
 }
 
-bool AWSBootstrapProfile::Bootstrap()
+FString AWSBootstrapProfile::GetDefaultBucketName(const FString& ProfileName,
+	TSharedRef<IAWSConfigFileProfile> ProfileReader) const
+{
+	// Generate bootstrap bucket name with the following format: 
+	// do-not-delete-gamelift-<env>-<5_letter_aws_region_code>-<base36_account_id>
+	TUniquePtr<AwsAccountInstanceManager> AccountInstance = MakeUnique<AwsAccountInstanceManager>();
+
+	FString PluginRootPath = Paths::ScenarioPath("scenario_common");
+	FString GameLiftRootPath = Paths::ScenarioInstancePath("scenario_common");
+
+	int Result = AccountInstance->BuildInstance(ProfileName, ProfileReader, "", GameLiftRootPath, PluginRootPath);
+
+	FString DefaultBucketName = GameLiftAccountGetDefaultBucketName(AccountInstance->GetInstance());
+
+	// If the profile is invalid, <base36_account_id> is empty
+	// Handle this edge case by removing the trailing '-'
+	if (Result != GameLift::GAMELIFT_SUCCESS)
+	{
+		DefaultBucketName.RemoveFromEnd("-");
+	}
+
+	return DefaultBucketName;
+}
+
+bool AWSBootstrapProfile::Bootstrap(const FString& NewBucketName)
 {
 	AwsBootstrapInternal::sLatestDeploymentLogErrorMessage.Clear();
-
 	if (AwsAccountInstance->IsValid())
 	{
+		if (!NewBucketName.IsEmpty())
+		{
+			std::string bootstrapBucketName = Convertors::FSToStdS(NewBucketName);
+			GameLiftAccountSetBucketName(AwsAccountInstance->GetInstance(), bootstrapBucketName.c_str());
+		}
+
+		// If bucket name was not provided during ConfigureAccount
+		// or this method, a default bucket name will be used
 		LastError = GameLiftAccountInstanceBootstrap(AwsAccountInstance->GetInstance(), AwsAccountInstance.Get(), &AwsBootstrapInternal::ReceiveResult);
 
 		if (LastError == GameLift::GAMELIFT_SUCCESS)

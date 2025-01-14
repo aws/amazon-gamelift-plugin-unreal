@@ -5,11 +5,11 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/total)
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/aws/amazon-gamelift-plugin-unreal/latest/total)
 
-Compatible with Unreal Engine 5 (versions 5.0, 5.1, 5.2, 5.3, and 5.4).
+Compatible with Unreal Engine 5 (versions 5.0, 5.1, 5.2, 5.3, 5.4, and 5.5).
 
 # Overview
 
-Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1, 5.2, 5.3 and 5.4, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift.
+Amazon GameLift is a fully managed service that allows game developers to manage and scale dedicated game servers for session-based multiplayer games. The Amazon GameLift plugin for Unreal Engine provides tools that makes setting up your Unreal project, compatible with UE 5.0, 5.1, 5.2, 5.3, 5.4, and 5.5, for hosting on Amazon GameLift quicker and easier. Once installed, you will be able to search the plugin from within the Unreal Engine editor and start using it to integrate Amazon GameLift functionality into your client and server code. The plugin contains functionality to automatically bootstrap your game runtime environment to the AWS Cloud, fully test your game server integration with Amazon GameLift locally, and deploy your game servers on Amazon GameLift.
 
 You can use the following built-in templates to deploy your game for some of the common scenarios.
 * Single-region fleet: Deploy your game server to one fleet in a single AWS Region. Use this scenario to experiment with your install scripts and runtime deployment, as well as your integration.
@@ -80,6 +80,10 @@ To build the Amazon GameLift server SDK:
 1. Follow the below instructions for your platform.
 
 ### Linux
+
+For a quick and easy automated build for Amazon Linux compatible binaries and OpenSSL and OpenCrypto dependencies, see the [Building the Amazon GameLift Server SDK for Unreal Engine 5 on Amazon Linux](https://github.com/aws/amazon-gamelift-toolkit/tree/main/building-gamelift-server-sdk-for-unreal-engine-and-amazon-linux).
+
+If you want to do this manually instead, follow the steps below. This expects you have the correct OpenSSL version that matches your Unreal Engine configured in your Linux environment, and the OpenSSL and OpenCrypto libraries copied to your server build.
 
 1. Run the following commands
     ```sh

@@ -10,20 +10,35 @@ namespace Menu
 	namespace DeploymentServer
 	{
 		static const auto kSingleRegionFleet = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_Scenario", "Single-region fleet");
+		static const auto kSpotFleets = NSLOCTEXT("SGameLiftDeploymentMenu", "SpotFleets_Scenario", "Spot fleet"); 
 		static const auto kFlexMatch = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_Scenario", "FlexMatch fleet");
+		static const auto kContainersSingleRegionFleet = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersSingleRegionFleet_Scenario", "Single-region Containers Fleet");
+		static const auto kContainersFlexMatch = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersFlexMath_Scenario", "FlexMatch Containers Fleet");
 		static const auto kCustom = NSLOCTEXT("SGameLiftDeploymentMenu", "Custom_Scenario", "Custom");
 
 		static const auto kSingleRegionFleetTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "SingleRegionFleet_ToolTip",
-			"Creates a game backend service with a single Amazon GameLift fleet.");
+			"Use this scenario to deploy a minimal managed EC2 fleet for your game server. This scenario also sets up player authentication for your game and creates a backend service for game clients to start and join game sessions.");
+		
+		static const auto kSpotFleetsTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "SpotFleets_ToolTip",
+			"Forms matches by using Amazon GameLift queues and a custom matchmaker and configures three fleets.");
 
 		static const auto kFlexMatchTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "FlexMath_ToolTip",
-			"Uses FlexMatch, a managed matchmaking service, to match game players together.");
+			"Use this scenario to deploy a fully configured set of managed EC2 fleets with matchmaking. This scenario also sets up a queue to manage game session placement across Spot and On-Demand fleets, handles player authentication and creates a backend service for game clients to request matchmaking and join matches.");
+
+		static const auto kContainersSingleRegionFleetTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersSingleRegionFleet_ToolTip",
+			"Creates a game backend service with a single Amazon GameLift Containers fleet.");
+
+		static const auto kContainersFlexMatchTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "ContainersFlexMath_ToolTip",
+			"Uses FlexMatch, a managed matchmaking service, to match game players together across Amazon GameLift Containers fleets.");
 
 		static const auto kCustomTooltip = NSLOCTEXT("SGameLiftDeploymentMenu", "Custom_ToolTip",
 			"This is a custom user scenario.");
 
 		static const auto kSingleRegionFleetFolder = TEXT("scenario1_single_fleet");
-		static const auto kFlexMatchFolder = TEXT("scenario2_flexmatch");
+		static const auto kSpotFleetsFolder = TEXT("scenario2_spot_fleets");
+		static const auto kFlexMatchFolder = TEXT("scenario3_flexmatch");
+		static const auto kContainersSingleRegionFleetFolder = TEXT("scenario3_containers_single_fleet");
+		static const auto kContainersFlexMatchFolder = TEXT("scenario4_containers_flexmatch");
 		static const auto kCurrentScenarioFolder = TEXT("scenario_current");		
 		static const auto kCustomScenarioFolder = TEXT("scenario_custom");
 	}
@@ -46,7 +61,7 @@ namespace Bootstrap
 
 namespace Deploy
 {
-	static const auto kMaxGameNameLength = 12;
+	static const auto kMaxGameNameWithPrefixLength = 30;
 
 	namespace Logs
 	{
@@ -77,7 +92,7 @@ namespace Deploy
 	namespace Errors
 	{
 		static const auto kAccountIsInvalidText = NSLOCTEXT("SGameLiftDeploymentMenu", "AccountIsInvalidText", "This account is invalid. Please check your credentials.");
-		static const auto kGameNameIsTooLongText = NSLOCTEXT("SGameLiftDeploymentMenu", "GameNameIsTooLongText", "Game name has to be shorter than 12 symbols.");
+		static const auto kGameNameIsTooLongText = NSLOCTEXT("SGameLiftDeploymentMenu", "GameNameIsTooLongText", "Game name is too long. Game name must have 1-16 characters.");
 		static const auto kNoStacksToStopDeployment = NSLOCTEXT("SGameLiftDeploymentMenu", "kNoStacksToStopDeployment", "Currently no active stacks are available.");
 		static const auto kUnableToStopDeployment = NSLOCTEXT("SGameLiftDeploymentMenu", "kUnableToStopDeployment", "Currently it is not possible to stop deployment.");		
 	}

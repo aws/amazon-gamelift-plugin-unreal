@@ -51,6 +51,11 @@ struct aws_imds_client_options {
     enum aws_imds_protocol_version imds_version;
 
     /*
+     * If true, fallback from v2 to v1 will be disabled for all cases
+     */
+    bool ec2_metadata_v1_disabled;
+
+    /*
      * Table holding all cross-system functional dependencies for an imds client.
      *
      * For mocking the http layer in tests, leave NULL otherwise

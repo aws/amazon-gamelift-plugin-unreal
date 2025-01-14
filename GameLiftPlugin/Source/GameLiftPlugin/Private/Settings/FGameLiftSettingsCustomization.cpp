@@ -18,6 +18,8 @@
 
 #define LOCTEXT_NAMESPACE "FGameLiftSettingsCustomization"
 
+FOnProfileNumberUpdated FGameLiftSettingsCustomization::OnProfileNumberUpdated;
+
 TSharedRef<IDetailCustomization> FGameLiftSettingsCustomization::MakeInstance()
 {
 	return MakeShareable(new FGameLiftSettingsCustomization);
@@ -26,6 +28,8 @@ TSharedRef<IDetailCustomization> FGameLiftSettingsCustomization::MakeInstance()
 void FGameLiftSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailLayout)
 {
 	SavedLayoutBuilder = &DetailLayout;
+
+	OnProfileNumberUpdated.BindRaw(this, &FGameLiftSettingsCustomization::RefreshDetails);
 
 	BuildGameLiftSettingsPage(DetailLayout);
 }
@@ -49,33 +53,43 @@ void FGameLiftSettingsCustomization::BuildGameLiftSettingsPage(IDetailLayoutBuil
 		];
 
 	// Hide the properties as we are using custom widgets...
-	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, ProfileName));
+	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, CurrentProfileName));
 	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, AwsRegion));
 	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, S3Bucket));
 	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, BootstrapStatus));
 	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, BootstrapError));
+	DetailLayout.HideProperty(GET_MEMBER_NAME_CHECKED(UGameLiftSettings, UserProfileInfoMap));
 
-	// GameLift Overview
-	IDetailCategoryBuilder& GameLiftCategory = DetailLayout.EditCategory(Settings::Category::kGameLiftOverviewCategory, 
-		Settings::Category::kGameLiftOverviewCategoryText);
+	TSharedRef<IAWSConfigFileProfile> Configurator = IGameLiftCoreModule::Get().MakeAWSConfigFileProfile();
+	const TArray<FString>& AwsAccountsNames = Configurator->GetProfileNames();
 
-	GameLiftCategory.AddCustomRow(Settings::Category::kGameLiftOverviewCategoryText, false)
-		.WholeRowWidget
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(SPadding::Top_Bottom)
+	if (AwsAccountsNames.Num() != 0)
+	{
+		// GameLift Overview
+		IDetailCategoryBuilder& GameLiftCategory = DetailLayout.EditCategory(Settings::Category::kGameLiftOverviewCategory,
+			Settings::Category::kGameLiftOverviewCategoryText);
+
+		GameLiftCategory
+			.AddCustomRow(Settings::Category::kGameLiftOverviewCategoryText, false)
+			.WholeRowWidget
 			[
-				SNew(SGameLiftSettingsGameLiftMenu)
-			]
-		];
+				SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(SPadding::Top_Bottom)
+					[
+						SNew(SGameLiftSettingsGameLiftMenu)
+					]
+			];
+	}
 
 	// Additional Resources
 	IDetailCategoryBuilder& AdditionalResourcesCategory = DetailLayout.EditCategory(Settings::Category::kAdditionalResourcesCategory,
 		Settings::Category::kAdditionalResourcesCategoryText);
 
-	AdditionalResourcesCategory.AddCustomRow(Settings::Category::kAdditionalResourcesCategoryText, false)
+	AdditionalResourcesCategory
+		.InitiallyCollapsed(true)
+		.AddCustomRow(Settings::Category::kAdditionalResourcesCategoryText, false)
 		.WholeRowWidget
 		[
 			SNew(SVerticalBox)
@@ -86,6 +100,12 @@ void FGameLiftSettingsCustomization::BuildGameLiftSettingsPage(IDetailLayoutBuil
 				SNew(SGameLiftSettingsHelpMenu)
 			]
 		];
+}
+
+void FGameLiftSettingsCustomization::RefreshDetails() {
+	if (SavedLayoutBuilder) {
+		SavedLayoutBuilder->ForceRefreshDetails();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

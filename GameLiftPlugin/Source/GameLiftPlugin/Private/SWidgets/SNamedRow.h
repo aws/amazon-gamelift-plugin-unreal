@@ -31,6 +31,9 @@ class SNamedRow : public SCompoundWidget
 	// Adding a left padding for some widgets (eg. text blocks) to make alignment look better.
 	SLATE_ARGUMENT_DEFAULT(bool, SecondaryColumnLeftPadding) { false };
 
+	// Let the first column vertically align on top
+	SLATE_ARGUMENT_DEFAULT(bool, FirstColumnVAlignTop) { false };
+
 	SLATE_END_ARGS()
 
 public:

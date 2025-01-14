@@ -8,6 +8,7 @@
 #include "IAWSConfigFileProfile.h"
 #include "IAWSBootstrapProfile.h"
 #include "IGameLiftAnywhereHandler.h"
+#include "IGameLiftContainersHandler.h"
 #include "GameLiftCoreConstants.h"
 
 #include "Templates/SharedPointer.h"
@@ -46,6 +47,7 @@ public:
 	virtual IAWSScenariosDeployer& GetScenarioDeployer() = 0;
 	virtual IAWSBootstrapProfile& GetProfileBootstrap() = 0;
 	virtual IGameLiftAnywhereHandler& GetGameLiftAnywhereHandler() = 0;
+	virtual IGameLiftContainersHandler& GetGameLiftContainersHandler() = 0;
 	virtual TSharedRef<IAWSConfigFileProfile> MakeAWSConfigFileProfile() = 0;
 
 	/**

@@ -63,7 +63,7 @@ void SPathInput::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center).HAlign(HAlign_Center)
 			.Padding(SpaceBeforeButton)
 			[
-				SNew(SButton)
+				SAssignNew(FolderOpenButton, SButton)
 				.ButtonStyle(FGameLiftPluginStyle::Get(), Style::Button::kFlatButtonStyleName)
 				.OnClicked(this, &SPathInput::OnBrowseToFileClicked)
 				.Visibility(ButtonVisibility)
@@ -107,6 +107,7 @@ EVisibility SPathInput::GetVisibility() const
 void SPathInput::SetReadonly(bool Readonly)
 {
 	EditableTextBox->SetIsReadOnly(Readonly);
+	FolderOpenButton->SetEnabled(!Readonly);
 }
 
 FReply SPathInput::OnBrowseToFileClicked()

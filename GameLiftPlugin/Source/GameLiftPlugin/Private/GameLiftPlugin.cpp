@@ -13,10 +13,14 @@
 
 #include "Tabs/FGameLiftDeployAnywhereTab.h"
 #include "Tabs/FGameLiftDeployManagedEC2Tab.h"
+#include "Tabs/FGameLiftDeployContainersTab.h"
 
 #include "Settings/UGameLiftSettings.h"
 #include "Settings/UGameLiftDeploymentStatus.h"
+#include "Settings/UGameLiftAnywhereStatus.h"
+#include "Settings/UGameLiftContainersStatus.h"
 #include "Settings/FGameLiftSettingsCustomization.h"
+#include "SMenu/SGameLiftSettingsAwsAccountMenu.h"
 
 #include "Types/EBootstrapMessageState.h"
 #include "Types/EDeploymentMessageState.h"
@@ -33,7 +37,8 @@ DEFINE_LOG_CATEGORY(GameLiftPluginLog);
 
 FGameLiftPluginModule::FGameLiftPluginModule():
 	DeployAnywhereTab(MakeShared<FGameLiftDeployAnywhereTab>()),
-	DeployManagedEC2Tab(MakeShared<FGameLiftDeployManagedEC2Tab>())
+	DeployManagedEC2Tab(MakeShared<FGameLiftDeployManagedEC2Tab>()),
+	DeployContainersTab(MakeShared<FGameLiftDeployContainersTab>())
 {
 }
 
@@ -46,11 +51,12 @@ void FGameLiftPluginModule::StartupModule()
 
 	DeployAnywhereTab->Register();
 	DeployManagedEC2Tab->Register();
+	DeployContainersTab->Register();
 	
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FGameLiftPluginModule::RegisterMenus));
 	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FGameLiftPluginModule::OnPostEngineInit);
 
-	RestoreAccount();
+	SGameLiftSettingsAwsAccountMenu::RestoreAccount();
 	ResetDeploymentStatus();
 }
 
@@ -73,29 +79,15 @@ void FGameLiftPluginModule::OnPostEngineInit()
 	}
 }
 
-void FGameLiftPluginModule::RestoreAccount()
-{
-	UGameLiftSettings* Settings = GetMutableDefault<UGameLiftSettings>();
-	auto status = EBootstrapMessageStateFromInt(Settings->BootstrapStatus);
-
-	if (status == EBootstrapMessageState::ActiveMessage)
-	{
-		auto& Bootstrapper = IGameLiftCoreModule::Get().GetProfileBootstrap();
-		auto IsConfigured = Bootstrapper.ConfigureAccount(Settings->ProfileName.ToString(),
-			IGameLiftCoreModule::Get().MakeAWSConfigFileProfile(), Settings->S3Bucket.ToString());
-		if (!IsConfigured)
-		{
-			Settings->BootstrapStatus = int(EBootstrapMessageState::FailureMessage);
-		}
-	}
-}
-
 void FGameLiftPluginModule::ResetDeploymentStatus()
 {
 	UGameLiftDeploymentStatus* DeploySettings = GetMutableDefault<UGameLiftDeploymentStatus>();
-	auto State = EDeploymentMessageStateFromString(DeploySettings->Status.ToString());
+	UGameLiftContainersStatus* ContainersStatus = GetMutableDefault<UGameLiftContainersStatus>();
 
-	if (IsInProgressState(State))
+	auto EC2State = EDeploymentMessageStateFromString(DeploySettings->Status.ToString());
+	auto ContainersState = EDeploymentMessageStateFromString(ContainersStatus->Status.ToString());
+
+	if (IsInProgressState(EC2State) || IsInProgressState(ContainersState))
 	{
 		auto& Deployer = IGameLiftCoreModule::Get().GetScenarioDeployer();
 		Deployer.StopDeployment(IGameLiftCoreModule::Get().GetProfileBootstrap().GetAccountInstance());
@@ -117,6 +109,7 @@ void FGameLiftPluginModule::ShutdownModule()
 
 	DeployAnywhereTab->UnRegister();
 	DeployManagedEC2Tab->UnRegister();
+	DeployContainersTab->UnRegister();
 
 	ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings");
 	if (SettingsModule != nullptr)
@@ -134,6 +127,11 @@ void FGameLiftPluginModule::DeployManagedEC2ButtonClicked()
 void FGameLiftPluginModule::DeployAnywhereButtonClicked()
 {
 	DeployAnywhereTab->Invoke();
+}
+
+void FGameLiftPluginModule::DeployContainersButtonClicked()
+{
+	DeployContainersTab->Invoke();
 }
 
 void FGameLiftPluginModule::OpenSettingsButtonClicked()
@@ -171,6 +169,7 @@ void FGameLiftPluginModule::RegisterMenuExtensions()
 	MAP_ACTION(OpenSettings);
 	MAP_ACTION(DeployAnywhere);
 	MAP_ACTION(DeployManagedEC2);
+	MAP_ACTION(DeployContainers);
 
 	MAP_HELP_URL_ACTION(OpenGameLiftDocumentation);
 	MAP_HELP_URL_ACTION(OpenAwsGameTechForum);
@@ -260,10 +259,15 @@ void FGameLiftPluginModule::RegisterToolBarMenu()
 void FGameLiftPluginModule::GenerateMainMenu(UToolMenu* InMenu)
 {
 	{
-		FToolMenuSection& Section = InMenu->AddSection("GameLiftPlugin_Deployment", ContextMenu::kDeploymentSectionText);
+		FToolMenuSection& Section = InMenu->AddSection("GameLiftPlugin_Profile_Setup", ContextMenu::kProfileSetupSectionText);
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().OpenSettings);
+	}
+
+	{
+		FToolMenuSection& Section = InMenu->AddSection("GameLiftPlugin_Hosting_Solutions", ContextMenu::kHostingSolutionsSectionText);
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployAnywhere);
 		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployManagedEC2);
+		Section.AddMenuEntry(FGameLiftPluginCommands::Get().DeployContainers);
 	}
 
 	{

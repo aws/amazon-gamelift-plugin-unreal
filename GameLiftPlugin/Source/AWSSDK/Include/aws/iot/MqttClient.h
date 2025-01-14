@@ -6,7 +6,7 @@
 #include <aws/crt/Config.h>
 #include <aws/crt/Exports.h>
 #include <aws/crt/auth/Sigv4Signing.h>
-#include <aws/crt/mqtt/MqttClient.h>
+#include <aws/crt/mqtt/MqttConnection.h>
 #include <aws/iot/MqttCommon.h>
 
 #if !BYO_CRYPTO
@@ -37,7 +37,7 @@ namespace Aws
              */
             MqttClientConnectionConfig(
                 const Crt::String &endpoint,
-                uint16_t port,
+                uint32_t port,
                 const Crt::Io::SocketOptions &socketOptions,
                 Crt::Io::TlsContext &&tlsContext);
 
@@ -60,7 +60,7 @@ namespace Aws
              */
             MqttClientConnectionConfig(
                 const Crt::String &endpoint,
-                uint16_t port,
+                uint32_t port,
                 const Crt::Io::SocketOptions &socketOptions,
                 Crt::Io::TlsContext &&tlsContext,
                 Crt::Mqtt::OnWebSocketHandshakeIntercept &&interceptor,
@@ -81,13 +81,13 @@ namespace Aws
 
             MqttClientConnectionConfig(
                 const Crt::String &endpoint,
-                uint16_t port,
+                uint32_t port,
                 const Crt::Io::SocketOptions &socketOptions,
                 Crt::Io::TlsContext &&tlsContext,
                 const Crt::Optional<Crt::Http::HttpClientConnectionProxyOptions> &proxyOptions);
 
             Crt::String m_endpoint;
-            uint16_t m_port;
+            uint32_t m_port;
             Crt::Io::TlsContext m_context;
             Crt::Io::SocketOptions m_socketOptions;
             Crt::Mqtt::OnWebSocketHandshakeIntercept m_webSocketInterceptor;
@@ -219,7 +219,7 @@ namespace Aws
              *
              * @return this builder object
              */
-            MqttClientConnectionConfigBuilder &WithPortOverride(uint16_t port) noexcept;
+            MqttClientConnectionConfigBuilder &WithPortOverride(uint32_t port) noexcept;
 
             /**
              * Sets the certificate authority for the endpoint you're connecting to. This is a path to a file on disk
@@ -371,8 +371,7 @@ namespace Aws
              * @param authorizerSignature The signature of the custom authorizer. If an empty string is passed, then
              *                            'x-amz-customauthorizer-signature' will not be added with the MQTT connection.
              *                            The signature must be based on the private key associated with the custom
-             *                            authorizer. The signature must be base64 encoded. It is strongly suggested
-             *                            to URL-encode this value; the SDK will not do so for you.
+             *                            authorizer. The signature must be base64 encoded.
              * @param password The password to use with the custom authorizer. If null is passed, then no password will
              *                 be set.
              * @param tokenKeyName Used to extract the custom authorizer token from MQTT username query-string
@@ -438,7 +437,7 @@ namespace Aws
 
             Crt::Allocator *m_allocator;
             Crt::String m_endpoint;
-            uint16_t m_portOverride;
+            uint32_t m_portOverride;
             Crt::Io::SocketOptions m_socketOptions;
             Crt::Io::TlsContextOptions m_contextOptions;
             Crt::Optional<WebsocketConfig> m_websocketConfig;

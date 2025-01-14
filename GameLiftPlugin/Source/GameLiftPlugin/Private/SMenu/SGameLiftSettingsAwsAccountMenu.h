@@ -15,6 +15,7 @@
 class SWindow;
 class SSetupMessage;
 class SGameLiftSettingsAwsAccountMenu;
+class SBootstrapModal;
 
 DECLARE_DELEGATE_OneParam(FOnAccountStateChanged, EAccountManagementState);
 DECLARE_DELEGATE_OneParam(FOnBootstrapStateChanged, EBootstrapMessageState);
@@ -33,15 +34,25 @@ class SGameLiftSettingsAwsAccountMenu : public SCompoundWidget
 
 	SLATE_ARGUMENT_DEFAULT(bool, ShowBootstrapStatusOnly) { false };
 
+	SLATE_ARGUMENT_DEFAULT(FString, ReadDeveloperGuideLink) { TEXT("") };
+
 	SLATE_END_ARGS()
 
 public:
 	void Construct(const FArguments& InArgs);
 
+	// Delegates
+	static FOnProfileSelectionChanged OnProfileSelectionChangedMultiDelegate;
+
+	static void RestoreAccount();
+
+	void SetContainersRegionSupported(bool ContainersSupported);
+
 private:
 	// Widget Makers
 	TSharedRef<SWidget> MakeHeaderWidget();
 	TSharedRef<SWidget> MakeSetupMessageWidget();
+	TSharedRef<SBootstrapModal> MakeBootstrapModal();
 
 	// Make profile configuration and bootstrapping widgets that will be added to a switcher widget.
 	TSharedRef<SWidget> MakeProfileSwitcherWidget();
@@ -49,27 +60,25 @@ private:
 	TSharedRef<SWidget> MakeProfileModificationWidget();
 	TSharedRef<SWidget> MakeProfileBootstrappingWidget();
 	TSharedRef<SWidget> MakeProfileDescriptionChildWidget(const FText& HeaderText, const FText& DescriptionText);
+	TSharedRef<SWidget> MakeAddProfileWidget(bool BootstrapPage);
+	TSharedRef<SWidget> MakeProfileTableHeader();
+	TSharedRef<SWidget> MakeOpenCredentialsPageButtonSwitcher();
+	TSharedRef<SWidget> CreateAccessCredentialsInstructionsSection();
+	TSharedRef<SWidget> MakeContainersUnsupportedWidget();
+	void MakeAccessCredentialsHelpWidget();
 
 	// Callbacks that handle account and bootstrap status changes.
 	ESetupMessageState DetectBootstrapSetup(ESetupMessageState CurrentState);
-	void OnBootstrapStateChanged(EBootstrapMessageState NewState);
+	void OnBootstrapStateChanged();
 
 	// Callback that handles profile selection changes from another instance
 	void OnProfileSelectionChanged(const SGameLiftSettingsAwsAccountMenu* Sender);
 
 	void SetupMenu();
-	void RefreshSelectedProfile(const FText& ProfileName);
+	void RefreshProfileList();
 
 	void UpdateAccountManagementState(EAccountManagementState NewState);
 	int32 GetAccountManagementStateAsInt() const;
-
-	// Set up data in the profile bootstrapping widget.
-	void BuildAccountsForBootstrappingValues(TArray<FTextIntPair>& Items);
-	void OnProfileSelectedForBootstrapping(int SelectionId, const FTextIntPair& Item);
-
-	// Set up data in the profile modification widget.
-	void BuildAccountsForModificationValues(TArray<FTextIntPair>& Items);
-	void OnProfileSelectedForModification(int SelectionId, const FTextIntPair& Item);
 
 	// Helpers that update data in profile modification widget.
 	void ResetModificationUI();
@@ -79,39 +88,60 @@ private:
 	void OnGetRegion(int SelectionId, const FTextIntPair& Item);
 
 	// Functions that interact with the AWS profile configurator to set up values in a profile.
-	void AddAwsAccountProfiles(TArray<FTextIntPair>& Items);
 	void ModifyAwsAccountProfile(const FString& ProfileName, const FString& AccessKey, const FString& SecretKey, const FString& Region);
 	void CreateAwsAccountProfile(const FString& ProfileName, const FString& AccessKey, const FString& SecretKey, const FString& Region);
-	void ValidateAwsAccountProfileSettings();
+	void SyncFromCredentialsFile();
 
 	// Button callbacks
-	FText GetCreateAndBootstrapAccountText() const;
-	FReply CreateAndBootstrapAccount();
-	FReply BootstrapAccount(const FString& ProfileName);
-	bool CanCreateAccountProfile() const;
+	FReply CreateAccount(bool BootstrapPage);
+	void BootstrapAccount(FString BucketName);
+	bool CanCreateAccountProfile(bool BootstrapPage) const;
+	void ResetAddProfileUI(bool BootstrapPage);
 
+	ECheckBoxState IsRadioChecked(FString ProfileName) const;
+	void OnRadioChanged(ECheckBoxState NewRadioState, FString ProfileName);
+	FReply OnSetProfileAsSelectedButtonClicked();
+	static void CopyProfileInfoFromMapToCurrentSettings();
+
+	TSharedRef<SWidget> CreateStatusWidget(FString ProfileName) const;
+	TSharedRef<SWidget> CreateProfileRow(const FString& ProfileName, const FString& AwsRegion, const FString& BucketName, bool IsSelectedProfile, bool ShowProfileRow);
+
+	TSharedRef<SWidget> MakeDocumentationLinkWidget(FString ReadDeveloperGuideLink);
 private:
 	TWeakPtr<SWindow> ContextWindow;
 	bool ProfileManagementEnabled = true;
 	bool HideButtonsWhenBootstrapped = false;
 	bool ShowBootstrapStatusOnly = false;
-
-	// Delegates
-	static FOnProfileSelectionChanged OnProfileSelectionChangedMultiDelegate;
+	bool ShowAddProfile = false;
+	bool ProfileSelectedActive = false;
+	bool ContainersRegionSupported = true;
 
 	EAccountManagementState AccountManagementState;
 
-	// Message widget
+	// Message widgets
 	TSharedPtr<SSetupMessage> AwsProfileSetupMessage;
+	TSharedPtr<SSetupMessage> AccessCredentialsHelpMessage;
+	TSharedPtr<SSetupMessage> ContainersUnsupportedMessage;
 
 	// Modification widgets
 	TSharedPtr<SWidget> ProfileModificationComboBox;
+	TSharedPtr<SWidgetSwitcher> ProfileHeaderSwitcher;
 	TSharedPtr<SWidget> AwsProfileNameInput;
 	TSharedPtr<SWidget> AwsAccessKeyIdInput;
 	TSharedPtr<SWidget> AwsSecretKeyInput;
 	TSharedPtr<SWidget> AwsRegionInput;
 
+    TSharedPtr<SVerticalBox> ProfileListContainer;
+    FString RadioButtonSelectedProfile = "";
+
 	// Bootstrap widgets
 	TSharedPtr<SWidget> ProfileBootstrapComboBox;
-	TSharedPtr<SWidget> BootstrapStatus;
+	TSharedPtr<SWidget> CurrentBootstrapStatusWidget;
+	TSharedPtr<SWidget> BootstrapPageAwsProfileNameInput;
+	TSharedPtr<SWidget> BootstrapPageAwsAccessKeyIdInput;
+	TSharedPtr<SWidget> BootstrapPageAwsSecretKeyInput;
+	TSharedPtr<SWidget> BootstrapPageAwsRegionInput;
+
+	// Modals
+	TSharedPtr<SBootstrapModal> BootstrapModal;
 };

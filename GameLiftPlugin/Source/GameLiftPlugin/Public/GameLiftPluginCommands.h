@@ -23,6 +23,7 @@ public:
 	TSharedPtr<FUICommandInfo> OpenSettings;
 	TSharedPtr<FUICommandInfo> DeployAnywhere;
 	TSharedPtr<FUICommandInfo> DeployManagedEC2;
+	TSharedPtr<FUICommandInfo> DeployContainers;
 
 	TSharedPtr<FUICommandInfo> OpenGameLiftDocumentation;
 	TSharedPtr<FUICommandInfo> OpenAwsGameTechForum;

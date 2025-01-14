@@ -16,7 +16,7 @@ namespace AwsScenarios
 			return Menu::DeploymentServer::kCustom;
 		}
 
-		static TUniquePtr<IAWSScenario> Create(const FString& CustomScenarioPath)
+		static TUniquePtr<CustomScenario> Create(const FString& CustomScenarioPath)
 		{
 			return MakeUnique<CustomScenario>(CustomScenarioPath);
 		}
@@ -27,7 +27,7 @@ namespace AwsScenarios
 
 		virtual FText GetTooltip() const override
 		{
-		   return Menu::DeploymentServer::kCustomTooltip;
+			return Menu::DeploymentServer::kCustomTooltip;
 		}
 
 		virtual FString GetFolderName() const override

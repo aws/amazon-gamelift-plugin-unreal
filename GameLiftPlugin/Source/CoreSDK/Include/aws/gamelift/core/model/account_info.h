@@ -20,6 +20,7 @@ namespace GameLift
         const char* accountId;
         const char* companyName;
         const char* gameName;
+        const char* bucketName;
     };
 
     struct AccountInfoCopy
@@ -28,6 +29,7 @@ namespace GameLift
         std::string accountId;
         std::string companyName;
         std::string gameName;
+        std::string bucketName;
     };
 
     inline std::string TruncateAtLower(std::string str, const std::regex& pattern)
@@ -41,9 +43,9 @@ namespace GameLift
             matchStr = match.str();
         }
 
-        std::transform(matchStr.begin(), matchStr.end(), matchStr.begin(), 
-                    [](unsigned char c){ return std::tolower(c); }
-                );
+        std::transform(matchStr.begin(), matchStr.end(), matchStr.begin(),
+            [](unsigned char c) { return std::tolower(c); }
+        );
         return matchStr;
     }
 
@@ -53,7 +55,8 @@ namespace GameLift
             ResourceEnvironment(accountInfo.environment),
             accountInfo.accountId,
             accountInfo.companyName,
-            accountInfo.gameName
+            accountInfo.gameName,
+            accountInfo.bucketName
         };
 
         // using the regex pattern for each field, truncate and convert them to lowercase
@@ -65,7 +68,7 @@ namespace GameLift
     }
 
     // Method to compose bootstrap bucket name
-    inline std::string GetBootstrapBucketName(const AccountInfoCopy& accountInfo, const std::string& shortRegionCode)
+    inline std::string GetDefaultBootstrapBucketName(const AccountInfoCopy& accountInfo, const std::string& shortRegionCode)
     {
         std::string bootstrapBucketName = "do-not-delete-gamelift-";
 
@@ -76,6 +79,18 @@ namespace GameLift
             .append(shortRegionCode)
             .append("-")
             .append(GameLift::Utils::EncodingUtils::DecimalToBase(accountInfo.accountId, GameLift::Utils::BASE_36));
+
+        return bootstrapBucketName;
+    }
+
+    inline std::string GetBootstrapBucketName(const AccountInfoCopy& accountInfo, const std::string& shortRegionCode)
+    {
+        if (!accountInfo.bucketName.empty())
+        {
+            return accountInfo.bucketName;
+        }
+
+        std::string bootstrapBucketName = GetDefaultBootstrapBucketName(accountInfo, shortRegionCode);
 
         return bootstrapBucketName;
     }

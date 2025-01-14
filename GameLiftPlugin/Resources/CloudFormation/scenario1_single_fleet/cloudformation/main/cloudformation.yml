@@ -75,7 +75,7 @@ Parameters:
     Type: String
     Default: MyGame
     Description: Game name to prepend before resource names
-    MaxLength: 12
+    MaxLength: 30
 
   LambdaZipS3BucketParameter:
     Type: String
@@ -103,6 +103,10 @@ Parameters:
     Default: 100
     MaxValue: 20000000
     MinValue: 100
+   
+  UnrealEngineVersionParameter:
+    Type: String
+    Description: "Unreal Engine Version being used by the plugin"
 
 Resources:
   ApiGatewayCloudWatchRole:
@@ -378,7 +382,7 @@ Resources:
       BuildId: !Ref ServerBuild
       CertificateConfiguration:
         CertificateType: GENERATED
-      Description: !Ref FleetDescriptionParameter
+      Description: !Sub ${FleetDescriptionParameter} Using Unreal Engine Version ${UnrealEngineVersionParameter}
       DesiredEC2Instances: 1
       EC2InboundPermissions:
         - FromPort: !Ref FleetTcpFromPortParameter

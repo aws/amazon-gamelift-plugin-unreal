@@ -81,4 +81,27 @@ namespace Notifier
 		CompleteNotification(NotificationItem, SNotificationItem::CS_Fail,
 			TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"), FText::FromString(NewText));
 	}
+
+	// Make sure to call from EAsyncExecution::TaskGraphMainThread
+	inline void ShowFailedNotification(const FText& text)
+	{
+		FNotificationInfo Info(text);
+		Info.bUseSuccessFailIcons = true;
+		Info.bFireAndForget = true;
+		Info.bUseThrobber = true;
+
+		Info.Hyperlink = FSimpleDelegate::CreateLambda([]() { FGlobalTabmanager::Get()->TryInvokeTab(FName("OutputLog")); });
+		Info.HyperlinkText = Menu::DeployCommon::kDeploymentShowOutputLog;
+
+		auto NotificationItem = FSlateNotificationManager::Get().AddNotification(Info);
+
+		if (GEditor)
+		{
+			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
+		}
+
+		NotificationItem->SetExpireDuration(kDefaultExpireDurationS);
+		NotificationItem->SetCompletionState(SNotificationItem::CS_Fail);
+		NotificationItem->ExpireAndFadeout();
+	}
 } // namespace Notifier

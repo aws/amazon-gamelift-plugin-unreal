@@ -84,7 +84,7 @@ struct aws_event_stream_rpc_client_connection_options {
     /** host name to use for the connection. This depends on your socket type. */
     const char *host_name;
     /** port to use for your connection, assuming for the appropriate socket type. */
-    uint16_t port;
+    uint32_t port;
     /** socket options for establishing the connection to the RPC server. */
     const struct aws_socket_options *socket_options;
     /** optional: tls options for using when establishing your connection. */

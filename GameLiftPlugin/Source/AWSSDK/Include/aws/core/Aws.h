@@ -12,6 +12,7 @@
 #include <aws/core/http/HttpClientFactory.h>
 #include <aws/core/monitoring/MonitoringManager.h>
 #include <aws/core/Core_EXPORTS.h>
+#include <aws/core/VersionConfig.h>
 #include <aws/crt/io/Bootstrap.h>
 #include <aws/crt/io/TlsOptions.h>
 
@@ -104,6 +105,14 @@ namespace Aws
          * Disable legacy URL encoding that leaves `$&,:@=` unescaped for legacy purposes.
          */
         bool compliantRfc3986Encoding;
+        /**
+         * When constructing Path segments in a URI preserve path separators instead of collapsing
+         * slashes. This is useful for aligning with other SDKs and tools on key path for S3 objects
+         * as currently the C++ SDK sanitizes the path.
+         *
+         * TODO: In the next major release, this will become the default to align better with other SDKs.
+         */
+        bool preservePathSeparators = false;
     };
 
     /**
@@ -242,6 +251,13 @@ namespace Aws
          * Basic usage can be found in aws-cpp-sdk-core-tests/monitoring/MonitoringTest.cpp
          */
         MonitoringOptions monitoringOptions;
+
+        struct SDKVersion
+        {
+            unsigned char major = AWS_SDK_VERSION_MAJOR;
+            unsigned char minor = AWS_SDK_VERSION_MINOR;
+            unsigned short patch = AWS_SDK_VERSION_PATCH;
+        } sdkVersion;
     };
 
     /*

@@ -94,6 +94,12 @@ namespace Aws
             void SetBYOCryptoNewSHA256Callback(Crypto::CreateHashCallback &&callback);
 
             /**
+             * BYO_CRYPTO: set callback for creating SHA1 hashes.
+             * If using BYO_CRYPTO, you must call this.
+             */
+            void SetBYOCryptoNewSHA1Callback(Crypto::CreateHashCallback &&callback);
+
+            /**
              * BYO_CRYPTO: set callback for creating Streaming SHA256 HMAC objects.
              * If using BYO_CRYPTO, you must call this.
              */
@@ -176,6 +182,20 @@ namespace Aws
              */
             static Io::HostResolver *GetOrCreateStaticDefaultHostResolver();
 
+#pragma pack(push, 1)
+            struct Version
+            {
+                uint16_t major;
+                uint16_t minor;
+                uint16_t patch;
+            };
+#pragma pack(pop)
+            /**
+             * Gets the version of the AWS-CRT-CPP library
+             * @return Version representing the library version
+             */
+            Version GetCrtVersion() const;
+
           private:
             void InitializeLoggingCommon(struct aws_logger_standard_options &options);
 
@@ -195,6 +215,8 @@ namespace Aws
             static Io::HostResolver *s_static_default_host_resolver;
             static std::mutex s_lock_default_host_resolver;
             static void ReleaseStaticDefaultHostResolver();
+
+            Version m_version = {0, 0, 0};
         };
 
         /**

@@ -84,6 +84,7 @@ namespace Aws
 
         protected:
             Aws::String m_logtag;
+            Aws::String m_userAgent;
 
         private:
             std::shared_ptr<Client::RetryStrategy> m_retryStrategy;
@@ -154,6 +155,7 @@ namespace Aws
             mutable Aws::String m_token;
             mutable bool m_tokenRequired;
             mutable Aws::String m_region;
+            bool m_disableIMDSV1 = false;
         };
 
         void AWS_CORE_API InitEC2MetadataClient();
@@ -187,7 +189,14 @@ namespace Aws
              */
             virtual Aws::String GetECSCredentials() const
             {
-                return GetResource(m_endpoint.c_str(), m_resourcePath.c_str(), m_token.c_str());
+                return GetResource(m_endpoint.c_str(),
+                                   m_resourcePath.c_str(),
+                                   m_token.empty() ? nullptr : m_token.c_str());
+            }
+
+            inline void SetToken(Aws::String token)
+            {
+                m_token = std::move(token);
             }
 
         private:
@@ -241,6 +250,7 @@ namespace Aws
          {
          public:
              SSOCredentialsClient(const Client::ClientConfiguration& clientConfiguration);
+             SSOCredentialsClient(const Client::ClientConfiguration& clientConfiguration, Aws::Http::Scheme scheme, const Aws::String& region);
 
              SSOCredentialsClient& operator =(SSOCredentialsClient& rhs) = delete;
              SSOCredentialsClient(const SSOCredentialsClient& rhs) = delete;
@@ -281,7 +291,8 @@ namespace Aws
 
              SSOCreateTokenResult CreateToken(const SSOCreateTokenRequest& request);
          private:
-             Aws::String buildEndpoint(const Aws::Client::ClientConfiguration& clientConfiguration,
+             Aws::String buildEndpoint(Aws::Http::Scheme scheme,
+                 const Aws::String& region,
                  const Aws::String& domain,
                  const Aws::String& endpoint);
              Aws::String m_endpoint;

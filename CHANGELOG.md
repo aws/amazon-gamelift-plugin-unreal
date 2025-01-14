@@ -1,5 +1,18 @@
 CHANGELOG
 
+# 2.0.1 (1/9/2025)
+
+- Fixed an issue with initializing containers status.
+
+# 2.0.0 (12/19/2024)
+
+This version supports Unreal Engine 5.1.1 - 5.5.
+- Updated the server SDK to 5.2.0.
+- Added support for Unreal Engine 5.4 and 5.5.
+- Added support for creating container images and Amazon GameLift managed container fleets.
+- Added a new AWS user profile workflow.
+- Refreshed Amazon GameLift Anywhere and managed EC2 flows with new progress indicators.
+
 # 1.1.2 (9/19/2024)
 
 - Updated the plugin to support the latest version of the GameLift Server SDK.
