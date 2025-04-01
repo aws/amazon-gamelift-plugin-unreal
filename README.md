@@ -97,16 +97,16 @@ msbuild ALL_BUILD.vcxproj /p:Configuration=Release
 
 This step produces the following binary files. These files are required by the plugin.
 
-    * `prefix\bin\aws-cpp-sdk-gamelift-server.dll  `
-    * `prefix\lib\aws-cpp-sdk-gamelift-server.lib`
+    prefix\bin\aws-cpp-sdk-gamelift-server.dll
+    prefix\lib\aws-cpp-sdk-gamelift-server.lib
 
 1. Locate your plugin folder (where you extracted the plugin files in Step 2), and copy these files to this file path:
    `...\GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\`
 
 When complete, your  you should have two filepaths similar to this example
 
-    * `GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.dll  `
-    * `GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.lib` 
+    GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.dll
+    GameLiftPlugin\Source\GameLiftServer\ThirdParty\GameLiftServerSDK\Win64\aws-cpp-sdk-gamelift-server.lib
 
 #### For Linux servers
 
