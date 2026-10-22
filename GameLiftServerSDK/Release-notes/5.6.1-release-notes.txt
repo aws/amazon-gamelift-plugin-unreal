@@ -1,0 +1,1 @@
+- Includes security improvements to the WebSocket connection to Amazon GameLift Servers.
