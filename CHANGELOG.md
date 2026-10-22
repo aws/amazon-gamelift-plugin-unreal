@@ -1,5 +1,8 @@
 CHANGELOG
 
+# 3.4.1 (10/22/2026)
+- Updates the server SDK to version 5.6.1, which includes security improvements to the WebSocket connection to Amazon GameLift Servers.
+
 # 3.4.0 (8/4/2026)
 - Adds support for Unreal Engine 5.8 to the plugin and server SDK.
 - Fixes compile errors in the server SDK module in non-unity mode with precompiled headers (PCH) files disabled.
